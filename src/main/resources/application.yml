@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: eventnexus
+
+  # ─── DataSource ───────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eventnexus
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  # ─── JPA / Hibernate ──────────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      # Use 'none' on Day 1 (no entities yet). Switch to 'validate' on Day 2 once
+      # entities are created and the schema.sql has been applied to the database.
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        # Required to suppress a PostgreSQL + Hibernate CLOB warning
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+# ─── JWT ──────────────────────────────────────────────────────────────────────
+# Replace jwt.secret with a strong random value (min 512-bit / 64 bytes) in prod
+jwt:
+  secret: ZXZlbnRuZXh1c19zZWNyZXRfa2V5X2Zvcl9qd3RfdG9rZW5fZ2VuZXJhdGlvbl9sb25nX2Vub3VnaA==
+  access-expiration-ms: 900000
+  refresh-expiration-ms: 604800000
+
+# ─── CORS ─────────────────────────────────────────────────────────────────────
+cors:
+  allowed-origins: http://localhost:4200
+
+# ─── Actuator ─────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# ─── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.app.eventnexus: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
