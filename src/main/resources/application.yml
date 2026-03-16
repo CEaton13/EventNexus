@@ -4,17 +4,15 @@ spring:
 
   # ─── DataSource ───────────────────────────────────────────────────────────────
   datasource:
-    url: jdbc:postgresql://localhost:5432/eventnexus
+    url: jdbc:postgresql://localhost:5432/EventNexus
     username: postgres
-    password: postgres
+    password: skillstorm
     driver-class-name: org.postgresql.Driver
 
   # ─── JPA / Hibernate ──────────────────────────────────────────────────────────
   jpa:
     hibernate:
-      # Use 'none' on Day 1 (no entities yet). Switch to 'validate' on Day 2 once
-      # entities are created and the schema.sql has been applied to the database.
-      ddl-auto: none
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
