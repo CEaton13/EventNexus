@@ -1,0 +1,30 @@
+# Test configuration — overrides src/main/resources/application.yml for all tests.
+# Uses ddl-auto=none so context loads succeed without schema validation.
+# The datasource still points to the local dev DB so @SpringBootTest integration
+# tests work; @WebMvcTest tests never touch the DB at all.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/EventNexus
+    username: postgres
+    password: skillstorm
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+jwt:
+  secret: ZXZlbnRuZXh1c19zZWNyZXRfa2V5X2Zvcl9qd3RfdG9rZW5fZ2VuZXJhdGlvbl9sb25nX2Vub3VnaA==
+  access-expiration-ms: 900000
+  refresh-expiration-ms: 604800000
+
+cors:
+  allowed-origins: http://localhost:4200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
