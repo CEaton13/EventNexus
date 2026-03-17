@@ -1,13 +1,14 @@
 package com.app.eventnexus.dtos.responses;
 
 /**
- * Response DTO returned by login, register, and token-refresh endpoints.
- * Contains the short-lived access token and the authenticated user's profile.
- * The refresh token is transmitted via an httpOnly cookie, not in this body.
+ * Response DTO returned by login and token-refresh endpoints.
+ * Contains the short-lived access token, the opaque refresh token, and the
+ * authenticated user's profile.
  */
 public class AuthResponse {
 
     private String accessToken;
+    private String refreshToken;
     private String tokenType = "Bearer";
     private UserResponse user;
 
@@ -16,8 +17,9 @@ public class AuthResponse {
     public AuthResponse() {
     }
 
-    public AuthResponse(String accessToken, UserResponse user) {
+    public AuthResponse(String accessToken, String refreshToken, UserResponse user) {
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.user = user;
     }
 
@@ -29,6 +31,14 @@ public class AuthResponse {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getTokenType() {

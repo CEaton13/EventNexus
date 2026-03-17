@@ -3,6 +3,8 @@ package com.app.eventnexus.dtos.responses;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.models.User;
 
+import java.time.LocalDateTime;
+
 /**
  * Response DTO carrying public-safe user information.
  * Never exposes password_hash or internal fields.
@@ -13,6 +15,7 @@ public class UserResponse {
     private String username;
     private String email;
     private UserRole role;
+    private LocalDateTime createdAt;
 
     // ─── Factory ───────────────────────────────────────────────────────────────
 
@@ -28,6 +31,7 @@ public class UserResponse {
         dto.username = user.getUsername();
         dto.email = user.getEmail();
         dto.role = user.getRole();
+        dto.createdAt = user.getCreatedAt();
         return dto;
     }
 
@@ -68,5 +72,13 @@ public class UserResponse {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
