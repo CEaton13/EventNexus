@@ -13,6 +13,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    # Hibernate validates entity mappings against the live schema on startup.
+    # Run db/schema.sql first if you see SchemaManagementException.
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
