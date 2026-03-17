@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,15 +45,15 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private AuthService authService;
 
     // Required by JwtAuthenticationFilter which is loaded as part of the web layer
-    @MockBean
+    @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     // Required by JwtAuthenticationFilter
-    @MockBean
+    @MockitoBean
     private UserDetailsService userDetailsService;
 
     // ─── Fixtures ─────────────────────────────────────────────────────────────
