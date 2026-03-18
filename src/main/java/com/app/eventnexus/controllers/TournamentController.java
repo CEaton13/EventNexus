@@ -1,7 +1,10 @@
 package com.app.eventnexus.controllers;
 
+import com.app.eventnexus.dtos.requests.RegistrationRequest;
+import com.app.eventnexus.dtos.requests.RegistrationStatusRequest;
 import com.app.eventnexus.dtos.requests.TournamentRequest;
 import com.app.eventnexus.dtos.requests.TournamentStatusRequest;
+import com.app.eventnexus.dtos.responses.RegistrationResponse;
 import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.security.UserPrincipal;
@@ -119,5 +122,58 @@ public class TournamentController {
     public ResponseEntity<TournamentResponse> updateTournamentStatus(@PathVariable Long id,
                                                                      @RequestBody TournamentStatusRequest request) {
         return ResponseEntity.ok(tournamentService.updateStatus(id, request.getStatus()));
+    }
+
+    // ─── Team Registration ────────────────────────────────────────────────────
+
+    /**
+     * Registers a team for a tournament.
+     * The tournament must be in {@code REGISTRATION_OPEN} status.
+     * A {@code TEAM_MANAGER} may only register a team they manage; a
+     * {@code TOURNAMENT_ADMIN} may register any team.
+     *
+     * @param id             the tournament's primary key
+     * @param request        body containing the {@code teamId} to register
+     * @param authentication the current user's security context
+     * @return 201 Created with the registration entry, or 409 if already registered or tournament not open
+     */
+    @PostMapping("/{id}/register")
+    @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER')")
+    public ResponseEntity<RegistrationResponse> registerTeam(@PathVariable Long id,
+                                                             @RequestBody RegistrationRequest request,
+                                                             Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tournamentService.registerTeam(id, request.getTeamId(),
+                        principal.getUserId(), principal.getRole()));
+    }
+
+    /**
+     * Returns all registered teams for a tournament with their registration status.
+     * No authentication required.
+     *
+     * @param id the tournament's primary key
+     * @return 200 OK with a list of registration entries
+     */
+    @GetMapping("/{id}/teams")
+    public ResponseEntity<List<RegistrationResponse>> getRegisteredTeams(@PathVariable Long id) {
+        return ResponseEntity.ok(tournamentService.getRegisteredTeams(id));
+    }
+
+    /**
+     * Updates a team's registration status (e.g. PENDING → APPROVED or REJECTED).
+     * Only a {@code TOURNAMENT_ADMIN} may approve or reject registrations.
+     *
+     * @param id      the tournament's primary key
+     * @param teamId  the team's primary key
+     * @param request body containing the new {@link com.app.eventnexus.enums.RegistrationStatus}
+     * @return 200 OK with the updated registration entry
+     */
+    @PatchMapping("/{id}/teams/{teamId}/status")
+    @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
+    public ResponseEntity<RegistrationResponse> updateRegistrationStatus(@PathVariable Long id,
+                                                                         @PathVariable Long teamId,
+                                                                         @RequestBody RegistrationStatusRequest request) {
+        return ResponseEntity.ok(tournamentService.updateRegistrationStatus(id, teamId, request.getStatus()));
     }
 }
