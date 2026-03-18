@@ -1,7 +1,10 @@
 package com.app.eventnexus.repositories;
 
+import com.app.eventnexus.enums.RegistrationStatus;
 import com.app.eventnexus.models.TournamentTeam;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +30,21 @@ public interface TournamentTeamRepository extends JpaRepository<TournamentTeam, 
      * @return an Optional containing the registration, or empty if not registered
      */
     Optional<TournamentTeam> findByTournamentIdAndTeamId(Long tournamentId, Long teamId);
+
+    /**
+     * Returns all APPROVED registrations for a tournament ordered by seed ascending,
+     * with null seeds placed last.
+     * Used by {@code BracketService} to determine round-1 team seeding.
+     *
+     * @param tournamentId     the tournament's primary key
+     * @param status           the registration status to filter on (pass {@code APPROVED})
+     * @return ordered list of approved registrations; never null
+     */
+    @Query("SELECT tt FROM TournamentTeam tt " +
+           "WHERE tt.tournament.id = :tournamentId " +
+           "AND tt.registrationStatus = :status " +
+           "ORDER BY CASE WHEN tt.seed IS NULL THEN 1 ELSE 0 END ASC, tt.seed ASC")
+    List<TournamentTeam> findApprovedTeamsOrderedBySeed(
+            @Param("tournamentId") Long tournamentId,
+            @Param("status") RegistrationStatus status);
 }

@@ -4,10 +4,12 @@ import com.app.eventnexus.dtos.requests.RegistrationRequest;
 import com.app.eventnexus.dtos.requests.RegistrationStatusRequest;
 import com.app.eventnexus.dtos.requests.TournamentRequest;
 import com.app.eventnexus.dtos.requests.TournamentStatusRequest;
+import com.app.eventnexus.dtos.responses.BracketResponse;
 import com.app.eventnexus.dtos.responses.RegistrationResponse;
 import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.security.UserPrincipal;
+import com.app.eventnexus.services.BracketService;
 import com.app.eventnexus.services.TournamentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +38,12 @@ import java.util.List;
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final BracketService bracketService;
 
-    public TournamentController(TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService,
+                                BracketService bracketService) {
         this.tournamentService = tournamentService;
+        this.bracketService = bracketService;
     }
 
     /**
@@ -122,6 +127,20 @@ public class TournamentController {
     public ResponseEntity<TournamentResponse> updateTournamentStatus(@PathVariable Long id,
                                                                      @RequestBody TournamentStatusRequest request) {
         return ResponseEntity.ok(tournamentService.updateStatus(id, request.getStatus()));
+    }
+
+    // ─── Bracket ──────────────────────────────────────────────────────────────
+
+    /**
+     * Returns the full bracket for a tournament, with matches grouped by round.
+     * No authentication required.
+     *
+     * @param id the tournament's primary key
+     * @return 200 OK with the bracket, or 404 if the tournament does not exist
+     */
+    @GetMapping("/{id}/bracket")
+    public ResponseEntity<BracketResponse> getBracket(@PathVariable Long id) {
+        return ResponseEntity.ok(bracketService.getBracket(id));
     }
 
     // ─── Team Registration ────────────────────────────────────────────────────

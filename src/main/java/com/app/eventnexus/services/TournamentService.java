@@ -60,19 +60,22 @@ public class TournamentService {
     private final VenueRepository venueRepository;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+    private final BracketService bracketService;
 
     public TournamentService(TournamentRepository tournamentRepository,
                              TournamentTeamRepository tournamentTeamRepository,
                              GameGenreRepository gameGenreRepository,
                              VenueRepository venueRepository,
                              UserRepository userRepository,
-                             TeamRepository teamRepository) {
+                             TeamRepository teamRepository,
+                             BracketService bracketService) {
         this.tournamentRepository = tournamentRepository;
         this.tournamentTeamRepository = tournamentTeamRepository;
         this.gameGenreRepository = gameGenreRepository;
         this.venueRepository = venueRepository;
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
+        this.bracketService = bracketService;
     }
 
     // ─── Read ──────────────────────────────────────────────────────────────────
@@ -218,8 +221,13 @@ public class TournamentService {
 
         tournament.setStatus(newStatus);
         tournament.setUpdatedAt(LocalDateTime.now());
+        TournamentResponse response = TournamentResponse.from(tournamentRepository.save(tournament));
 
-        return TournamentResponse.from(tournamentRepository.save(tournament));
+        if (newStatus == TournamentStatus.IN_PROGRESS) {
+            bracketService.generateBracket(tournamentId);
+        }
+
+        return response;
     }
 
     // ─── Team Registration ─────────────────────────────────────────────────────
