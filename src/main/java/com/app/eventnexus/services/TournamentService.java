@@ -2,8 +2,10 @@ package com.app.eventnexus.services;
 
 import com.app.eventnexus.dtos.requests.TournamentRequest;
 import com.app.eventnexus.dtos.responses.RegistrationResponse;
+import com.app.eventnexus.dtos.responses.StandingsResponse;
 import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
+import com.app.eventnexus.repositories.TournamentRepository.StandingRow;
 import com.app.eventnexus.enums.RegistrationStatus;
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.enums.UserRole;
@@ -105,6 +107,33 @@ public class TournamentService {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tournament", id));
         return TournamentResponse.from(tournament);
+    }
+
+    /**
+     * Returns the standings for a tournament by querying the {@code tournament_standings} view.
+     * Rows are ordered by rank ascending (1st place first).
+     *
+     * @param tournamentId the tournament's primary key
+     * @return ordered list of standing rows; never null
+     * @throws ResourceNotFoundException if no tournament exists with the given ID
+     */
+    @Transactional(readOnly = true)
+    public List<StandingsResponse> getStandings(Long tournamentId) {
+        if (!tournamentRepository.existsById(tournamentId)) {
+            throw new ResourceNotFoundException("Tournament", tournamentId);
+        }
+        return tournamentRepository.findStandings(tournamentId)
+                .stream()
+                .map(row -> new StandingsResponse(
+                        row.getTeamId(),
+                        row.getTeamName(),
+                        row.getTeamTag(),
+                        row.getLogoUrl(),
+                        row.getWins() != null ? row.getWins() : 0L,
+                        row.getLosses() != null ? row.getLosses() : 0L,
+                        row.getPoints() != null ? row.getPoints() : 0L,
+                        row.getRank() != null ? row.getRank() : 0L))
+                .toList();
     }
 
     // ─── Write ─────────────────────────────────────────────────────────────────

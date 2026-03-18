@@ -3,6 +3,8 @@ package com.app.eventnexus.repositories;
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.models.Tournament;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -26,4 +28,40 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      * @return list of tournaments for that genre; never null
      */
     List<Tournament> findByGameGenreId(Long genreId);
+
+    /**
+     * Queries the {@code tournament_standings} view for a given tournament,
+     * returning one row per approved team ordered by rank ascending.
+     *
+     * @param tournamentId the tournament's primary key
+     * @return ordered list of standing rows as projection objects; never null
+     */
+    @Query(value = """
+            SELECT team_id      AS teamId,
+                   team_name    AS teamName,
+                   team_tag     AS teamTag,
+                   logo_url     AS logoUrl,
+                   wins,
+                   losses,
+                   points,
+                   rank
+            FROM tournament_standings
+            WHERE tournament_id = :tournamentId
+            ORDER BY rank
+            """, nativeQuery = true)
+    List<StandingRow> findStandings(@Param("tournamentId") Long tournamentId);
+
+    /**
+     * Projection interface mapping one row of the {@code tournament_standings} view.
+     */
+    interface StandingRow {
+        Long getTeamId();
+        String getTeamName();
+        String getTeamTag();
+        String getLogoUrl();
+        Long getWins();
+        Long getLosses();
+        Long getPoints();
+        Long getRank();
+    }
 }
