@@ -1,9 +1,8 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// All @use rules must appear before any other rules (SCSS requirement).
 @use '@angular/material' as mat;
+// EventNexus theme system — CSS custom properties, background variants,
+// and utility classes (.card, .btn-primary, etc.)
+@use './styles/theme';
 
 html {
   height: 100%;
@@ -20,117 +19,10 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
-}
-/* =========================================================
-   EventNexus — Global Styles & Theme System
-   ========================================================= */
-
-/* Default CSS custom properties — overridden by ThemeService.applyGenre() */
-:root {
-  --primary:    #1976d2;
-  --secondary:  #424242;
-  --accent:     #ff9800;
-  --font-body:  'Roboto', sans-serif;
-
-  /* Spacing & shape */
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  16px;
-}
-
-/* --- Background style variants (set via data-theme attribute) ------------ */
-
-[data-theme='dark'] {
-  --bg-surface:   #121212;
-  --bg-card:      #1e1e1e;
-  --text-primary: #ffffff;
-}
-
-[data-theme='neon'] {
-  --bg-surface:   #0a0a0a;
-  --bg-card:      #111;
-  --text-primary: var(--accent);
-  filter: contrast(1.05);
-}
-
-[data-theme='gritty'] {
-  --bg-surface:   #1a1209;
-  --bg-card:      #241a0e;
-  --text-primary: #e8d5b0;
-}
-
-[data-theme='sleek'] {
-  --bg-surface:   #f4f6f9;
-  --bg-card:      #ffffff;
-  --text-primary: #1a1a2e;
-}
-
-[data-theme='pixel'] {
-  --bg-surface:   #0f0f23;
-  --bg-card:      #1a1a3e;
-  --text-primary: #00ff41;
-  font-family: 'Courier New', monospace;
-}
-
-[data-theme='arcane'] {
-  --bg-surface:   #1a0533;
-  --bg-card:      #2d0f4e;
-  --text-primary: #e0c3ff;
-}
-
-/* --- Utility classes ----------------------------------------------------- */
-
-.card {
-  background-color: var(--bg-card, #fff);
-  color: var(--text-primary, inherit);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-}
-
-.btn-primary {
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 8px 20px;
-  cursor: pointer;
-  font-family: var(--font-body);
-
-  &:hover { filter: brightness(1.1); }
-}
-
-.btn-secondary {
-  background-color: transparent;
-  color: var(--primary);
-  border: 2px solid var(--primary);
-  border-radius: var(--radius-sm);
-  padding: 8px 20px;
-  cursor: pointer;
-  font-family: var(--font-body);
-
-  &:hover { background-color: var(--primary); color: #fff; }
-}
-
-.themed-header {
-  color: var(--primary);
-  font-family: var(--font-body);
-  border-bottom: 3px solid var(--accent);
-  padding-bottom: 8px;
-  margin-bottom: 16px;
 }

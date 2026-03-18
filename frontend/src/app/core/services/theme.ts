@@ -13,10 +13,16 @@ export interface GameGenreResponse {
 }
 
 /**
- * ThemeService — stub for Day 20.
+ * ThemeService applies a game-genre visual theme by injecting CSS custom
+ * properties onto the document root element. All themed components consume
+ * these variables (--primary, --secondary, --accent, --font-body) so colors
+ * update instantly without a page reload.
  *
- * Applies a game-genre visual theme by setting CSS custom properties
- * on the document root. Full background-style switching is wired in Day 22.
+ * The `data-theme` attribute drives background-style variant rules defined
+ * in `src/styles/theme.scss`.
+ *
+ * Call `applyGenre()` in every tournament detail component's `ngOnInit`,
+ * and `resetTheme()` in `ngOnDestroy` to restore the default palette.
  */
 @Injectable({
   providedIn: 'root',
