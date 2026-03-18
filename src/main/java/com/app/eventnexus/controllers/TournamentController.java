@@ -1,0 +1,123 @@
+package com.app.eventnexus.controllers;
+
+import com.app.eventnexus.dtos.requests.TournamentRequest;
+import com.app.eventnexus.dtos.requests.TournamentStatusRequest;
+import com.app.eventnexus.dtos.responses.TournamentResponse;
+import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
+import com.app.eventnexus.security.UserPrincipal;
+import com.app.eventnexus.services.TournamentService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * Thin REST controller for tournament management.
+ * Read endpoints are public; all write operations require {@code TOURNAMENT_ADMIN}.
+ * All business logic and status-transition validation are delegated to
+ * {@link TournamentService}.
+ */
+@RestController
+@RequestMapping("/api/tournaments")
+public class TournamentController {
+
+    private final TournamentService tournamentService;
+
+    public TournamentController(TournamentService tournamentService) {
+        this.tournamentService = tournamentService;
+    }
+
+    /**
+     * Returns all tournaments as lightweight summary cards.
+     * No authentication required.
+     *
+     * @return 200 OK with a list of tournament summaries
+     */
+    @GetMapping
+    public ResponseEntity<List<TournamentSummaryResponse>> getAllTournaments() {
+        return ResponseEntity.ok(tournamentService.findAll());
+    }
+
+    /**
+     * Returns a single tournament with full detail including genre and venue.
+     * No authentication required.
+     *
+     * @param id the tournament's primary key
+     * @return 200 OK with full tournament detail, or 404 if not found
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<TournamentResponse> getTournamentById(@PathVariable Long id) {
+        return ResponseEntity.ok(tournamentService.findById(id));
+    }
+
+    /**
+     * Creates a new tournament in {@code DRAFT} status.
+     * The authenticated admin automatically becomes the creator.
+     *
+     * @param request        tournament details
+     * @param authentication the current user's security context
+     * @return 201 Created with the new tournament
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
+    public ResponseEntity<TournamentResponse> createTournament(@RequestBody TournamentRequest request,
+                                                               Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tournamentService.create(request, principal.getUserId()));
+    }
+
+    /**
+     * Updates mutable fields of an existing tournament.
+     * Does not change the tournament's lifecycle status — use {@code PATCH /{id}/status} for that.
+     *
+     * @param id      the tournament's primary key
+     * @param request updated values
+     * @return 200 OK with the updated tournament, or 404 if not found
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
+    public ResponseEntity<TournamentResponse> updateTournament(@PathVariable Long id,
+                                                               @RequestBody TournamentRequest request) {
+        return ResponseEntity.ok(tournamentService.update(id, request));
+    }
+
+    /**
+     * Deletes a tournament by its ID.
+     *
+     * @param id the tournament's primary key
+     * @return 204 No Content on success, or 404 if not found
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
+    public ResponseEntity<Void> deleteTournament(@PathVariable Long id) {
+        tournamentService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Advances a tournament's lifecycle status by one step.
+     * Only the single valid next state is accepted; invalid transitions return 409.
+     *
+     * @param id      the tournament's primary key
+     * @param request body containing the target {@link com.app.eventnexus.enums.TournamentStatus}
+     * @return 200 OK with the updated tournament, or 409 on invalid transition
+     */
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
+    public ResponseEntity<TournamentResponse> updateTournamentStatus(@PathVariable Long id,
+                                                                     @RequestBody TournamentStatusRequest request) {
+        return ResponseEntity.ok(tournamentService.updateStatus(id, request.getStatus()));
+    }
+}
