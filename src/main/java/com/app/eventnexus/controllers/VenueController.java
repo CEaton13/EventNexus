@@ -23,7 +23,7 @@ import java.util.List;
  * All business logic is delegated to {@link VenueService}.
  */
 @RestController
-@RequestMapping("/api/venues")
+@RequestMapping("/api/orgs/{orgSlug}/venues")
 public class VenueController {
 
     private final VenueService venueService;

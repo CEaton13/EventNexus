@@ -16,6 +16,8 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+// Multi-tenancy: organization_id FK added by multi_tenant_migration.sql
+
 import java.time.LocalDateTime;
 
 /**
@@ -79,6 +81,10 @@ public class Tournament {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -94,7 +100,8 @@ public class Tournament {
                       TournamentFormat format, Integer maxTeams,
                       LocalDateTime registrationStart, LocalDateTime registrationEnd,
                       LocalDateTime startDate, LocalDateTime endDate,
-                      Venue venue, GameGenre gameGenre, User createdBy) {
+                      Venue venue, GameGenre gameGenre, User createdBy,
+                      Organization organization) {
         this.name = name;
         this.description = description;
         this.gameTitle = gameTitle;
@@ -108,6 +115,7 @@ public class Tournament {
         this.venue = venue;
         this.gameGenre = gameGenre;
         this.createdBy = createdBy;
+        this.organization = organization;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -224,6 +232,14 @@ public class Tournament {
 
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -34,7 +34,7 @@ import java.util.List;
  * {@link TournamentService}.
  */
 @RestController
-@RequestMapping("/api/tournaments")
+@RequestMapping("/api/orgs/{orgSlug}/tournaments")
 public class TournamentController {
 
     private final TournamentService tournamentService;
