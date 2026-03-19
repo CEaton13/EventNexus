@@ -7,6 +7,7 @@ import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ResourceNotFoundException;
 import com.app.eventnexus.exceptions.UnauthorizedAccessException;
 import com.app.eventnexus.models.Player;
+import com.app.eventnexus.models.PlayerStats;
 import com.app.eventnexus.models.Team;
 import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.PlayerStatsRepository;
@@ -177,6 +178,38 @@ public class PlayerService {
         player.setActive(false);
         player.setUpdatedAt(LocalDateTime.now());
         playerRepository.save(player);
+    }
+
+    /**
+     * Upserts a win or loss for a player in a specific tournament.
+     * If no stats record exists for the player–tournament pair, one is created.
+     * If a record already exists, the appropriate counter is incremented.
+     *
+     * <p>This method is called by {@code MatchService.recordResult()} for every
+     * active player on both teams immediately after a match result is recorded.
+     *
+     * @param playerId     the player's primary key
+     * @param tournamentId the tournament's primary key
+     * @param won          {@code true} to increment the player's win count;
+     *                     {@code false} to increment the loss count
+     * @throws ResourceNotFoundException if no player exists with the given ID
+     */
+    @Transactional
+    public void recordStats(Long playerId, Long tournamentId, boolean won) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Player", playerId));
+
+        PlayerStats stats = playerStatsRepository
+                .findByPlayer_IdAndTournamentId(playerId, tournamentId)
+                .orElseGet(() -> new PlayerStats(player, tournamentId));
+
+        if (won) {
+            stats.setWins(stats.getWins() + 1);
+        } else {
+            stats.setLosses(stats.getLosses() + 1);
+        }
+        stats.setUpdatedAt(LocalDateTime.now());
+        playerStatsRepository.save(stats);
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import com.app.eventnexus.models.Match;
 import com.app.eventnexus.models.Team;
 import com.app.eventnexus.models.Venue;
 import com.app.eventnexus.repositories.MatchRepository;
+import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.VenueRepository;
 import org.springframework.stereotype.Service;
@@ -38,13 +39,19 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final VenueRepository venueRepository;
     private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
+    private final PlayerService playerService;
 
     public MatchService(MatchRepository matchRepository,
                         VenueRepository venueRepository,
-                        TeamRepository teamRepository) {
+                        TeamRepository teamRepository,
+                        PlayerRepository playerRepository,
+                        PlayerService playerService) {
         this.matchRepository = matchRepository;
         this.venueRepository = venueRepository;
         this.teamRepository = teamRepository;
+        this.playerRepository = playerRepository;
+        this.playerService = playerService;
     }
 
     // ─── Scheduling ────────────────────────────────────────────────────────────
@@ -159,6 +166,21 @@ public class MatchService {
         match.setStatus(MatchStatus.COMPLETED);
         match.setUpdatedAt(LocalDateTime.now());
         matchRepository.save(match);
+
+        // Record a win for every active player on the winning team,
+        // and a loss for every active player on the losing team.
+        Long tournamentId = match.getTournament().getId();
+        Team loser = winnerId.equals(teamAId) ? match.getTeamB() : match.getTeamA();
+
+        playerRepository.findByTeam_Id(winner.getId()).stream()
+                .filter(p -> p.isActive())
+                .forEach(p -> playerService.recordStats(p.getId(), tournamentId, true));
+
+        if (loser != null) {
+            playerRepository.findByTeam_Id(loser.getId()).stream()
+                    .filter(p -> p.isActive())
+                    .forEach(p -> playerService.recordStats(p.getId(), tournamentId, false));
+        }
 
         // Advance the winner into the next bracket match
         Match nextMatch = match.getNextMatch();
