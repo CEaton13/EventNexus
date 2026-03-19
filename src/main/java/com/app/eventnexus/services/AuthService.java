@@ -4,6 +4,7 @@ import com.app.eventnexus.dtos.requests.LoginRequest;
 import com.app.eventnexus.dtos.requests.RefreshTokenRequest;
 import com.app.eventnexus.dtos.requests.RegisterRequest;
 import com.app.eventnexus.dtos.responses.AuthResponse;
+import com.app.eventnexus.dtos.responses.OrganizationMemberResponse;
 import com.app.eventnexus.dtos.responses.UserResponse;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ConflictException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Service handling all authentication operations: registration, login,
@@ -45,6 +47,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final OrganizationService organizationService;
 
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
@@ -53,12 +56,14 @@ public class AuthService {
                        RefreshTokenRepository refreshTokenRepository,
                        JwtTokenProvider jwtTokenProvider,
                        PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       OrganizationService organizationService) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.organizationService = organizationService;
     }
 
     // ─── Registration ──────────────────────────────────────────────────────────
@@ -114,8 +119,9 @@ public class AuthService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(principal);
         String rawRefreshToken = saveNewRefreshToken(user);
+        List<OrganizationMemberResponse> orgs = organizationService.getMembershipsForUser(user.getId());
 
-        return new AuthResponse(accessToken, rawRefreshToken, UserResponse.from(user));
+        return new AuthResponse(accessToken, rawRefreshToken, UserResponse.from(user), orgs);
     }
 
     // ─── Token Refresh ─────────────────────────────────────────────────────────
@@ -144,8 +150,9 @@ public class AuthService {
         User user = storedToken.getUser();
         UserPrincipal principal = new UserPrincipal(user);
         String newAccessToken = jwtTokenProvider.generateAccessToken(principal);
+        List<OrganizationMemberResponse> orgs = organizationService.getMembershipsForUser(user.getId());
 
-        return new AuthResponse(newAccessToken, storedToken.getToken(), UserResponse.from(user));
+        return new AuthResponse(newAccessToken, storedToken.getToken(), UserResponse.from(user), orgs);
     }
 
     // ─── Logout ────────────────────────────────────────────────────────────────
