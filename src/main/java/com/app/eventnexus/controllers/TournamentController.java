@@ -5,12 +5,16 @@ import com.app.eventnexus.dtos.requests.RegistrationStatusRequest;
 import com.app.eventnexus.dtos.requests.TournamentRequest;
 import com.app.eventnexus.dtos.requests.TournamentStatusRequest;
 import com.app.eventnexus.dtos.responses.BracketResponse;
+import com.app.eventnexus.dtos.responses.PageResponse;
 import com.app.eventnexus.dtos.responses.RegistrationResponse;
 import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.BracketService;
 import com.app.eventnexus.services.TournamentService;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,14 +51,18 @@ public class TournamentController {
     }
 
     /**
-     * Returns all tournaments as lightweight summary cards.
+     * Returns a page of tournaments as lightweight summary cards.
      * No authentication required.
+     * Supports {@code ?page=0&size=20&sort=startDate,desc} query parameters.
      *
-     * @return 200 OK with a list of tournament summaries
+     * @param pageable pagination and sort parameters (default: 20 per page, newest first)
+     * @return 200 OK with a page of tournament summaries
      */
     @GetMapping
-    public ResponseEntity<List<TournamentSummaryResponse>> getAllTournaments() {
-        return ResponseEntity.ok(tournamentService.findAll());
+    public ResponseEntity<PageResponse<TournamentSummaryResponse>> getAllTournaments(
+            @PageableDefault(size = 20, sort = "startDate", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable)));
     }
 
     /**

@@ -17,6 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,17 +77,18 @@ class PlayerServiceTest {
     // ─── findAll ──────────────────────────────────────────────────────────────
 
     @Test
-    void findAll_returnsListIncludingInactivePlayers() {
+    void findAll_returnsPageIncludingInactivePlayers() {
         Player inactive = new Player(team, "GhostPlayer", null, null, null, null);
         inactive.setId(6L);
         inactive.setActive(false);
 
-        when(playerRepository.findAll()).thenReturn(List.of(player, inactive));
+        when(playerRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(player, inactive)));
 
-        List<PlayerResponse> result = playerService.findAll();
+        Page<PlayerResponse> result = playerService.findAll(Pageable.unpaged());
 
-        assertThat(result).hasSize(2);
-        assertThat(result.stream().anyMatch(p -> !p.isActive())).isTrue();
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().stream().anyMatch(p -> !p.isActive())).isTrue();
     }
 
     // ─── findById ─────────────────────────────────────────────────────────────

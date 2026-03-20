@@ -12,6 +12,8 @@ import com.app.eventnexus.models.Team;
 import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.PlayerStatsRepository;
 import com.app.eventnexus.repositories.TeamRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,16 +50,14 @@ public class PlayerService {
     // ─── Read ──────────────────────────────────────────────────────────────────
 
     /**
-     * Returns all players (active and inactive) across all teams.
+     * Returns a page of players (active and inactive) across all teams.
      *
-     * @return list of all players as response DTOs; never null
+     * @param pageable pagination and sort parameters
+     * @return a page of player response DTOs
      */
     @Transactional(readOnly = true)
-    public List<PlayerResponse> findAll() {
-        return playerRepository.findAll()
-                .stream()
-                .map(PlayerResponse::from)
-                .toList();
+    public Page<PlayerResponse> findAll(Pageable pageable) {
+        return playerRepository.findAll(pageable).map(PlayerResponse::from);
     }
 
     /**

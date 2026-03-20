@@ -20,6 +20,15 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     List<Player> findByTeam_Id(Long teamId);
 
     /**
+     * Counts players with the given active status.
+     * Pass {@code true} to count active players; {@code false} for soft-deleted ones.
+     *
+     * @param isActive the active flag to filter on
+     * @return count of players with that status
+     */
+    Long countByIsActive(boolean isActive);
+
+    /**
      * Finds a player by ID and active status.
      * Used to look up only active players, or explicitly fetch soft-deleted ones.
      *

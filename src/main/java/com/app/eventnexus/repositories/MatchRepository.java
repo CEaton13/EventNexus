@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// Note: findAll(Pageable) is inherited from JpaRepository — no declaration needed.
+
 /**
  * Spring Data JPA repository for {@link Match} entities.
  */
@@ -29,6 +31,23 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
      * @return list of matches for that round; never null
      */
     List<Match> findByTournamentIdAndRoundNumber(Long tournamentId, int roundNumber);
+
+    /**
+     * Counts scheduled (non-completed, non-BYE) matches whose
+     * {@code scheduled_time} falls within {@code [from, to)}.
+     * Used by the admin dashboard to show upcoming matches in the next 7 days.
+     *
+     * @param from start of the window (inclusive)
+     * @param to   end of the window (exclusive)
+     * @return count of upcoming matches in the window
+     */
+    @Query(value = """
+            SELECT COUNT(*) FROM matches
+            WHERE scheduled_time >= :from
+              AND scheduled_time < :to
+              AND status NOT IN ('COMPLETED', 'BYE')
+            """, nativeQuery = true)
+    Long countUpcomingMatches(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     /**
      * Counts matches that would create a team scheduling conflict.

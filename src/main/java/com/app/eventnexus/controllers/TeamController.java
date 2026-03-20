@@ -1,9 +1,12 @@
 package com.app.eventnexus.controllers;
 
 import com.app.eventnexus.dtos.requests.TeamRequest;
+import com.app.eventnexus.dtos.responses.PageResponse;
 import com.app.eventnexus.dtos.responses.TeamResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.TeamService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,8 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * Thin REST controller for team management.
@@ -36,13 +37,16 @@ public class TeamController {
     }
 
     /**
-     * Returns all teams with active player counts.
+     * Returns a page of teams with active player counts.
+     * Supports {@code ?page=0&size=20&sort=name} query parameters.
      *
-     * @return 200 OK with a list of all teams
+     * @param pageable pagination and sort parameters (default: 20 per page, sorted by name)
+     * @return 200 OK with a page of teams
      */
     @GetMapping
-    public ResponseEntity<List<TeamResponse>> getAllTeams() {
-        return ResponseEntity.ok(teamService.findAll());
+    public ResponseEntity<PageResponse<TeamResponse>> getAllTeams(
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(PageResponse.from(teamService.findAll(pageable)));
     }
 
     /**
