@@ -73,6 +73,9 @@ public class SecurityConfig {
                 // ── Genres (fully public) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
 
+                // ── Venues (public read) ───────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/venues/**").permitAll()
+
                 // ── Organizations meta (public slug lookup) ────────────────
                 .requestMatchers(HttpMethod.GET, "/api/organizations/*").permitAll()
 

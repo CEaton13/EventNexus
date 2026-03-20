@@ -29,6 +29,7 @@ public class TenantDataSourceConfig {
      * @return Spring Boot's data source properties
      */
     @Bean
+    @Primary
     @ConfigurationProperties("spring.datasource")
     public DataSourceProperties dataSourceProperties() {
         return new DataSourceProperties();

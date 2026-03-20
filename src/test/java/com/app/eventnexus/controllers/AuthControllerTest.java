@@ -6,9 +6,12 @@ import com.app.eventnexus.dtos.responses.AuthResponse;
 import com.app.eventnexus.dtos.responses.UserResponse;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ConflictException;
+import com.app.eventnexus.repositories.OrganizationMemberRepository;
+import com.app.eventnexus.repositories.OrganizationRepository;
 import com.app.eventnexus.security.JwtTokenProvider;
 import com.app.eventnexus.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -48,6 +51,13 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    // Required by TenantFilter loaded with SecurityConfig
+    @MockitoBean
+    private OrganizationRepository organizationRepository;
+
+    @MockitoBean
+    private OrganizationMemberRepository organizationMemberRepository;
+
     // Required by JwtAuthenticationFilter which is loaded as part of the web layer
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -69,7 +79,7 @@ class AuthControllerTest {
     }
 
     private AuthResponse sampleAuthResponse() {
-        return new AuthResponse("sample.access.token", "sample-refresh-uuid", sampleUser());
+        return new AuthResponse("sample.access.token", "sample-refresh-uuid", sampleUser(), List.of());
     }
 
     // ─── Register ─────────────────────────────────────────────────────────────
