@@ -1,6 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { OrganizationMembership } from '../../shared/models/organization.model';
+import { TenantService } from './tenant.service';
 
 /** User shape returned by the API. */
 export interface UserResponse {
@@ -15,6 +17,7 @@ export interface AuthResponse {
   accessToken: string;
   tokenType: string;
   user: UserResponse;
+  organizations: OrganizationMembership[];
 }
 
 /** Credentials sent to POST /api/auth/login. */
@@ -59,7 +62,10 @@ export class AuthService {
   /** True when the signed-in user has the TEAM_MANAGER role. */
   readonly isTeamManager = computed(() => this.user()?.role === 'TEAM_MANAGER');
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly tenantService: TenantService,
+  ) {}
 
   /**
    * Returns the current in-memory access token, or null if not authenticated.
@@ -117,6 +123,7 @@ export class AuthService {
         tap(() => {
           this.accessToken = null;
           this.user.set(null);
+          this.tenantService.clearTenant();
         })
       );
   }
@@ -125,5 +132,6 @@ export class AuthService {
   private handleAuthResponse(res: AuthResponse): void {
     this.accessToken = res.accessToken;
     this.user.set(res.user);
+    this.tenantService.setMemberships(res.organizations ?? []);
   }
 }
