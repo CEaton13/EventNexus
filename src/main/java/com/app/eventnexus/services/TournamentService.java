@@ -14,17 +14,20 @@ import com.app.eventnexus.exceptions.InvalidStateTransitionException;
 import com.app.eventnexus.exceptions.ResourceNotFoundException;
 import com.app.eventnexus.exceptions.UnauthorizedAccessException;
 import com.app.eventnexus.models.GameGenre;
+import com.app.eventnexus.models.Organization;
 import com.app.eventnexus.models.Team;
 import com.app.eventnexus.models.Tournament;
 import com.app.eventnexus.models.TournamentTeam;
 import com.app.eventnexus.models.User;
 import com.app.eventnexus.models.Venue;
 import com.app.eventnexus.repositories.GameGenreRepository;
+import com.app.eventnexus.repositories.OrganizationRepository;
 import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.TournamentRepository;
 import com.app.eventnexus.repositories.TournamentTeamRepository;
 import com.app.eventnexus.repositories.UserRepository;
 import com.app.eventnexus.repositories.VenueRepository;
+import com.app.eventnexus.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +65,7 @@ public class TournamentService {
     private final VenueRepository venueRepository;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+    private final OrganizationRepository organizationRepository;
     private final BracketService bracketService;
 
     public TournamentService(TournamentRepository tournamentRepository,
@@ -70,6 +74,7 @@ public class TournamentService {
                              VenueRepository venueRepository,
                              UserRepository userRepository,
                              TeamRepository teamRepository,
+                             OrganizationRepository organizationRepository,
                              BracketService bracketService) {
         this.tournamentRepository = tournamentRepository;
         this.tournamentTeamRepository = tournamentTeamRepository;
@@ -77,6 +82,7 @@ public class TournamentService {
         this.venueRepository = venueRepository;
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
+        this.organizationRepository = organizationRepository;
         this.bracketService = bracketService;
     }
 
@@ -161,6 +167,10 @@ public class TournamentService {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", adminId));
 
+        Long tenantId = TenantContext.getTenantId();
+        Organization organization = organizationRepository.findById(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organization", tenantId));
+
         Tournament tournament = new Tournament(
                 request.getName(),
                 request.getDescription(),
@@ -173,7 +183,8 @@ public class TournamentService {
                 request.getEndDate(),
                 venue,
                 genre,
-                admin);
+                admin,
+                organization);
 
         return TournamentResponse.from(tournamentRepository.save(tournament));
     }

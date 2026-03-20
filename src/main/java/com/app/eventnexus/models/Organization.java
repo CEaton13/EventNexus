@@ -2,24 +2,24 @@ package com.app.eventnexus.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
 /**
- * JPA entity representing a physical venue where tournaments are held.
- * Maps to the {@code venues} table.
- * Station count drives the venue-conflict check in {@code MatchService}.
+ * JPA entity representing a tenant organization on the EventNexus platform.
+ * Each organization owns its own tournaments, venues, and equipment.
+ * Maps to the {@code organizations} table.
+ *
+ * <p>Row-Level Security on dependent tables is keyed by {@code id} via the
+ * PostgreSQL session variable {@code app.tenant_id}.
  */
 @Entity
-@Table(name = "venues")
-public class Venue {
+@Table(name = "organizations")
+public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,18 +28,12 @@ public class Venue {
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
-    @Column(name = "location", nullable = false, length = 500)
-    private String location;
+    /** URL-safe slug used in API paths — e.g. {@code evo-2026}. */
+    @Column(name = "slug", nullable = false, unique = true, length = 100)
+    private String slug;
 
-    @Column(name = "station_count", nullable = false)
-    private Integer stationCount;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id", nullable = false)
-    private Organization organization;
-
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @Column(name = "contact_email", nullable = false, length = 255)
+    private String contactEmail;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -49,15 +43,13 @@ public class Venue {
 
     // ─── Constructors ──────────────────────────────────────────────────────────
 
-    public Venue() {
+    public Organization() {
     }
 
-    public Venue(String name, String location, Integer stationCount, Organization organization) {
+    public Organization(String name, String slug, String contactEmail) {
         this.name = name;
-        this.location = location;
-        this.stationCount = stationCount;
-        this.organization = organization;
-        this.isActive = true;
+        this.slug = slug;
+        this.contactEmail = contactEmail;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -80,36 +72,20 @@ public class Venue {
         this.name = name;
     }
 
-    public String getLocation() {
-        return location;
+    public String getSlug() {
+        return slug;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
-    public Integer getStationCount() {
-        return stationCount;
+    public String getContactEmail() {
+        return contactEmail;
     }
 
-    public void setStationCount(Integer stationCount) {
-        this.stationCount = stationCount;
-    }
-
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
     }
 
     public LocalDateTime getCreatedAt() {

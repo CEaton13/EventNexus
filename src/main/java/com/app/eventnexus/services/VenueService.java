@@ -4,8 +4,11 @@ import com.app.eventnexus.dtos.requests.VenueRequest;
 import com.app.eventnexus.dtos.responses.VenueResponse;
 import com.app.eventnexus.exceptions.ConflictException;
 import com.app.eventnexus.exceptions.ResourceNotFoundException;
+import com.app.eventnexus.models.Organization;
 import com.app.eventnexus.models.Venue;
+import com.app.eventnexus.repositories.OrganizationRepository;
 import com.app.eventnexus.repositories.VenueRepository;
+import com.app.eventnexus.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +29,12 @@ import java.util.List;
 public class VenueService {
 
     private final VenueRepository venueRepository;
+    private final OrganizationRepository organizationRepository;
 
-    public VenueService(VenueRepository venueRepository) {
+    public VenueService(VenueRepository venueRepository,
+                        OrganizationRepository organizationRepository) {
         this.venueRepository = venueRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     // ─── Read ──────────────────────────────────────────────────────────────────
@@ -80,7 +86,10 @@ public class VenueService {
      */
     @Transactional
     public VenueResponse create(VenueRequest request) {
-        Venue venue = new Venue(request.getName(), request.getLocation(), request.getStationCount());
+        Long tenantId = TenantContext.getTenantId();
+        Organization organization = organizationRepository.findById(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organization", tenantId));
+        Venue venue = new Venue(request.getName(), request.getLocation(), request.getStationCount(), organization);
         return VenueResponse.from(venueRepository.save(venue));
     }
 

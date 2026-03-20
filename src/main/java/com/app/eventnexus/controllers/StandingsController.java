@@ -15,7 +15,7 @@ import java.util.List;
  * This endpoint is public — no authentication required.
  */
 @RestController
-@RequestMapping("/api/tournaments")
+@RequestMapping("/api/orgs/{orgSlug}/tournaments")
 public class StandingsController {
 
     private final TournamentService tournamentService;

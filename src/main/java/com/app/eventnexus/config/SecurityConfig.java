@@ -1,6 +1,7 @@
 package com.app.eventnexus.config;
 
 import com.app.eventnexus.security.JwtAuthenticationFilter;
+import com.app.eventnexus.tenant.TenantFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,9 +34,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final TenantFilter tenantFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          TenantFilter tenantFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.tenantFilter = tenantFilter;
     }
 
     /**
@@ -56,19 +60,21 @@ public class SecurityConfig {
                 // ── Auth (all public) ──────────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-                // ── Tournaments (public read) ──────────────────────────────
-                .requestMatchers(HttpMethod.GET, "/api/tournaments").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/tournaments/{id}").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/tournaments/{id}/bracket").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/tournaments/{id}/standings").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/tournaments/{id}/teams").permitAll()
+                // ── Org-scoped public reads ────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/bracket").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/standings").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/teams").permitAll()
 
                 // ── Players (public read) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
 
-                // ── Genres & Venues (fully public) ────────────────────────
+                // ── Genres (fully public) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
+
+                // ── Organizations meta (public slug lookup) ────────────────
+                .requestMatchers(HttpMethod.GET, "/api/organizations/*").permitAll()
 
                 // ── Actuator ──────────────────────────────────────────────
                 .requestMatchers("/actuator/**").permitAll()
@@ -76,7 +82,8 @@ public class SecurityConfig {
                 // ── Everything else requires authentication ────────────────
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

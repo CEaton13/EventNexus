@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * All business logic and conflict detection are delegated to {@link MatchService}.
  */
 @RestController
-@RequestMapping("/api/matches")
+@RequestMapping("/api/orgs/{orgSlug}/matches")
 public class MatchController {
 
     private final MatchService matchService;
