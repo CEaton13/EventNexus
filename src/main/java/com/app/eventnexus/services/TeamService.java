@@ -9,11 +9,12 @@ import com.app.eventnexus.models.Team;
 import com.app.eventnexus.models.User;
 import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Service for managing team data.
@@ -40,16 +41,14 @@ public class TeamService {
     // ─── Read ──────────────────────────────────────────────────────────────────
 
     /**
-     * Returns all teams with their active player counts.
+     * Returns a page of teams with their active player counts.
      *
-     * @return list of all teams as response DTOs; never null
+     * @param pageable pagination and sort parameters
+     * @return a page of team response DTOs
      */
     @Transactional(readOnly = true)
-    public List<TeamResponse> findAll() {
-        return teamRepository.findAll()
-                .stream()
-                .map(this::toResponseWithCount)
-                .toList();
+    public Page<TeamResponse> findAll(Pageable pageable) {
+        return teamRepository.findAll(pageable).map(this::toResponseWithCount);
     }
 
     /**

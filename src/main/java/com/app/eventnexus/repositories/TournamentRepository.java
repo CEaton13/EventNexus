@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+// Note: findAll(Pageable) is inherited from JpaRepository — no declaration needed.
+
 /**
  * Spring Data JPA repository for {@link Tournament} entities.
  */
@@ -28,6 +30,15 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      * @return list of tournaments for that genre; never null
      */
     List<Tournament> findByGameGenreId(Long genreId);
+
+    /**
+     * Counts tournaments in a given lifecycle status.
+     * Used by the admin dashboard to build the status breakdown map.
+     *
+     * @param status the status to count
+     * @return number of tournaments with that status
+     */
+    Long countByStatus(TournamentStatus status);
 
     /**
      * Queries the {@code tournament_standings} view for a given tournament,

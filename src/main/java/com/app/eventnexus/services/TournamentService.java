@@ -28,6 +28,8 @@ import com.app.eventnexus.repositories.TournamentTeamRepository;
 import com.app.eventnexus.repositories.UserRepository;
 import com.app.eventnexus.repositories.VenueRepository;
 import com.app.eventnexus.tenant.TenantContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,16 +91,14 @@ public class TournamentService {
     // ─── Read ──────────────────────────────────────────────────────────────────
 
     /**
-     * Returns all tournaments as lightweight summary DTOs.
+     * Returns a page of tournaments as lightweight summary DTOs.
      *
-     * @return list of all tournaments; never null
+     * @param pageable pagination and sort parameters
+     * @return a page of tournament summaries
      */
     @Transactional(readOnly = true)
-    public List<TournamentSummaryResponse> findAll() {
-        return tournamentRepository.findAll()
-                .stream()
-                .map(TournamentSummaryResponse::from)
-                .toList();
+    public Page<TournamentSummaryResponse> findAll(Pageable pageable) {
+        return tournamentRepository.findAll(pageable).map(TournamentSummaryResponse::from);
     }
 
     /**
