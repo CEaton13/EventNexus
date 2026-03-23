@@ -1,5 +1,7 @@
 package com.app.eventnexus.dtos.requests;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 /**
@@ -8,7 +10,10 @@ import java.time.LocalDateTime;
  */
 public class ScheduleMatchRequest {
 
+    @NotNull(message = "Scheduled time is required")
     private LocalDateTime scheduledTime;
+
+    @NotNull(message = "Venue ID is required")
     private Long venueId;
 
     // ─── Getters & Setters ─────────────────────────────────────────────────────

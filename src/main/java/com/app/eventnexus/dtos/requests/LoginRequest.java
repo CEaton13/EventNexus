@@ -1,11 +1,16 @@
 package com.app.eventnexus.dtos.requests;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * Request body for {@code POST /api/auth/login}.
  */
 public class LoginRequest {
 
+    @NotBlank(message = "Username is required")
     private String username;
+
+    @NotBlank(message = "Password is required")
     private String password;
 
     // ─── Constructors ──────────────────────────────────────────────────────────

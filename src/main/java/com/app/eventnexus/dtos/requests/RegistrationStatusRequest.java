@@ -1,6 +1,7 @@
 package com.app.eventnexus.dtos.requests;
 
 import com.app.eventnexus.enums.RegistrationStatus;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Request DTO for updating a team's registration status within a tournament.
@@ -8,6 +9,7 @@ import com.app.eventnexus.enums.RegistrationStatus;
  */
 public class RegistrationStatusRequest {
 
+    @NotNull(message = "Registration status is required")
     private RegistrationStatus status;
 
     // ─── Getters & Setters ─────────────────────────────────────────────────────
