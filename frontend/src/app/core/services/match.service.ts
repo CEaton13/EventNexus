@@ -1,0 +1,33 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { MatchResponse } from '../../shared/models/match.model';
+
+/**
+ * MatchService communicates with the `/api/matches` endpoints.
+ */
+@Injectable({ providedIn: 'root' })
+export class MatchService {
+  private readonly base = '/api/matches';
+
+  constructor(private readonly http: HttpClient) {}
+
+  /**
+   * Schedules a match by setting time and venue.
+   * @param id Match primary key.
+   * @param scheduledTime ISO datetime string.
+   * @param venueId Venue primary key.
+   */
+  schedule(id: number, scheduledTime: string, venueId: number): Observable<MatchResponse> {
+    return this.http.patch<MatchResponse>(`${this.base}/${id}/schedule`, { scheduledTime, venueId });
+  }
+
+  /**
+   * Records the winner of a completed match.
+   * @param id Match primary key.
+   * @param winnerId Winning team's primary key.
+   */
+  recordResult(id: number, winnerId: number): Observable<MatchResponse> {
+    return this.http.patch<MatchResponse>(`${this.base}/${id}/result`, { winnerId });
+  }
+}
