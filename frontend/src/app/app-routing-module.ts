@@ -7,8 +7,7 @@ import { orgGuard } from './core/guards/org.guard';
 const routes: Routes = [
   {
     path: 'auth',
-    loadChildren: () =>
-      import('./features/auth/auth-module').then(m => m.AuthModule)
+    loadChildren: () => import('./features/auth/auth-module').then((m) => m.AuthModule),
   },
   {
     // Org-scoped routes — all child routes inherit the active org context.
@@ -18,35 +17,36 @@ const routes: Routes = [
       {
         path: 'tournaments',
         loadChildren: () =>
-          import('./features/tournaments/tournaments-module').then(m => m.TournamentsModule)
+          import('./features/tournaments/tournaments-module').then((m) => m.TournamentsModule),
       },
       {
         path: 'teams',
-        loadChildren: () =>
-          import('./features/teams/teams-module').then(m => m.TeamsModule)
+        loadChildren: () => import('./features/teams/teams-module').then((m) => m.TeamsModule),
       },
       {
         path: 'players',
         loadChildren: () =>
-          import('./features/players/players-module').then(m => m.PlayersModule)
+          import('./features/players/players-module').then((m) => m.PlayersModule),
       },
       {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['TOURNAMENT_ADMIN'] },
-        loadChildren: () =>
-          import('./features/admin/admin-module').then(m => m.AdminModule)
+        loadChildren: () => import('./features/admin/admin-module').then((m) => m.AdminModule),
       },
       { path: '', redirectTo: 'tournaments', pathMatch: 'full' },
-    ]
+    ],
+  },
+  {
+    path: '',
+    loadChildren: () => import('./features/home/home-module').then((m) => m.HomeModule),
   },
   { path: 'unauthorized', redirectTo: '/auth/login' },
-  { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/auth/login' }
+  { path: '**', redirectTo: '/' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

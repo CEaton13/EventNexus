@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, tap } from 'rxjs';
 import { OrganizationMembership } from '../../shared/models/organization.model';
 import { TenantService } from './tenant.service';
 
@@ -84,7 +84,7 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiBase}/login`, credentials)
-      .pipe(tap(res => this.handleAuthResponse(res)));
+      .pipe(tap((res) => this.handleAuthResponse(res)));
   }
 
   /**
@@ -96,7 +96,7 @@ export class AuthService {
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiBase}/register`, data)
-      .pipe(tap(res => this.handleAuthResponse(res)));
+      .pipe(tap((res) => this.handleAuthResponse(res)));
   }
 
   /**
@@ -107,25 +107,30 @@ export class AuthService {
   refreshToken(): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiBase}/refresh`, {}, { withCredentials: true })
-      .pipe(tap(res => this.handleAuthResponse(res)));
+      .pipe(tap((res) => this.handleAuthResponse(res)));
   }
 
   /**
-   * Logs the user out: clears in-memory state and invalidates the refresh
-   * token on the server.
+   * Logs the user out: invalidates the refresh token on the server and clears
+   * in-memory state. State is always cleared regardless of whether the HTTP
+   * call succeeds, so the user is never left in a broken authenticated state.
    *
    * @returns Observable<void>.
    */
   logout(): Observable<void> {
     return this.http
       .post<void>(`${this.apiBase}/logout`, {}, { withCredentials: true })
-      .pipe(
-        tap(() => {
-          this.accessToken = null;
-          this.user.set(null);
-          this.tenantService.clearTenant();
-        })
-      );
+      .pipe(finalize(() => this.clearSession()));
+  }
+
+  /**
+   * Clears in-memory auth state without making an HTTP call.
+   * Used by the auth interceptor when the refresh token has expired.
+   */
+  clearSession(): void {
+    this.accessToken = null;
+    this.user.set(null);
+    this.tenantService.clearTenant();
   }
 
   /** Stores the token and user received from any auth endpoint. */
