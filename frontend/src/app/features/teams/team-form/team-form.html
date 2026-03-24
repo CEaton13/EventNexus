@@ -1,0 +1,42 @@
+<div class="page-container">
+  <h1>{{ isEdit() ? 'Edit Team' : 'Create Team' }}</h1>
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Team Name</mat-label>
+          <input matInput formControlName="name" />
+          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+            <mat-error>Name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tag (e.g. SHDW)</mat-label>
+          <input matInput formControlName="tag" maxlength="10" />
+          @if (form.get('tag')?.hasError('required') && form.get('tag')?.touched) {
+            <mat-error>Tag is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Logo URL (optional)</mat-label>
+          <input matInput formControlName="logoUrl" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Home Region (optional)</mat-label>
+          <input matInput formControlName="homeRegion" />
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()">
+            {{ isEdit() ? 'Save Changes' : 'Create Team' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

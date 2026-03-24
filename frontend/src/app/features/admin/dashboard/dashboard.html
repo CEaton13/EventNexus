@@ -1,1 +1,33 @@
-<p>dashboard works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <button mat-raised-button color="primary" (click)="createTournament()">
+      <mat-icon>add</mat-icon> New Tournament
+    </button>
+  </div>
+
+  <h2>Recent Tournaments</h2>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (tournaments().length === 0) {
+    <p class="empty-note">No tournaments yet. Create the first one!</p>
+  } @else {
+    <mat-list class="tournament-list">
+      @for (t of tournaments(); track t.id) {
+        <mat-list-item (click)="viewTournament(t.id)" class="tournament-row">
+          <span matListItemTitle>{{ t.name }}</span>
+          <span matListItemLine>{{ t.status }} &bull; {{ t.format }} &bull; {{ t.startDate | date:'MMM d, y' }}</span>
+          <div matListItemMeta>
+            @if (nextStatus(t.status); as next) {
+              <button mat-stroked-button (click)="$event.stopPropagation(); advance(t)">
+                → {{ next }}
+              </button>
+            }
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
+  }
+</div>

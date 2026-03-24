@@ -1,0 +1,59 @@
+<div class="create-org-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Create Your Organization</mat-card-title>
+      <mat-card-subtitle>Set up your esports league to start hosting tournaments</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Organization Name</mat-label>
+          <input matInput formControlName="name" (input)="autoSlug()" placeholder="e.g. Evo 2026" />
+          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+            <mat-error>Organization name is required.</mat-error>
+          }
+          @if (form.get('name')?.hasError('maxlength')) {
+            <mat-error>Name must not exceed 200 characters.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>URL Slug</mat-label>
+          <input matInput formControlName="slug" placeholder="e.g. evo-2026" />
+          <mat-hint>Used in your organization's URL. Lowercase letters, numbers, and hyphens only.</mat-hint>
+          @if (form.get('slug')?.hasError('required') && form.get('slug')?.touched) {
+            <mat-error>Slug is required.</mat-error>
+          }
+          @if (form.get('slug')?.hasError('pattern')) {
+            <mat-error>Only lowercase letters, numbers, and hyphens are allowed.</mat-error>
+          }
+          @if (form.get('slug')?.hasError('maxlength')) {
+            <mat-error>Slug must not exceed 100 characters.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contact Email</mat-label>
+          <input matInput formControlName="contactEmail" type="email" placeholder="admin@example.com" />
+          @if (form.get('contactEmail')?.hasError('required') && form.get('contactEmail')?.touched) {
+            <mat-error>Contact email is required.</mat-error>
+          }
+          @if (form.get('contactEmail')?.hasError('email')) {
+            <mat-error>Please enter a valid email address.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage) {
+          <p class="error-message">{{ errorMessage }}</p>
+        }
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
+            @if (loading) { Creating... } @else { Create Organization }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

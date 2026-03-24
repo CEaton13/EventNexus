@@ -1,0 +1,30 @@
+.create-org-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+
+  mat-card {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  mat-card-header {
+    margin-bottom: 16px;
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  margin-top: 8px;
+}
+
+.error-message {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}

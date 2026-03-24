@@ -1,0 +1,85 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 { margin: 0; }
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  mat-form-field { min-width: 180px; }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.4; }
+  h3 { margin: 16px 0 8px; }
+}
+
+.tournament-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tournament-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  overflow: hidden;
+
+  &:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+}
+
+.card-genre-strip {
+  height: 4px;
+  background: var(--primary, #673ab7);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.format-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.08);
+}
+
+.card-dates, .card-teams {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mat-sys-on-surface-variant);
+  margin-top: 4px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+mat-paginator { margin-top: 24px; }
