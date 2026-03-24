@@ -6,6 +6,7 @@ import com.app.eventnexus.dtos.requests.RegisterRequest;
 import com.app.eventnexus.dtos.responses.AuthResponse;
 import com.app.eventnexus.dtos.responses.UserResponse;
 import com.app.eventnexus.services.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +37,7 @@ public class AuthController {
      * @return 201 Created with the new user's profile
      */
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         UserResponse userResponse = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
@@ -48,7 +49,7 @@ public class AuthController {
      * @return 200 OK with access token, refresh token, and user profile
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
@@ -59,7 +60,7 @@ public class AuthController {
      * @return 200 OK with a fresh access token and the same refresh token
      */
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 
@@ -72,7 +73,7 @@ public class AuthController {
      */
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
         authService.logout(request.getRefreshToken());
         return ResponseEntity.noContent().build();
     }

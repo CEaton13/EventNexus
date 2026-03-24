@@ -1,6 +1,11 @@
 package com.app.eventnexus.dtos.requests;
 
 import com.app.eventnexus.enums.TournamentFormat;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
@@ -9,16 +14,40 @@ import java.time.LocalDateTime;
  */
 public class TournamentRequest {
 
+    @NotBlank(message = "Tournament name is required")
+    @Size(max = 200, message = "Tournament name must not exceed 200 characters")
     private String name;
+
+    @Size(max = 2000, message = "Description must not exceed 2000 characters")
     private String description;
+
+    @Size(max = 200, message = "Game title must not exceed 200 characters")
     private String gameTitle;
+
+    @NotNull(message = "Tournament format is required")
     private TournamentFormat format;
+
+    @NotNull(message = "Max teams is required")
+    @Min(value = 2, message = "Tournament must allow at least 2 teams")
+    @Max(value = 512, message = "Tournament cannot exceed 512 teams")
     private Integer maxTeams;
+
+    @NotNull(message = "Registration start date is required")
     private LocalDateTime registrationStart;
+
+    @NotNull(message = "Registration end date is required")
     private LocalDateTime registrationEnd;
+
+    @NotNull(message = "Start date is required")
     private LocalDateTime startDate;
+
+    @NotNull(message = "End date is required")
     private LocalDateTime endDate;
+
+    @NotNull(message = "Venue is required")
     private Long venueId;
+
+    @NotNull(message = "Game genre is required")
     private Long gameGenreId;
 
     // ─── Getters & Setters ─────────────────────────────────────────────────────

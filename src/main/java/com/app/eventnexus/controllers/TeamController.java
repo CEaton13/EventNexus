@@ -5,6 +5,7 @@ import com.app.eventnexus.dtos.responses.PageResponse;
 import com.app.eventnexus.dtos.responses.TeamResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.TeamService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -70,7 +71,7 @@ public class TeamController {
      */
     @PostMapping
     @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER')")
-    public ResponseEntity<TeamResponse> createTeam(@RequestBody TeamRequest request,
+    public ResponseEntity<TeamResponse> createTeam(@Valid @RequestBody TeamRequest request,
                                                    Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -90,7 +91,7 @@ public class TeamController {
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TeamResponse> updateTeam(@PathVariable Long id,
-                                                   @RequestBody TeamRequest request,
+                                                   @Valid @RequestBody TeamRequest request,
                                                    Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.ok(

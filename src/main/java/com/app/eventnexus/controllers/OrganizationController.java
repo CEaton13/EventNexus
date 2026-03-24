@@ -2,6 +2,7 @@ package com.app.eventnexus.controllers;
 
 import com.app.eventnexus.dtos.requests.AddMemberRequest;
 import com.app.eventnexus.dtos.requests.CreateOrganizationRequest;
+import jakarta.validation.Valid;
 import com.app.eventnexus.dtos.responses.OrganizationMemberResponse;
 import com.app.eventnexus.dtos.responses.OrganizationResponse;
 import com.app.eventnexus.security.UserPrincipal;
@@ -71,7 +72,7 @@ public class OrganizationController {
     @PostMapping
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<OrganizationResponse> createOrganization(
-            @RequestBody CreateOrganizationRequest request,
+            @Valid @RequestBody CreateOrganizationRequest request,
             Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -101,7 +102,7 @@ public class OrganizationController {
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<OrganizationMemberResponse> addMember(
             @PathVariable Long orgId,
-            @RequestBody AddMemberRequest request) {
+            @Valid @RequestBody AddMemberRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(organizationService.addMember(orgId, request));
     }

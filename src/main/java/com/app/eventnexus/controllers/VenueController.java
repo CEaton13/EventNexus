@@ -3,6 +3,7 @@ package com.app.eventnexus.controllers;
 import com.app.eventnexus.dtos.requests.VenueRequest;
 import com.app.eventnexus.dtos.responses.VenueResponse;
 import com.app.eventnexus.services.VenueService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,7 +63,7 @@ public class VenueController {
      */
     @PostMapping
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
-    public ResponseEntity<VenueResponse> createVenue(@RequestBody VenueRequest request) {
+    public ResponseEntity<VenueResponse> createVenue(@Valid @RequestBody VenueRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(venueService.create(request));
     }
 
@@ -76,7 +77,7 @@ public class VenueController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<VenueResponse> updateVenue(@PathVariable Long id,
-                                                     @RequestBody VenueRequest request) {
+                                                     @Valid @RequestBody VenueRequest request) {
         return ResponseEntity.ok(venueService.update(id, request));
     }
 

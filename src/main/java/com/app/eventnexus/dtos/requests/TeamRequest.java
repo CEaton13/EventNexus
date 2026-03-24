@@ -1,13 +1,25 @@
 package com.app.eventnexus.dtos.requests;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 /**
  * Request body for creating or updating a team.
  */
 public class TeamRequest {
 
+    @NotBlank(message = "Team name is required")
+    @Size(max = 100, message = "Team name must not exceed 100 characters")
     private String name;
+
+    @NotBlank(message = "Team tag is required")
+    @Size(max = 10, message = "Team tag must not exceed 10 characters")
     private String tag;
+
+    @Size(max = 500, message = "Logo URL must not exceed 500 characters")
     private String logoUrl;
+
+    @Size(max = 100, message = "Home region must not exceed 100 characters")
     private String homeRegion;
 
     // ─── Constructors ──────────────────────────────────────────────────────────

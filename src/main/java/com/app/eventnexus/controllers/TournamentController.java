@@ -12,6 +12,7 @@ import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.BracketService;
 import com.app.eventnexus.services.TournamentService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -87,7 +88,7 @@ public class TournamentController {
      */
     @PostMapping
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
-    public ResponseEntity<TournamentResponse> createTournament(@RequestBody TournamentRequest request,
+    public ResponseEntity<TournamentResponse> createTournament(@Valid @RequestBody TournamentRequest request,
                                                                Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -105,7 +106,7 @@ public class TournamentController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<TournamentResponse> updateTournament(@PathVariable Long id,
-                                                               @RequestBody TournamentRequest request) {
+                                                               @Valid @RequestBody TournamentRequest request) {
         return ResponseEntity.ok(tournamentService.update(id, request));
     }
 
@@ -133,7 +134,7 @@ public class TournamentController {
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<TournamentResponse> updateTournamentStatus(@PathVariable Long id,
-                                                                     @RequestBody TournamentStatusRequest request) {
+                                                                     @Valid @RequestBody TournamentStatusRequest request) {
         return ResponseEntity.ok(tournamentService.updateStatus(id, request.getStatus()));
     }
 
@@ -167,7 +168,7 @@ public class TournamentController {
     @PostMapping("/{id}/register")
     @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER')")
     public ResponseEntity<RegistrationResponse> registerTeam(@PathVariable Long id,
-                                                             @RequestBody RegistrationRequest request,
+                                                             @Valid @RequestBody RegistrationRequest request,
                                                              Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -200,7 +201,7 @@ public class TournamentController {
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<RegistrationResponse> updateRegistrationStatus(@PathVariable Long id,
                                                                          @PathVariable Long teamId,
-                                                                         @RequestBody RegistrationStatusRequest request) {
+                                                                         @Valid @RequestBody RegistrationStatusRequest request) {
         return ResponseEntity.ok(tournamentService.updateRegistrationStatus(id, teamId, request.getStatus()));
     }
 }

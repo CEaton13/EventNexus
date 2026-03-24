@@ -4,6 +4,7 @@ import com.app.eventnexus.dtos.requests.ResultRequest;
 import com.app.eventnexus.dtos.requests.ScheduleMatchRequest;
 import com.app.eventnexus.dtos.responses.MatchResponse;
 import com.app.eventnexus.services.MatchService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,7 +39,7 @@ public class MatchController {
     @PatchMapping("/{id}/schedule")
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<MatchResponse> scheduleMatch(@PathVariable Long id,
-                                                       @RequestBody ScheduleMatchRequest request) {
+                                                       @Valid @RequestBody ScheduleMatchRequest request) {
         return ResponseEntity.ok(
                 matchService.scheduleMatch(id, request.getScheduledTime(), request.getVenueId()));
     }
@@ -54,7 +55,7 @@ public class MatchController {
     @PatchMapping("/{id}/result")
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<MatchResponse> recordResult(@PathVariable Long id,
-                                                      @RequestBody ResultRequest request) {
+                                                      @Valid @RequestBody ResultRequest request) {
         return ResponseEntity.ok(matchService.recordResult(id, request.getWinnerId()));
     }
 }
