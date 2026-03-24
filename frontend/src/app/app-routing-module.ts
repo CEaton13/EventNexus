@@ -9,6 +9,20 @@ const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./features/auth/auth-module').then((m) => m.AuthModule),
   },
+  // Global public tournament list — no auth, no org required (spectator entry point).
+  // Must be declared before :orgSlug to prevent Angular matching 'tournaments' as a slug.
+  {
+    path: 'tournaments',
+    loadChildren: () =>
+      import('./features/tournaments/tournaments-module').then((m) => m.TournamentsModule),
+  },
+  // Org creation — TOURNAMENT_ADMIN only, accessed from landing CTA when user has no org.
+  {
+    path: 'org',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['TOURNAMENT_ADMIN'] },
+    loadChildren: () => import('./features/org/org-module').then((m) => m.OrgModule),
+  },
   {
     // Org-scoped routes — all child routes inherit the active org context.
     path: ':orgSlug',

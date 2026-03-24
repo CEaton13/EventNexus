@@ -7,4 +7,17 @@
       <a mat-stroked-button routerLink="/auth/register">Create Account</a>
     </div>
   </div>
+
+  <!-- Shown to authenticated TOURNAMENT_ADMINs who have not created an org yet -->
+  @if (showOrgCta) {
+    <div class="org-cta">
+      <mat-card>
+        <mat-card-content>
+          <h2>Ready to host tournaments?</h2>
+          <p>Create your organization to start building brackets, managing teams, and running events.</p>
+          <a mat-raised-button color="accent" routerLink="/org/create">Create Organization</a>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
 </div>

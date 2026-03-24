@@ -51,13 +51,16 @@ export class Register {
         const slug =
           this.tenantService.currentOrgSlug() ??
           this.tenantService.memberships()[0]?.organizationSlug;
-        if (slug) {
-          const dest = this.authService.isAdmin()
-            ? [slug, 'admin', 'dashboard']
-            : [slug, 'tournaments'];
+        const role = this.authService.user()?.role;
+
+        if (role === 'SPECTATOR') {
+          this.router.navigate(['/tournaments']);
+        } else if (slug) {
+          const dest =
+            role === 'TOURNAMENT_ADMIN' ? [slug, 'admin', 'dashboard'] : [slug, 'tournaments'];
           this.router.navigate(dest);
         } else {
-          // New user with no org yet — land on home so they can be guided
+          // No org yet — landing page will show the "Create your organization" CTA
           this.router.navigate(['/']);
         }
       },
