@@ -1,0 +1,38 @@
+<div class="page-container">
+  <h1>{{ isEdit() ? 'Edit Player' : 'Add Player' }}</h1>
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Gamer Tag</mat-label>
+          <input matInput formControlName="gamerTag" />
+          @if (form.get('gamerTag')?.hasError('required') && form.get('gamerTag')?.touched) {
+            <mat-error>Gamer tag is required.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Real Name (optional)</mat-label>
+          <input matInput formControlName="realName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Position (optional)</mat-label>
+          <input matInput formControlName="position" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Country (optional)</mat-label>
+          <input matInput formControlName="country" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Avatar URL (optional)</mat-label>
+          <input matInput formControlName="avatarUrl" />
+        </mat-form-field>
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()">
+            {{ isEdit() ? 'Save Changes' : 'Add Player' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
