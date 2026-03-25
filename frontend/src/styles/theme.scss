@@ -1,0 +1,142 @@
+// =============================================================================
+// EventNexus — Theme System
+//
+// All CSS custom properties used by ThemeService are declared here.
+// ThemeService.applyGenre() overrides :root variables at runtime.
+// ThemeService.resetTheme() removes the overrides, reverting to defaults.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Default custom properties — active when no genre theme is applied
+// -----------------------------------------------------------------------------
+:root {
+  --primary:    #1976d2;
+  --secondary:  #424242;
+  --accent:     #ff9800;
+  --font-body:  'Roboto', sans-serif;
+
+  --bg-surface:   #f4f6f9;
+  --bg-card:      #ffffff;
+  --text-primary: #1a1a2e;
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+}
+
+// -----------------------------------------------------------------------------
+// Background-style variants — activated by [data-theme] on <html>
+// Mapped from the BackgroundStyle enum: DARK, NEON, GRITTY, SLEEK, PIXEL, ARCANE
+// -----------------------------------------------------------------------------
+
+[data-theme='dark'] {
+  --bg-surface:   #121212;
+  --bg-card:      #1e1e1e;
+  --text-primary: #ffffff;
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+}
+
+[data-theme='neon'] {
+  --bg-surface:   #0a0a0a;
+  --bg-card:      #111111;
+  --text-primary: var(--accent);
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    filter: contrast(1.05);
+  }
+}
+
+[data-theme='gritty'] {
+  --bg-surface:   #1a1209;
+  --bg-card:      #241a0e;
+  --text-primary: #e8d5b0;
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+}
+
+[data-theme='sleek'] {
+  --bg-surface:   #f4f6f9;
+  --bg-card:      #ffffff;
+  --text-primary: #1a1a2e;
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+}
+
+[data-theme='pixel'] {
+  --bg-surface:   #0f0f23;
+  --bg-card:      #1a1a3e;
+  --text-primary: #00ff41;
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+  }
+}
+
+[data-theme='arcane'] {
+  --bg-surface:   #1a0533;
+  --bg-card:      #2d0f4e;
+  --text-primary: #e0c3ff;
+
+  body {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Utility classes — consume theme variables so they stay in sync with genre
+// -----------------------------------------------------------------------------
+
+.card {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 20px;
+  cursor: pointer;
+  font-family: var(--font-body);
+
+  &:hover { filter: brightness(1.1); }
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 20px;
+  cursor: pointer;
+  font-family: var(--font-body);
+
+  &:hover { background-color: var(--primary); color: #fff; }
+}
+
+.themed-header {
+  color: var(--primary);
+  font-family: var(--font-body);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}

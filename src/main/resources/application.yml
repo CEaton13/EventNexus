@@ -5,8 +5,10 @@ spring:
   # ─── DataSource ───────────────────────────────────────────────────────────────
   datasource:
     url: jdbc:postgresql://localhost:5432/EventNexus
-    username: postgres
-    password: skillstorm
+    # Use the non-superuser role so PostgreSQL Row-Level Security policies are enforced.
+    # The 'postgres' superuser bypasses RLS. Run multi_tenant_migration.sql to create this role.
+    username: eventnexus_app
+    password: eventnexus_dev
     driver-class-name: org.postgresql.Driver
 
   # ─── JPA / Hibernate ──────────────────────────────────────────────────────────

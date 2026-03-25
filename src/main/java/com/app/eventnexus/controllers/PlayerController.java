@@ -1,10 +1,14 @@
 package com.app.eventnexus.controllers;
 
 import com.app.eventnexus.dtos.requests.PlayerRequest;
+import com.app.eventnexus.dtos.responses.PageResponse;
 import com.app.eventnexus.dtos.responses.PlayerResponse;
 import com.app.eventnexus.dtos.responses.PlayerStatsResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.PlayerService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +39,16 @@ public class PlayerController {
     }
 
     /**
-     * Returns all players across all teams, including soft-deleted ones.
+     * Returns a page of players across all teams, including soft-deleted ones.
+     * Supports {@code ?page=0&size=20&sort=gamerTag} query parameters.
      *
-     * @return 200 OK with a list of all players
+     * @param pageable pagination and sort parameters (default: 20 per page, sorted by gamerTag)
+     * @return 200 OK with a page of players
      */
     @GetMapping("/api/players")
-    public ResponseEntity<List<PlayerResponse>> getAllPlayers() {
-        return ResponseEntity.ok(playerService.findAll());
+    public ResponseEntity<PageResponse<PlayerResponse>> getAllPlayers(
+            @PageableDefault(size = 20, sort = "gamerTag") Pageable pageable) {
+        return ResponseEntity.ok(PageResponse.from(playerService.findAll(pageable)));
     }
 
     /**
@@ -80,7 +87,7 @@ public class PlayerController {
     @PostMapping("/api/teams/{teamId}/players")
     @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER')")
     public ResponseEntity<PlayerResponse> createPlayer(@PathVariable Long teamId,
-                                                       @RequestBody PlayerRequest request,
+                                                       @Valid @RequestBody PlayerRequest request,
                                                        Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -100,7 +107,7 @@ public class PlayerController {
     @PutMapping("/api/players/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable Long id,
-                                                       @RequestBody PlayerRequest request,
+                                                       @Valid @RequestBody PlayerRequest request,
                                                        Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.ok(

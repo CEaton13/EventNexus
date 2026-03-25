@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Tournaments</h1>
+
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="selectedStatus" (selectionChange)="onStatusChange($event.value)">
+          @for (opt of statusOptions; track opt.value) {
+            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Genre</mat-label>
+        <mat-select [value]="selectedGenreId" (selectionChange)="onGenreChange($event.value)">
+          <mat-option [value]="undefined">All Genres</mat-option>
+          @for (g of genres(); track g.id) {
+            <mat-option [value]="g.id">{{ g.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (tournaments().length === 0) {
+    <div class="empty-state">
+      <mat-icon>emoji_events</mat-icon>
+      <h3>No tournaments found</h3>
+      <p>Try adjusting your filters or check back later.</p>
+    </div>
+  } @else {
+    <div class="tournament-grid">
+      @for (t of tournaments(); track t.id) {
+        <mat-card class="tournament-card" (click)="openTournament(t.id)" tabindex="0"
+                  (keydown.enter)="openTournament(t.id)">
+          <div class="card-genre-strip" [attr.data-genre]="t.gameGenreName"></div>
+          <mat-card-header>
+            <mat-card-title>{{ t.name }}</mat-card-title>
+            <mat-card-subtitle>{{ t.gameTitle }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="card-meta">
+              <mat-chip [color]="statusColor(t.status)" highlighted>{{ t.status | titlecase }}</mat-chip>
+              <span class="format-badge">{{ t.format }}</span>
+            </div>
+            <div class="card-dates">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ t.startDate | date:'MMM d, y' }} — {{ t.endDate | date:'MMM d, y' }}</span>
+            </div>
+            <div class="card-teams">
+              <mat-icon>groups</mat-icon>
+              <span>Max {{ t.maxTeams }} teams</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    @if (totalElements() > pageSize) {
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize"
+        [pageIndex]="page"
+        (page)="onPageChange($event.pageIndex)">
+      </mat-paginator>
+    }
+  }
+</div>

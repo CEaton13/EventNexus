@@ -6,21 +6,30 @@ import com.app.eventnexus.dtos.responses.GameGenreResponse;
 import com.app.eventnexus.dtos.responses.PlayerResponse;
 import com.app.eventnexus.dtos.responses.PlayerStatsResponse;
 import com.app.eventnexus.dtos.responses.VenueResponse;
+import com.app.eventnexus.models.Organization;
+import com.app.eventnexus.repositories.OrganizationMemberRepository;
+import com.app.eventnexus.repositories.OrganizationRepository;
 import com.app.eventnexus.security.JwtTokenProvider;
 import com.app.eventnexus.services.GameGenreService;
 import com.app.eventnexus.services.PlayerService;
 import com.app.eventnexus.services.TeamService;
 import com.app.eventnexus.services.VenueService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,12 +69,28 @@ class CoreEntityIntegrationTest {
     @MockitoBean
     private PlayerService playerService;
 
+    // Required by TenantFilter loaded with SecurityConfig
+    @MockitoBean
+    private OrganizationRepository organizationRepository;
+
+    @MockitoBean
+    private OrganizationMemberRepository organizationMemberRepository;
+
     // Required by JwtAuthenticationFilter loaded with SecurityConfig
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
     private UserDetailsService userDetailsService;
+
+    @BeforeEach
+    void stubTenantFilter() {
+        Organization org = new Organization();
+        org.setId(1L);
+        org.setName("Test Org");
+        org.setSlug("test-org");
+        when(organizationRepository.findBySlug(anyString())).thenReturn(Optional.of(org));
+    }
 
     // ─── Genres ───────────────────────────────────────────────────────────────
 
@@ -91,7 +116,7 @@ class CoreEntityIntegrationTest {
     void getVenues_returns200WithoutAuth() throws Exception {
         when(venueService.findAll()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/venues"))
+        mockMvc.perform(get("/api/orgs/test-org/venues"))
                 .andExpect(status().isOk());
     }
 
@@ -102,7 +127,7 @@ class CoreEntityIntegrationTest {
         venue.setName("Main Arena");
         when(venueService.findById(1L)).thenReturn(venue);
 
-        mockMvc.perform(get("/api/venues/1"))
+        mockMvc.perform(get("/api/orgs/test-org/venues/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Main Arena"));
     }
@@ -125,7 +150,7 @@ class CoreEntityIntegrationTest {
 
     @Test
     void getPlayers_returns200WithoutAuth() throws Exception {
-        when(playerService.findAll()).thenReturn(List.of());
+        when(playerService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(get("/api/players"))
                 .andExpect(status().isOk());

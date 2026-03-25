@@ -1,0 +1,14 @@
+.loading-container { display: flex; justify-content: center; padding: 64px; }
+.page-container { padding: 24px; max-width: 900px; margin: 0 auto; }
+.breadcrumb { display: flex; align-items: center; gap: 4px; margin-bottom: 20px; font-size: 14px;
+  a { cursor: pointer; color: var(--primary, #673ab7); &:hover { text-decoration: underline; } }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; opacity: 0.6; }
+}
+.team-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
+  h1 { margin: 0 0 4px; }
+  .meta { margin: 0; color: var(--mat-sys-on-surface-variant); }
+}
+.actions { display: flex; gap: 8px; }
+.tag { font-size: 14px; background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 8px; }
+.empty-note { color: var(--mat-sys-on-surface-variant); font-style: italic; }
+.player-row { cursor: pointer; &:hover { background: rgba(0,0,0,0.04); } }

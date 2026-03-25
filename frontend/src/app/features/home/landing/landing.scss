@@ -1,0 +1,34 @@
+.landing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-surface, #f4f6f9);
+  padding: 16px;
+}
+
+.landing-hero {
+  text-align: center;
+  max-width: 480px;
+}
+
+.landing-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary, #1976d2);
+  margin: 0 0 12px;
+  letter-spacing: -0.05em;
+}
+
+.landing-subtitle {
+  font-size: 1.125rem;
+  color: #555;
+  margin: 0 0 40px;
+}
+
+.landing-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

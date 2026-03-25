@@ -1,0 +1,51 @@
+@if (loading()) {
+  <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+} @else if (player(); as p) {
+  <div class="page-container">
+    <div class="player-header">
+      <div>
+        <h1>{{ p.gamerTag }}</h1>
+        <p class="meta">
+          {{ p.realName ?? '' }}
+          @if (p.position) { &bull; {{ p.position }} }
+          @if (p.country) { &bull; {{ p.country }} }
+          &bull; <a [routerLink]="['/', tenantService.currentOrgSlug(), 'teams', p.teamId]">{{ p.teamName }}</a>
+        </p>
+        @if (!p.active) { <mat-chip color="warn" highlighted>Inactive</mat-chip> }
+      </div>
+      @if (canEdit()) {
+        <button mat-stroked-button (click)="editPlayer()">Edit Player</button>
+      }
+    </div>
+
+    <mat-card>
+      <mat-card-header><mat-card-title>Tournament Stats</mat-card-title></mat-card-header>
+      <mat-card-content>
+        @if (stats().length === 0) {
+          <p class="empty-note">No tournament stats yet.</p>
+        } @else {
+          <table mat-table [dataSource]="stats()" class="stats-table">
+            <ng-container matColumnDef="tournament">
+              <th mat-header-cell *matHeaderCellDef>Tournament</th>
+              <td mat-cell *matCellDef="let row">{{ row.tournamentName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="wins">
+              <th mat-header-cell *matHeaderCellDef>W</th>
+              <td mat-cell *matCellDef="let row">{{ row.wins }}</td>
+            </ng-container>
+            <ng-container matColumnDef="losses">
+              <th mat-header-cell *matHeaderCellDef>L</th>
+              <td mat-cell *matCellDef="let row">{{ row.losses }}</td>
+            </ng-container>
+            <ng-container matColumnDef="mvp">
+              <th mat-header-cell *matHeaderCellDef>MVP</th>
+              <td mat-cell *matCellDef="let row">{{ row.mvpCount }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

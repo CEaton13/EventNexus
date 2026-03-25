@@ -1,0 +1,8 @@
+<mat-form-field *ngIf="hasMultipleOrgs" appearance="outline" class="org-selector">
+  <mat-label>Organization</mat-label>
+  <mat-select [value]="selectedSlug" (selectionChange)="onOrgChange($event.value)">
+    <mat-option *ngFor="let m of memberships" [value]="m.organizationSlug">
+      {{ m.organizationName }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

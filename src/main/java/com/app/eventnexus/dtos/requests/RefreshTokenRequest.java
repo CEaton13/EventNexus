@@ -1,10 +1,13 @@
 package com.app.eventnexus.dtos.requests;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * Request body for {@code POST /api/auth/refresh}.
  */
 public class RefreshTokenRequest {
 
+    @NotBlank(message = "Refresh token is required")
     private String refreshToken;
 
     // ─── Constructors ──────────────────────────────────────────────────────────

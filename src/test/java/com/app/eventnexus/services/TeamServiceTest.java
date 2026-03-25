@@ -15,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,15 +68,15 @@ class TeamServiceTest {
     // ─── findAll ──────────────────────────────────────────────────────────────
 
     @Test
-    void findAll_returnsListOfTeamResponses() {
-        when(teamRepository.findAll()).thenReturn(List.of(team));
+    void findAll_returnsPageOfTeamResponses() {
+        when(teamRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(team)));
         when(teamRepository.countActivePlayersByTeamId(1L)).thenReturn(3L);
 
-        List<TeamResponse> result = teamService.findAll();
+        Page<TeamResponse> result = teamService.findAll(Pageable.unpaged());
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Alpha Squad");
-        assertThat(result.get(0).getPlayerCount()).isEqualTo(3L);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getName()).isEqualTo("Alpha Squad");
+        assertThat(result.getContent().get(0).getPlayerCount()).isEqualTo(3L);
     }
 
     // ─── findById ─────────────────────────────────────────────────────────────

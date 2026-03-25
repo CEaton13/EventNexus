@@ -1,0 +1,18 @@
+.wizard-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  h1 { margin-bottom: 24px; }
+}
+.full-width { width: 100%; margin-bottom: 4px; }
+.date-row { display: flex; gap: 16px; flex-wrap: wrap;
+  mat-form-field { flex: 1; min-width: 200px; }
+}
+.step-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.step-hint { color: var(--mat-sys-on-surface-variant); margin-bottom: 16px; }
+.genre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;
+  div { display: flex; flex-direction: column; }
+  label { font-size: 12px; font-weight: 600; text-transform: uppercase; opacity: 0.6; margin-bottom: 2px; }
+}
+.hint { color: var(--mat-sys-on-surface-variant); font-size: 14px; }

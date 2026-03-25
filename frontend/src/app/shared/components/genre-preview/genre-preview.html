@@ -1,0 +1,41 @@
+<div
+  class="genre-card"
+  [class.selected]="selected"
+  (click)="select()"
+  (keydown.enter)="select()"
+  (keydown.space)="select()"
+  tabindex="0"
+  role="button"
+  [attr.aria-pressed]="selected"
+  [attr.aria-label]="'Select ' + genre.name + ' theme'">
+
+  <div class="genre-card__header" [ngStyle]="headerStyle">
+    <span class="genre-card__name">{{ genre.name }}</span>
+    <span class="genre-card__style-badge">{{ genre.backgroundStyle }}</span>
+  </div>
+
+  <div class="genre-card__body">
+    <p class="genre-card__description">{{ genre.description }}</p>
+
+    <div class="genre-card__palette">
+      <span
+        class="genre-card__swatch"
+        [style.background-color]="genre.primaryColor"
+        title="Primary"></span>
+      <span
+        class="genre-card__swatch"
+        [style.background-color]="genre.secondaryColor"
+        title="Secondary"></span>
+      <span
+        class="genre-card__swatch"
+        [style.background-color]="genre.accentColor"
+        title="Accent"></span>
+    </div>
+  </div>
+
+  <div class="genre-card__accent-bar" [ngStyle]="accentStyle"></div>
+
+  @if (selected) {
+    <div class="genre-card__selected-indicator" aria-hidden="true">✓ Selected</div>
+  }
+</div>

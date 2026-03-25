@@ -2,9 +2,12 @@ package com.app.eventnexus.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,10 @@ public class Venue {
     @Column(name = "station_count", nullable = false)
     private Integer stationCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
@@ -45,10 +52,11 @@ public class Venue {
     public Venue() {
     }
 
-    public Venue(String name, String location, Integer stationCount) {
+    public Venue(String name, String location, Integer stationCount, Organization organization) {
         this.name = name;
         this.location = location;
         this.stationCount = stationCount;
+        this.organization = organization;
         this.isActive = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -86,6 +94,14 @@ public class Venue {
 
     public void setStationCount(Integer stationCount) {
         this.stationCount = stationCount;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     public boolean isActive() {

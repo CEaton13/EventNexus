@@ -1,0 +1,53 @@
+@if (loading()) {
+  <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+} @else if (team(); as t) {
+  <div class="page-container">
+    <nav class="breadcrumb">
+      <a (click)="backToList()" tabindex="0" (keydown.enter)="backToList()">Teams</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span>{{ t.name }}</span>
+    </nav>
+
+    <div class="team-header">
+      <div>
+        <h1>{{ t.name }} <span class="tag">{{ t.tag }}</span></h1>
+        <p class="meta">Manager: {{ t.managerUsername }} &bull; {{ t.homeRegion ?? 'No region' }}</p>
+      </div>
+      @if (canEdit()) {
+        <div class="actions">
+          <button mat-stroked-button (click)="editTeam()">Edit</button>
+          @if (authService.isAdmin()) {
+            <button mat-stroked-button color="warn" (click)="deleteTeam()">Delete</button>
+          }
+        </div>
+      }
+    </div>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Roster ({{ players().length }} active)</mat-card-title>
+        @if (canEdit()) {
+          <button mat-button color="primary" (click)="addPlayer()">
+            <mat-icon>add</mat-icon> Add Player
+          </button>
+        }
+      </mat-card-header>
+      <mat-card-content>
+        @if (players().length === 0) {
+          <p class="empty-note">No players on this team yet.</p>
+        } @else {
+          <mat-list>
+            @for (p of players(); track p.id) {
+              <mat-list-item (click)="viewPlayer(p.id)" class="player-row">
+                <span matListItemTitle>{{ p.gamerTag }}</span>
+                <span matListItemLine>{{ p.realName ?? '' }} {{ p.position ? '· ' + p.position : '' }} {{ p.country ? '· ' + p.country : '' }}</span>
+                @if (!p.active) { <mat-chip matListItemMeta>Inactive</mat-chip> }
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            }
+          </mat-list>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
