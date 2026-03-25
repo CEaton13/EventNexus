@@ -8,16 +8,22 @@
 
 // -----------------------------------------------------------------------------
 // Default custom properties — active when no genre theme is applied
+// Dark esports aesthetic: deep navy base, charcoal cards, vivid accents
 // -----------------------------------------------------------------------------
 :root {
-  --primary:    #1976d2;
-  --secondary:  #424242;
-  --accent:     #ff9800;
-  --font-body:  'Roboto', sans-serif;
+  --primary:    #7c4dff;
+  --secondary:  #448aff;
+  --accent:     #00e5ff;
+  --font-body:  'Space Grotesk', 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
 
-  --bg-surface:   #f4f6f9;
-  --bg-card:      #ffffff;
-  --text-primary: #1a1a2e;
+  --bg-surface:   #0d0f1a;
+  --bg-card:      #161b2e;
+  --bg-navbar:    #0a0c15;
+  --bg-elevated:  #1e2540;
+  --text-primary: #e8eaf0;
+  --text-muted:   rgba(232, 234, 240, 0.5);
+  --border-subtle: rgba(255, 255, 255, 0.07);
 
   --radius-sm:  4px;
   --radius-md:  8px;
@@ -30,9 +36,9 @@
 // -----------------------------------------------------------------------------
 
 [data-theme='dark'] {
-  --bg-surface:   #121212;
-  --bg-card:      #1e1e1e;
-  --text-primary: #ffffff;
+  --bg-surface:   #0d0f1a;
+  --bg-card:      #161b2e;
+  --text-primary: #e8eaf0;
 
   body {
     background-color: var(--bg-surface);
@@ -41,8 +47,8 @@
 }
 
 [data-theme='neon'] {
-  --bg-surface:   #0a0a0a;
-  --bg-card:      #111111;
+  --bg-surface:   #060810;
+  --bg-card:      #0d1020;
   --text-primary: var(--accent);
 
   body {
@@ -64,9 +70,9 @@
 }
 
 [data-theme='sleek'] {
-  --bg-surface:   #f4f6f9;
-  --bg-card:      #ffffff;
-  --text-primary: #1a1a2e;
+  --bg-surface:   #0d0f1a;
+  --bg-card:      #161b2e;
+  --text-primary: #e8eaf0;
 
   body {
     background-color: var(--bg-surface);
@@ -106,7 +112,8 @@
   color: var(--text-primary);
   border-radius: var(--radius-md);
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .btn-primary {
@@ -117,8 +124,9 @@
   padding: 8px 20px;
   cursor: pointer;
   font-family: var(--font-body);
+  font-weight: 600;
 
-  &:hover { filter: brightness(1.1); }
+  &:hover { filter: brightness(1.15); }
 }
 
 .btn-secondary {
@@ -129,14 +137,54 @@
   padding: 8px 20px;
   cursor: pointer;
   font-family: var(--font-body);
+  font-weight: 600;
 
   &:hover { background-color: var(--primary); color: #fff; }
 }
 
 .themed-header {
   color: var(--primary);
-  font-family: var(--font-body);
+  font-family: var(--font-display);
+  font-weight: 700;
   border-bottom: 3px solid var(--accent);
   padding-bottom: 8px;
   margin-bottom: 16px;
+}
+
+// -----------------------------------------------------------------------------
+// Global dialog panel classes — MatDialog overlays render outside component
+// scope so these must be global (component-scoped SCSS cannot reach them).
+// Usage: this.dialog.open(MyDialog, { panelClass: 'dark-dialog' })
+// -----------------------------------------------------------------------------
+
+.dark-dialog {
+  .mat-mdc-dialog-surface {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg) !important;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Scrollbar styling — dark aesthetic
+// -----------------------------------------------------------------------------
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
 }

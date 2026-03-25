@@ -1,0 +1,132 @@
+<div class="auth-dialog-container">
+  <!-- Header -->
+  <div class="auth-dialog-header">
+    <span class="brand-mark">⚡ EventNexus</span>
+    <button mat-icon-button class="close-btn" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <mat-tab-group
+    class="auth-tabs"
+    [selectedIndex]="selectedTab()"
+    (selectedIndexChange)="selectedTab.set($event)"
+    animationDuration="200ms">
+
+    <!-- ── Sign In Tab ──────────────────────────────────────────────── -->
+    <mat-tab label="Sign In">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+          @if (loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched) {
+            <mat-error>Username is required</mat-error>
+          }
+          @if (loginForm.get('username')?.hasError('minlength')) {
+            <mat-error>At least 3 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+          }
+        </mat-form-field>
+
+        @if (loginError()) {
+          <p class="form-error">{{ loginError() }}</p>
+        }
+
+        <button
+          mat-flat-button
+          class="submit-btn"
+          type="submit"
+          [disabled]="loginForm.invalid || loginLoading()">
+          @if (loginLoading()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            Sign In
+          }
+        </button>
+
+        <p class="switch-tab">
+          Don't have an account?
+          <button type="button" mat-button class="link-btn" (click)="selectedTab.set(1)">Create one</button>
+        </p>
+      </form>
+    </mat-tab>
+
+    <!-- ── Create Account Tab ──────────────────────────────────────── -->
+    <mat-tab label="Create Account">
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+          @if (registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched) {
+            <mat-error>Username is required</mat-error>
+          }
+          @if (registerForm.get('username')?.hasError('minlength')) {
+            <mat-error>At least 3 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+            <mat-error>Email is required</mat-error>
+          }
+          @if (registerForm.get('email')?.hasError('email')) {
+            <mat-error>Enter a valid email address</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="new-password" />
+          @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+          }
+          @if (registerForm.get('password')?.hasError('minlength')) {
+            <mat-error>At least 6 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>I want to…</mat-label>
+          <mat-select formControlName="role">
+            @for (opt of roleOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (registerError()) {
+          <p class="form-error">{{ registerError() }}</p>
+        }
+
+        <button
+          mat-flat-button
+          class="submit-btn"
+          type="submit"
+          [disabled]="registerForm.invalid || registerLoading()">
+          @if (registerLoading()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            Create Account
+          }
+        </button>
+
+        <p class="switch-tab">
+          Already have an account?
+          <button type="button" mat-button class="link-btn" (click)="selectedTab.set(0)">Sign in</button>
+        </p>
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+</div>

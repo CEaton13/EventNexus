@@ -1,11 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Login } from './login/login';
-import { Register } from './register/register';
+import { TournamentHubComponent } from './tournament-hub';
 
 const routes: Routes = [
-  { path: 'login', redirectTo: '/tournaments', pathMatch: 'full' },
-  { path: 'register', redirectTo: '/tournaments', pathMatch: 'full' },
+  { path: ':id', component: TournamentHubComponent },
   { path: '', redirectTo: '/tournaments', pathMatch: 'full' },
 ];
 
@@ -13,4 +11,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AuthRoutingModule {}
+export class TournamentHubRoutingModule {}

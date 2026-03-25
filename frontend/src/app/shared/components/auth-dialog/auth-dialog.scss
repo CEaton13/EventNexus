@@ -1,0 +1,110 @@
+.auth-dialog-container {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  min-width: 380px;
+  max-width: 440px;
+}
+
+// Header row: brand + close button
+.auth-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+
+  .brand-mark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  .close-btn {
+    color: var(--text-muted);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Tab group customization
+.auth-tabs {
+  ::ng-deep {
+    .mat-mdc-tab-header {
+      padding: 0 20px;
+    }
+
+    .mat-mdc-tab .mdc-tab__text-label {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+      color: var(--accent);
+    }
+
+    .mdc-tab-indicator__content--underline {
+      border-color: var(--accent) !important;
+    }
+  }
+}
+
+// Individual form inside each tab
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-error {
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(239, 83, 80, 0.12);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+  border-radius: var(--radius-sm);
+  color: #ef5350;
+  font-size: 13px;
+}
+
+.submit-btn {
+  margin-top: 8px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background-color: var(--accent) !important;
+  color: #000 !important;
+  border-radius: var(--radius-sm);
+
+  &[disabled] {
+    opacity: 0.5;
+  }
+
+  mat-progress-spinner {
+    display: inline-block;
+  }
+}
+
+.switch-tab {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+
+  .link-btn {
+    font-size: 13px;
+    color: var(--accent);
+    padding: 0 4px;
+    min-width: auto;
+    font-weight: 600;
+  }
+}

@@ -17,10 +17,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdminRoutingModule } from './admin-routing-module';
 import { Dashboard } from './dashboard/dashboard';
 import { TournamentNew } from './tournament-new/tournament-new';
+import { AdminGenreList } from './genre-list/admin-genre-list';
+import { AdminGenreForm } from './genre-form/admin-genre-form';
+import { VenueForm } from '../venues/venue-form/venue-form';
 import { SharedModule } from '../../shared/shared-module';
 
 @NgModule({
-  declarations: [Dashboard, TournamentNew],
+  declarations: [Dashboard, TournamentNew, AdminGenreList, AdminGenreForm, VenueForm],
   imports: [
     CommonModule,
     RouterModule,

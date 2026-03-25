@@ -7,6 +7,7 @@ import { AuthService } from '../../../core/services/auth';
 import { TenantService } from '../../../core/services/tenant.service';
 import { TeamResponse } from '../../../shared/models/team.model';
 import { PlayerResponse } from '../../../shared/models/player.model';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 /**
  * TeamDetailComponent shows team info, active player roster, and admin/manager controls.
@@ -64,11 +65,23 @@ export class TeamDetail implements OnInit {
   }
 
   deleteTeam(): void {
-    this.teamService.delete(this.teamId).subscribe({
-      next: () => {
-        this.snackBar.open('Team deleted', 'OK', { duration: 3000 });
-        this.router.navigate([this.tenantService.currentOrgSlug(), 'teams']);
+    const teamName = this.team()?.name ?? 'this team';
+    this.dialog.open(ConfirmDialog, {
+      panelClass: 'dark-dialog',
+      data: {
+        title: 'Delete Team',
+        message: `Permanently delete "${teamName}"? All players and tournament registrations will be removed. This cannot be undone.`,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
       },
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.teamService.delete(this.teamId).subscribe({
+        next: () => {
+          this.snackBar.open('Team deleted', 'OK', { duration: 3000 });
+          this.router.navigate([this.tenantService.currentOrgSlug(), 'teams']);
+        },
+      });
     });
   }
 

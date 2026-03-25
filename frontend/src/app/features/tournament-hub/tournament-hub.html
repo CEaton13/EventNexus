@@ -1,0 +1,156 @@
+<!-- Loading state -->
+@if (loading()) {
+  <div class="hub-loading">
+    <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+  </div>
+}
+
+<!-- Error state -->
+@if (error()) {
+  <div class="hub-error">
+    <mat-icon>error_outline</mat-icon>
+    <h2>{{ error() }}</h2>
+    <a mat-stroked-button routerLink="/tournaments">Browse tournaments</a>
+  </div>
+}
+
+<!-- Main content — visible once tournament loads -->
+@if (!loading() && !error() && tournament(); as t) {
+
+  <!-- Hero Header — genre-themed -->
+  <header class="hub-hero">
+    <div class="hero-content">
+      <div class="hero-meta">
+        <span class="game-title">{{ t.gameTitle }}</span>
+        <mat-chip class="status-chip status-{{ t.status | lowercase }}">
+          {{ t.status | titlecase | replace:'_':' ' }}
+        </mat-chip>
+      </div>
+      <h1 class="tournament-name">{{ t.name }}</h1>
+      <p class="tournament-desc">{{ t.description }}</p>
+
+      <!-- Key details row -->
+      <div class="hero-details">
+        @if (t.venue) {
+          <span class="detail-item">
+            <mat-icon>place</mat-icon> {{ t.venue.name }}
+          </span>
+        }
+        <span class="detail-item">
+          <mat-icon>groups</mat-icon> {{ registrations().length }} / {{ t.maxTeams }} teams
+        </span>
+        <span class="detail-item">
+          <mat-icon>sports_esports</mat-icon> {{ t.format | titlecase | replace:'_':' ' }}
+        </span>
+        @if (t.startDate) {
+          <span class="detail-item">
+            <mat-icon>calendar_today</mat-icon> {{ t.startDate | date:'mediumDate' }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Register CTA -->
+    @if (canRegister) {
+      <div class="hero-cta">
+        <button mat-flat-button class="register-btn" (click)="onRegister()">
+          <mat-icon>how_to_reg</mat-icon>
+          Register Your Team
+        </button>
+        @if (!authService.isAuthenticated()) {
+          <p class="cta-hint">Sign in or create an account to register</p>
+        }
+      </div>
+    }
+  </header>
+
+  <!-- Tab navigation -->
+  <div class="hub-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'bracket'"
+      (click)="setTab('bracket')">
+      <mat-icon>account_tree</mat-icon> Bracket
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'standings'"
+      (click)="setTab('standings')">
+      <mat-icon>leaderboard</mat-icon> Standings
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'teams'"
+      (click)="setTab('teams')">
+      <mat-icon>groups</mat-icon> Teams
+    </button>
+  </div>
+
+  <!-- Tab content -->
+  <div class="hub-body">
+
+    <!-- Bracket -->
+    @if (activeTab() === 'bracket') {
+      <div class="tab-panel">
+        @if (bracket()) {
+          <app-bracket-viewer [bracket]="bracket()!"></app-bracket-viewer>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>account_tree</mat-icon>
+            <p>Bracket not generated yet.</p>
+            <span>Check back once registration closes.</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Standings -->
+    @if (activeTab() === 'standings') {
+      <div class="tab-panel">
+        @if (standings().length > 0) {
+          <app-standings [standings]="standings()"></app-standings>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>leaderboard</mat-icon>
+            <p>No standings yet.</p>
+            <span>Standings will appear once matches are played.</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Teams -->
+    @if (activeTab() === 'teams') {
+      <div class="tab-panel">
+        @if (registrations().length > 0) {
+          <div class="teams-grid">
+            @for (reg of registrations(); track reg.teamId) {
+              <div class="team-card">
+                <div class="team-name">{{ reg.teamName }}</div>
+                <div class="team-details">
+                  <mat-chip class="reg-status reg-{{ reg.registrationStatus | lowercase }}">
+                    {{ reg.registrationStatus | titlecase }}
+                  </mat-chip>
+                  @if (reg.seed) {
+                    <span class="team-seed">#{{ reg.seed }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>groups</mat-icon>
+            <p>No teams registered yet.</p>
+            @if (canRegister) {
+              <button mat-flat-button class="register-btn-sm" (click)="onRegister()">
+                Be the first to register
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+}

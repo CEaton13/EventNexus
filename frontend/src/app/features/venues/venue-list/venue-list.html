@@ -1,0 +1,40 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Venues</h1>
+    @if (authService.isAdmin()) {
+      <button mat-raised-button color="primary" (click)="createVenue()">
+        <mat-icon>add</mat-icon> Add Venue
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (venues().length === 0) {
+    <div class="empty-state">
+      <mat-icon>location_on</mat-icon>
+      <h3>No venues yet</h3>
+      <p>Venues are the physical locations where tournament matches are played.</p>
+      @if (authService.isAdmin()) {
+        <button mat-raised-button color="primary" (click)="createVenue()">Add First Venue</button>
+      }
+    </div>
+  } @else {
+    <mat-list class="venue-list">
+      @for (venue of venues(); track venue.id) {
+        <mat-list-item (click)="openVenue(venue.id)" class="venue-item">
+          <mat-icon matListItemIcon>stadium</mat-icon>
+          <span matListItemTitle>{{ venue.name }}</span>
+          <span matListItemLine>
+            {{ venue.location }} &bull; {{ venue.stationCount }} stations
+            @if (venue.activeMatches != null) {
+              &bull; {{ venue.activeMatches }} active / {{ venue.availableStations }} available
+            }
+          </span>
+          <mat-icon matListItemMeta>chevron_right</mat-icon>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
+  }
+</div>

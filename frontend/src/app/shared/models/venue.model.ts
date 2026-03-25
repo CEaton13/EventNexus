@@ -10,3 +10,9 @@ export interface VenueResponse {
   availableStations?: number;
   utilizationPct?: number;
 }
+
+export interface VenueRequest {
+  name: string;
+  location: string;
+  stationCount: number;
+}

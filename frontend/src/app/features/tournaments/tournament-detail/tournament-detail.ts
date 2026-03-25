@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { MatchService } from '../../../core/services/match.service';
@@ -143,6 +144,33 @@ export class TournamentDetail implements OnInit, OnDestroy {
   nextStatus(): string | null {
     const t = this.tournament();
     return t ? (this.statusTransitions[t.status] ?? null) : null;
+  }
+
+  /**
+   * Opens a confirmation dialog before rejecting a team's registration.
+   * Calling the service directly from the template is unsafe — accidental
+   * clicks can immediately reject a team with no way to undo.
+   */
+  rejectRegistration(teamId: number, teamName: string): void {
+    const t = this.tournament();
+    if (!t) return;
+    this.dialog.open(ConfirmDialog, {
+      panelClass: 'dark-dialog',
+      data: {
+        title: 'Reject Registration',
+        message: `Reject ${teamName}'s registration for "${t.name}"? They will need to re-register if you change your mind.`,
+        confirmLabel: 'Reject',
+        cancelLabel: 'Cancel',
+      },
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.tournamentService.updateRegistrationStatus(t.id, teamId, 'REJECTED').subscribe({
+        next: () => {
+          this.snackBar.open(`${teamName} registration rejected.`, 'OK', { duration: 3000 });
+          this.loadSubResources();
+        },
+      });
+    });
   }
 
   backToList(): void {

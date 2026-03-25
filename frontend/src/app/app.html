@@ -1,1 +1,79 @@
-<router-outlet></router-outlet>
+<mat-toolbar class="app-navbar">
+  <!-- Brand -->
+  <a class="navbar-brand" routerLink="/">
+    <span class="brand-icon">⚡</span>
+    <span class="brand-name">EventNexus</span>
+  </a>
+
+  <!-- Primary navigation links -->
+  <nav class="navbar-links">
+    <a mat-button routerLink="/tournaments" routerLinkActive="active-link">
+      Browse
+    </a>
+    <a mat-button routerLink="/genres" routerLinkActive="active-link">
+      Genres
+    </a>
+    @if (authService.isAuthenticated() && hasOrg()) {
+      <a mat-button [routerLink]="[orgSlug(), 'tournaments']" routerLinkActive="active-link">
+        My Tournaments
+      </a>
+      <a mat-button [routerLink]="[orgSlug(), 'teams']" routerLinkActive="active-link">
+        Teams
+      </a>
+      <a mat-button [routerLink]="[orgSlug(), 'venues']" routerLinkActive="active-link">
+        Venues
+      </a>
+      @if (authService.isAdmin()) {
+        <a mat-button [routerLink]="[orgSlug(), 'admin', 'dashboard']" routerLinkActive="active-link">
+          Dashboard
+        </a>
+      }
+    }
+  </nav>
+
+  <span class="navbar-spacer"></span>
+
+  <!-- Org selector — only visible when user belongs to 2+ orgs -->
+  @if (authService.isAuthenticated()) {
+    <app-org-selector></app-org-selector>
+  }
+
+  <!-- Auth controls -->
+  @if (!authService.isAuthenticated()) {
+    <button mat-stroked-button class="signin-btn" (click)="openAuthDialog()">
+      Sign In
+    </button>
+  } @else {
+    <!-- User menu -->
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-avatar-btn" aria-label="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu" class="dark-dialog" xPosition="before">
+      <div class="user-menu-header" mat-menu-item disabled>
+        <span class="username">{{ authService.user()?.username }}</span>
+        <span class="user-role">{{ authService.user()?.role | titlecase }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      @if (authService.isAdmin() && !hasOrg()) {
+        <a mat-menu-item routerLink="/org/create">
+          <mat-icon>add_business</mat-icon> Create Organization
+        </a>
+      }
+      @if (hasOrg()) {
+        @if (authService.isAdmin()) {
+          <button mat-menu-item (click)="goToDashboard()">
+            <mat-icon>dashboard</mat-icon> Dashboard
+          </button>
+        }
+      }
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon> Sign Out
+      </button>
+    </mat-menu>
+  }
+</mat-toolbar>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>

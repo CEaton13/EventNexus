@@ -1,0 +1,291 @@
+// =============================================================================
+// Tournament Hub — public-facing themed tournament page
+// All color values come from CSS custom properties set by ThemeService
+// =============================================================================
+
+// Loading / error full-page states
+.hub-loading,
+.hub-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: var(--text-muted);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+// Hero header — uses gradient from primary → secondary
+.hub-hero {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 70%, transparent) 0%,
+    color-mix(in srgb, var(--secondary) 70%, transparent) 100%
+  );
+  border-bottom: 2px solid var(--accent);
+  padding: 48px 40px 40px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-content {
+  flex: 1;
+  min-width: 260px;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.game-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+}
+
+.status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+
+  &.status-registration_open  { background: rgba(0, 229, 255, 0.15); color: var(--accent); border: 1px solid var(--accent); }
+  &.status-in_progress        { background: rgba(255, 145, 0, 0.15); color: #ff9100; border: 1px solid #ff9100; }
+  &.status-completed          { background: rgba(105, 240, 174, 0.15); color: #69f0ae; border: 1px solid #69f0ae; }
+  &.status-draft              { background: rgba(255,255,255, 0.08); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+}
+
+.tournament-name {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px;
+  line-height: 1.1;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tournament-desc {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 20px;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.hero-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+  }
+}
+
+// Register CTA block
+.hero-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.register-btn {
+  background-color: var(--accent) !important;
+  color: #000 !important;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  padding: 8px 28px;
+  border-radius: 6px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 40%, transparent);
+
+  mat-icon {
+    margin-right: 6px;
+  }
+}
+
+.cta-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  text-align: center;
+}
+
+// Tab navigation bar
+.hub-tabs {
+  display: flex;
+  gap: 0;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 40px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+}
+
+// Tab content area
+.hub-body {
+  background-color: var(--bg-surface);
+  min-height: 400px;
+  padding: 32px 40px;
+}
+
+.tab-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Empty states
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  p {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  span {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+}
+
+.register-btn-sm {
+  background-color: var(--accent) !important;
+  color: #000 !important;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+// Teams grid
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.team-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: border-color 0.2s, transform 0.15s;
+
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+}
+
+.team-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.team-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-seed {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.reg-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &.reg-approved  { background: rgba(105, 240, 174, 0.15) !important; color: #69f0ae !important; }
+  &.reg-pending   { background: rgba(255, 193, 7, 0.15) !important; color: #ffc107 !important; }
+  &.reg-rejected  { background: rgba(239, 83, 80, 0.15) !important; color: #ef5350 !important; }
+}

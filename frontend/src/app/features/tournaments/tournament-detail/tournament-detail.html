@@ -82,7 +82,7 @@
                     Approve
                   </button>
                   <button mat-button color="warn"
-                    (click)="$event.stopPropagation(); tournamentService.updateRegistrationStatus(t.id, r.teamId, 'REJECTED').subscribe()">
+                    (click)="$event.stopPropagation(); rejectRegistration(r.teamId, r.teamName)">
                     Reject
                   </button>
                 </div>

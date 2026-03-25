@@ -1,0 +1,111 @@
+// =============================================================================
+// App Shell — Navbar + Layout
+// =============================================================================
+
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--bg-navbar) !important;
+  border-bottom: 1px solid var(--border-subtle);
+  height: 64px;
+  padding: 0 24px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+// Brand / Logo
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-right: 32px;
+
+  .brand-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+}
+
+// Nav links group
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  a[mat-button] {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--text-primary);
+    }
+
+    &.active-link {
+      color: var(--accent);
+    }
+  }
+}
+
+// Pushes right-side controls to the right
+.navbar-spacer {
+  flex: 1;
+}
+
+// Sign in button
+.signin-btn {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+// User avatar icon button
+.user-avatar-btn {
+  color: var(--text-primary) !important;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+// User menu header (disabled item showing username + role)
+.user-menu-header {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px;
+  cursor: default;
+
+  .username {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+}
+
+// Main content area beneath navbar
+.app-content {
+  min-height: calc(100vh - 64px);
+  background-color: var(--bg-surface);
+}

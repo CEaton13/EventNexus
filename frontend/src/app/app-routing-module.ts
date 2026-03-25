@@ -16,6 +16,19 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/tournaments/tournaments-module').then((m) => m.TournamentsModule),
   },
+  // Global public genre list — no auth, no org required.
+  // Must be declared before :orgSlug to prevent Angular matching 'genres' as a slug.
+  {
+    path: 'genres',
+    loadChildren: () => import('./features/genres/genres-module').then((m) => m.GenresModule),
+  },
+  // Public tournament hub — /t/:id — no auth, no org required.
+  // Literal path 't' must appear before :orgSlug to prevent Angular treating 't' as a slug.
+  {
+    path: 't',
+    loadChildren: () =>
+      import('./features/tournament-hub/tournament-hub-module').then((m) => m.TournamentHubModule),
+  },
   // Org creation — TOURNAMENT_ADMIN only, accessed from landing CTA when user has no org.
   {
     path: 'org',
@@ -43,6 +56,10 @@ const routes: Routes = [
           import('./features/players/players-module').then((m) => m.PlayersModule),
       },
       {
+        path: 'venues',
+        loadChildren: () => import('./features/venues/venues-module').then((m) => m.VenuesModule),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard],
         data: { roles: ['TOURNAMENT_ADMIN'] },
@@ -51,12 +68,9 @@ const routes: Routes = [
       { path: '', redirectTo: 'tournaments', pathMatch: 'full' },
     ],
   },
-  {
-    path: '',
-    loadChildren: () => import('./features/home/home-module').then((m) => m.HomeModule),
-  },
-  { path: 'unauthorized', redirectTo: '/auth/login' },
-  { path: '**', redirectTo: '/' },
+  { path: '', redirectTo: 'tournaments', pathMatch: 'full' },
+  { path: 'unauthorized', redirectTo: '/tournaments' },
+  { path: '**', redirectTo: '/tournaments' },
 ];
 
 @NgModule({
