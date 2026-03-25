@@ -1,0 +1,8 @@
+.loading-container { display: flex; justify-content: center; padding: 64px; }
+.page-container { padding: 24px; max-width: 900px; margin: 0 auto; }
+.player-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
+  h1 { margin: 0 0 4px; }
+  .meta { margin: 0; color: var(--mat-sys-on-surface-variant); }
+}
+.empty-note { color: var(--mat-sys-on-surface-variant); font-style: italic; }
+.stats-table { width: 100%; }

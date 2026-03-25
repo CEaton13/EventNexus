@@ -1,1 +1,143 @@
-<p>tournament-new works!</p>
+<div class="wizard-container">
+  <h1>New Tournament</h1>
+
+  <mat-stepper [linear]="true" #stepper>
+
+    <!-- Step 1: Basic Info -->
+    <mat-step [stepControl]="basicForm" label="Basic Info">
+      <form [formGroup]="basicForm" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tournament Name</mat-label>
+          <input matInput formControlName="name" />
+          @if (basicForm.get('name')?.hasError('required') && basicForm.get('name')?.touched) {
+            <mat-error>Name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (optional)</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Game Title (optional)</mat-label>
+          <input matInput formControlName="gameTitle" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Format</mat-label>
+          <mat-select formControlName="format">
+            @for (f of formatOptions; track f.value) {
+              <mat-option [value]="f.value">{{ f.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Max Teams</mat-label>
+          <input matInput type="number" formControlName="maxTeams" />
+        </mat-form-field>
+
+        <div class="date-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Registration Start</mat-label>
+            <input matInput type="datetime-local" formControlName="registrationStart" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Registration End</mat-label>
+            <input matInput type="datetime-local" formControlName="registrationEnd" />
+          </mat-form-field>
+        </div>
+
+        <div class="date-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput type="datetime-local" formControlName="startDate" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput type="datetime-local" formControlName="endDate" />
+          </mat-form-field>
+        </div>
+
+        <div class="step-actions">
+          <button mat-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="basicForm.invalid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Genre -->
+    <mat-step [stepControl]="genreForm" label="Genre">
+      <form [formGroup]="genreForm" novalidate>
+        <p class="step-hint">Select the game genre theme for this tournament.</p>
+        <div class="genre-grid">
+          @for (g of genres(); track g.id) {
+            <app-genre-preview
+              [genre]="g"
+              [selected]="selectedGenre()?.id === g.id"
+              (genreSelected)="selectGenre($event)">
+            </app-genre-preview>
+          }
+        </div>
+        @if (genreForm.get('gameGenreId')?.hasError('required') && genreForm.touched) {
+          <mat-error>Please select a genre.</mat-error>
+        }
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="genreForm.invalid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 3: Venue -->
+    <mat-step [stepControl]="venueForm" label="Venue">
+      <form [formGroup]="venueForm" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Venue</mat-label>
+          <mat-select formControlName="venueId">
+            @for (v of venues(); track v.id) {
+              <mat-option [value]="v.id">{{ v.name }} — {{ v.location }} ({{ v.stationCount }} stations)</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="venueForm.invalid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 4: Review -->
+    <mat-step label="Review">
+      <div class="review-grid">
+        <div><label>Name</label><span>{{ basicForm.value.name }}</span></div>
+        <div><label>Format</label><span>{{ basicForm.value.format }}</span></div>
+        <div><label>Max Teams</label><span>{{ basicForm.value.maxTeams }}</span></div>
+        <div><label>Genre</label><span>{{ selectedGenre()?.name ?? '—' }}</span></div>
+        <div><label>Venue</label><span>{{ venueById(venueForm.value.venueId)?.name ?? '—' }}</span></div>
+        <div><label>Start Date</label><span>{{ basicForm.value.startDate | date:'medium' }}</span></div>
+      </div>
+      @if (basicForm.value.description) {
+        <p><strong>Description:</strong> {{ basicForm.value.description }}</p>
+      }
+      <div class="step-actions">
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-raised-button color="primary" matStepperNext>Looks Good</button>
+      </div>
+    </mat-step>
+
+    <!-- Step 5: Confirm -->
+    <mat-step label="Confirm">
+      <p>Ready to create the tournament in <strong>DRAFT</strong> status.</p>
+      <p class="hint">You can open registration once you're satisfied with the settings.</p>
+      <div class="step-actions">
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading()">
+          {{ loading() ? 'Creating…' : 'Create Tournament' }}
+        </button>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</div>

@@ -1,0 +1,11 @@
+.page-container { padding: 24px; max-width: 900px; margin: 0 auto; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; h1 { margin: 0; } }
+.loading-container { display: flex; justify-content: center; padding: 64px; }
+.empty-state { text-align: center; padding: 64px; color: var(--mat-sys-on-surface-variant);
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.4; }
+  h3 { margin: 16px 0 8px; }
+}
+.team-list { border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.team-item { cursor: pointer; &:hover { background: rgba(0,0,0,0.04); } }
+.tag { font-size: 12px; background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+mat-paginator { margin-top: 16px; }

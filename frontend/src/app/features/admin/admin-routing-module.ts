@@ -7,7 +7,7 @@ import { TournamentNew } from './tournament-new/tournament-new';
 const routes: Routes = [
   { path: 'dashboard', component: Dashboard },
   { path: 'tournaments/new', component: TournamentNew },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 
 @NgModule({

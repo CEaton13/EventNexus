@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
+import { TenantService } from '../../../core/services/tenant.service';
 
 /**
  * RegisterComponent presents a Material form for creating a new account.
@@ -27,7 +28,8 @@ export class Register {
   constructor(
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly tenantService: TenantService,
+    private readonly router: Router,
   ) {
     this.form = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
@@ -46,8 +48,21 @@ export class Register {
 
     this.authService.register(this.form.value).subscribe({
       next: () => {
-        const target = this.authService.isAdmin() ? '/admin/dashboard' : '/tournaments';
-        this.router.navigate([target]);
+        const slug =
+          this.tenantService.currentOrgSlug() ??
+          this.tenantService.memberships()[0]?.organizationSlug;
+        const role = this.authService.user()?.role;
+
+        if (role === 'SPECTATOR') {
+          this.router.navigate(['/tournaments']);
+        } else if (slug) {
+          const dest =
+            role === 'TOURNAMENT_ADMIN' ? [slug, 'admin', 'dashboard'] : [slug, 'tournaments'];
+          this.router.navigate(dest);
+        } else {
+          // No org yet — landing page will show the "Create your organization" CTA
+          this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         this.loading = false;

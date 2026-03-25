@@ -1,1 +1,179 @@
-<p>tournament-detail works!</p>
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else if (tournament(); as t) {
+  <div class="detail-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a (click)="backToList()" (keydown.enter)="backToList()" tabindex="0">Tournaments</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span>{{ t.name }}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div>
+        <h1>{{ t.name }}</h1>
+        <p class="subtitle">{{ t.gameTitle }} &bull; {{ t.format }} &bull; Max {{ t.maxTeams }} teams</p>
+        <mat-chip highlighted color="primary">{{ t.status }}</mat-chip>
+      </div>
+
+      @if (authService.isAdmin()) {
+        <div class="admin-controls">
+          @if (nextStatus()) {
+            <button mat-raised-button color="primary" (click)="advanceStatus()">
+              Advance → {{ nextStatus() }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Meta -->
+    <mat-card class="meta-card">
+      <mat-card-content>
+        <div class="meta-grid">
+          <div><label>Venue</label><span>{{ t.venue?.name ?? '—' }}</span></div>
+          <div><label>Genre</label><span>{{ t.gameGenre.name }}</span></div>
+          <div><label>Registration</label><span>{{ t.registrationStart | date:'MMM d' }} – {{ t.registrationEnd | date:'MMM d, y' }}</span></div>
+          <div><label>Tournament Dates</label><span>{{ t.startDate | date:'MMM d' }} – {{ t.endDate | date:'MMM d, y' }}</span></div>
+        </div>
+        @if (t.description) {
+          <p class="description">{{ t.description }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Bracket -->
+    <section>
+      <h2>Bracket</h2>
+      @if (bracket(); as b) {
+        <app-bracket-viewer [bracket]="b"></app-bracket-viewer>
+      } @else {
+        <p class="empty-note">Bracket not yet generated.</p>
+      }
+    </section>
+
+    <!-- Standings -->
+    <section>
+      <h2>Standings</h2>
+      <app-standings [standings]="standings()"></app-standings>
+    </section>
+
+    <!-- Registered Teams -->
+    <section>
+      <h2>Registered Teams</h2>
+      @if (registrations().length === 0) {
+        <p class="empty-note">No teams registered yet.</p>
+      } @else {
+        <mat-list>
+          @for (r of registrations(); track r.id) {
+            <mat-list-item>
+              <span matListItemTitle>{{ r.teamName }}</span>
+              <span matListItemLine>{{ r.registrationStatus }}
+                @if (r.seed) { &bull; Seed #{{ r.seed }} }
+              </span>
+
+              @if (authService.isAdmin() && r.registrationStatus === 'PENDING') {
+                <div matListItemMeta>
+                  <button mat-button color="primary"
+                    (click)="$event.stopPropagation(); tournamentService.updateRegistrationStatus(t.id, r.teamId, 'APPROVED').subscribe()">
+                    Approve
+                  </button>
+                  <button mat-button color="warn"
+                    (click)="$event.stopPropagation(); tournamentService.updateRegistrationStatus(t.id, r.teamId, 'REJECTED').subscribe()">
+                    Reject
+                  </button>
+                </div>
+              }
+            </mat-list-item>
+          }
+        </mat-list>
+      }
+    </section>
+
+    <!-- Admin: Match Scheduling -->
+    @if (authService.isAdmin() && bracket()) {
+      <section>
+        <h2>Schedule a Match</h2>
+        <div class="schedule-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Match</mat-label>
+            <mat-select [(ngModel)]="scheduleMatchId">
+              @for (round of bracket()!.rounds; track round.roundNumber) {
+                @for (m of round.matches; track m.id) {
+                  @if (m.status === 'UNSCHEDULED' || m.status === 'SCHEDULED') {
+                    <mat-option [value]="m.id">
+                      {{ round.roundLabel }} – Match {{ m.matchNumber }}
+                      ({{ m.teamA?.name ?? 'TBD' }} vs {{ m.teamB?.name ?? 'TBD' }})
+                    </mat-option>
+                  }
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Scheduled Time</mat-label>
+            <input matInput type="datetime-local" [(ngModel)]="scheduleTime" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Venue</mat-label>
+            <mat-select [(ngModel)]="scheduleVenueId">
+              @for (v of venues(); track v.id) {
+                <mat-option [value]="v.id">{{ v.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="scheduleMatch()"
+                  [disabled]="!scheduleMatchId || !scheduleVenueId || !scheduleTime">
+            Schedule
+          </button>
+        </div>
+
+        <h2>Record Result</h2>
+        <div class="schedule-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Match</mat-label>
+            <mat-select [(ngModel)]="resultMatchId">
+              @for (round of bracket()!.rounds; track round.roundNumber) {
+                @for (m of round.matches; track m.id) {
+                  @if (m.status === 'IN_PROGRESS' || m.status === 'SCHEDULED') {
+                    <mat-option [value]="m.id">
+                      {{ round.roundLabel }} – Match {{ m.matchNumber }}
+                      ({{ m.teamA?.name ?? 'TBD' }} vs {{ m.teamB?.name ?? 'TBD' }})
+                    </mat-option>
+                  }
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Winner</mat-label>
+            <mat-select [(ngModel)]="resultWinnerId">
+              @if (resultMatchId) {
+                @for (round of bracket()!.rounds; track round.roundNumber) {
+                  @for (m of round.matches; track m.id) {
+                    @if (m.id === resultMatchId) {
+                      @if (m.teamA) { <mat-option [value]="m.teamA.id">{{ m.teamA.name }}</mat-option> }
+                      @if (m.teamB) { <mat-option [value]="m.teamB.id">{{ m.teamB.name }}</mat-option> }
+                    }
+                  }
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="accent" (click)="recordResult()"
+                  [disabled]="!resultMatchId || !resultWinnerId">
+            Record Result
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+}
