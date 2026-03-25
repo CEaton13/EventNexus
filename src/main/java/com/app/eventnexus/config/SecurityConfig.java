@@ -67,6 +67,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/standings").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/teams").permitAll()
 
+                // ── Public tournament hub (org-agnostic read) ─────────────
+                .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
+
                 // ── Players (public read) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
 

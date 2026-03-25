@@ -118,9 +118,18 @@ public class OrganizationService {
      * @throws ConflictException         if the slug is already in use
      * @throws ResourceNotFoundException if the creator user does not exist
      */
+    /** Slugs reserved for application routes — must not be used as org identifiers. */
+    private static final java.util.Set<String> RESERVED_SLUGS = java.util.Set.of(
+            "t", "auth", "tournaments", "org", "admin", "api", "health", "actuator"
+    );
+
     @Transactional
     public OrganizationResponse createOrganization(CreateOrganizationRequest request,
                                                    Long creatorUserId) {
+        if (RESERVED_SLUGS.contains(request.getSlug().toLowerCase())) {
+            throw new ConflictException(
+                    "Organization slug '" + request.getSlug() + "' is reserved and cannot be used.");
+        }
         if (organizationRepository.existsBySlug(request.getSlug())) {
             throw new ConflictException(
                     "Organization slug '" + request.getSlug() + "' is already in use.");

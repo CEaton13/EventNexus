@@ -62,9 +62,14 @@ public class TenantAwareDataSource extends DelegatingDataSource {
     }
 
     /**
-     * Issues {@code SET LOCAL app.tenant_id} on the given connection.
-     * {@code SET LOCAL} scopes the change to the current transaction, preventing
-     * contamination of subsequent transactions that reuse the pooled connection.
+     * Issues {@code SET SESSION app.tenant_id} on the given connection.
+     * {@code SET SESSION} (the default scope for SET) persists for the lifetime
+     * of the connection, which is safe here because {@code getConnection()} is
+     * called on every HikariCP pool borrow — the value is always overwritten
+     * before any SQL runs. {@code SET LOCAL} was previously used but is a no-op
+     * when the connection is still in autocommit mode (Spring/Hibernate calls
+     * {@code setAutoCommit(false)} *after* borrowing the connection), causing
+     * RLS WITH CHECK violations during seeding and other non-transactional paths.
      *
      * @param connection the JDBC connection to configure
      * @throws SQLException if the SET statement fails
@@ -73,11 +78,11 @@ public class TenantAwareDataSource extends DelegatingDataSource {
         Long tenantId = TenantContext.getTenantId();
         try (Statement stmt = connection.createStatement()) {
             if (tenantId != null) {
-                stmt.execute("SET LOCAL app.tenant_id = '" + tenantId + "'");
+                stmt.execute("SET SESSION app.tenant_id = '" + tenantId + "'");
                 log.debug("Set app.tenant_id = {} on connection", tenantId);
             } else {
                 // Clear any residual value from a pooled connection
-                stmt.execute("SET LOCAL app.tenant_id = ''");
+                stmt.execute("SET SESSION app.tenant_id = ''");
             }
         }
     }
