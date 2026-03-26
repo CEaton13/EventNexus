@@ -6,6 +6,7 @@ import com.app.eventnexus.dtos.responses.RegistrationResponse;
 import com.app.eventnexus.dtos.responses.StandingsResponse;
 import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
+import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.services.BracketService;
 import com.app.eventnexus.services.TournamentService;
 import org.springframework.data.domain.Sort;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -55,8 +57,10 @@ public class PublicTournamentController {
     @GetMapping
     public ResponseEntity<PageResponse<TournamentSummaryResponse>> getAllTournaments(
             @PageableDefault(size = 20, sort = "startDate", direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable)));
+            Pageable pageable,
+            @RequestParam(required = false) TournamentStatus status,
+            @RequestParam(required = false) Long genreId) {
+        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable, status, genreId)));
     }
 
     /**

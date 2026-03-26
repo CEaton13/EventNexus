@@ -54,6 +54,22 @@ public class MatchService {
         this.playerService = playerService;
     }
 
+    // ─── Read ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Returns the details of a single match by ID.
+     *
+     * @param matchId the match's primary key
+     * @return the match as a response DTO
+     * @throws ResourceNotFoundException if no match exists with the given ID
+     */
+    @Transactional(readOnly = true)
+    public MatchResponse getById(Long matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match", matchId));
+        return MatchResponse.from(match);
+    }
+
     // ─── Scheduling ────────────────────────────────────────────────────────────
 
     /**

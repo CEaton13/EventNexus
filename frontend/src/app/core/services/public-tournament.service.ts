@@ -29,11 +29,20 @@ export class PublicTournamentService {
    * Fetches a paginated list of all public tournaments across all organizations.
    * Used by the public tournament browser at /tournaments (no auth required).
    *
-   * @param page zero-based page index
-   * @param size page size
+   * @param page    zero-based page index
+   * @param size    page size
+   * @param status  optional status filter
+   * @param genreId optional genre ID filter
    */
-  getAll(page = 0, size = 20): Observable<PageResponse<TournamentSummary>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  getAll(
+    page = 0,
+    size = 20,
+    status?: string,
+    genreId?: number,
+  ): Observable<PageResponse<TournamentSummary>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (status) params = params.set('status', status);
+    if (genreId) params = params.set('genreId', genreId);
     return this.http.get<PageResponse<TournamentSummary>>(this.base, { params });
   }
 

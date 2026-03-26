@@ -70,6 +70,9 @@ public class SecurityConfig {
                 // ── Public tournament hub (org-agnostic read) ─────────────
                 .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
 
+                // ── Matches (public read) ─────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/matches/**").permitAll()
+
                 // ── Players (public read) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
 

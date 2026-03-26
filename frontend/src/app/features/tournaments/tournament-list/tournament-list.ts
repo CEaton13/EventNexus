@@ -63,7 +63,12 @@ export class TournamentList implements OnInit {
   load(): void {
     this.loading.set(true);
     const obs = this.isPublicContext
-      ? this.publicTournamentService.getAll(this.page, this.pageSize)
+      ? this.publicTournamentService.getAll(
+          this.page,
+          this.pageSize,
+          this.selectedStatus || undefined,
+          this.selectedGenreId,
+        )
       : this.tournamentService.getAll(
           this.page,
           this.pageSize,

@@ -2,6 +2,8 @@ package com.app.eventnexus.repositories;
 
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.models.Tournament;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +24,21 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      * @return list of matching tournaments; never null
      */
     List<Tournament> findByStatus(TournamentStatus status);
+
+    /**
+     * Returns a paginated list of tournaments filtered by status.
+     */
+    Page<Tournament> findByStatus(TournamentStatus status, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by game genre.
+     */
+    Page<Tournament> findByGameGenreId(Long gameGenreId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by both status and game genre.
+     */
+    Page<Tournament> findByStatusAndGameGenreId(TournamentStatus status, Long gameGenreId, Pageable pageable);
 
     /**
      * Returns all tournaments associated with a specific game genre.

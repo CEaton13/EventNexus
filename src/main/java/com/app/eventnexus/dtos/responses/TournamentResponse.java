@@ -3,6 +3,7 @@ package com.app.eventnexus.dtos.responses;
 import com.app.eventnexus.enums.TournamentFormat;
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.models.Tournament;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 
@@ -50,8 +51,13 @@ public class TournamentResponse {
         dto.startDate = tournament.getStartDate();
         dto.endDate = tournament.getEndDate();
         dto.gameGenre = GameGenreResponse.from(tournament.getGameGenre());
-        dto.venue = tournament.getVenue() != null ? VenueResponse.from(tournament.getVenue()) : null;
-        dto.createdByUsername = tournament.getCreatedBy().getUsername();
+        try {
+            dto.venue = tournament.getVenue() != null ? VenueResponse.from(tournament.getVenue()) : null;
+        } catch (EntityNotFoundException e) {
+            // Venue FK exists but the referenced row was deleted — treat as no venue
+            dto.venue = null;
+        }
+        dto.createdByUsername = tournament.getCreatedBy() != null ? tournament.getCreatedBy().getUsername() : null;
         dto.createdAt = tournament.getCreatedAt();
         dto.updatedAt = tournament.getUpdatedAt();
         return dto;

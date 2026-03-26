@@ -91,14 +91,29 @@ public class TournamentService {
     // ─── Read ──────────────────────────────────────────────────────────────────
 
     /**
-     * Returns a page of tournaments as lightweight summary DTOs.
+     * Returns a page of tournaments as lightweight summary DTOs,
+     * optionally filtered by status and/or game genre.
      *
      * @param pageable pagination and sort parameters
+     * @param status   optional status filter; {@code null} means no filter
+     * @param genreId  optional game genre ID filter; {@code null} means no filter
      * @return a page of tournament summaries
      */
     @Transactional(readOnly = true)
-    public Page<TournamentSummaryResponse> findAll(Pageable pageable) {
-        return tournamentRepository.findAll(pageable).map(TournamentSummaryResponse::from);
+    public Page<TournamentSummaryResponse> findAll(Pageable pageable,
+                                                    TournamentStatus status,
+                                                    Long genreId) {
+        Page<Tournament> page;
+        if (status != null && genreId != null) {
+            page = tournamentRepository.findByStatusAndGameGenreId(status, genreId, pageable);
+        } else if (status != null) {
+            page = tournamentRepository.findByStatus(status, pageable);
+        } else if (genreId != null) {
+            page = tournamentRepository.findByGameGenreId(genreId, pageable);
+        } else {
+            page = tournamentRepository.findAll(pageable);
+        }
+        return page.map(TournamentSummaryResponse::from);
     }
 
     /**
