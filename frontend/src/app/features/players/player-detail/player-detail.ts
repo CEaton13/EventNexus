@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,7 +22,21 @@ export class PlayerDetail implements OnInit {
   readonly stats = signal<PlayerStatsResponse[]>([]);
   readonly loading = signal(false);
 
-  readonly displayedColumns = ['tournament', 'wins', 'losses', 'mvp'];
+  readonly displayedColumns = ['tournament', 'wins', 'losses', 'winRate', 'mvp'];
+
+  readonly totalWins = computed(() => this.stats().reduce((sum, s) => sum + s.wins, 0));
+
+  readonly totalLosses = computed(() => this.stats().reduce((sum, s) => sum + s.losses, 0));
+
+  readonly totalMvps = computed(() => this.stats().reduce((sum, s) => sum + (s.mvpCount ?? 0), 0));
+
+  readonly winRate = computed(() => {
+    const total = this.totalWins() + this.totalLosses();
+    if (total === 0) return 0;
+    return Math.round((this.totalWins() / total) * 100);
+  });
+
+  readonly tournamentsPlayed = computed(() => this.stats().length);
 
   private playerId!: number;
 

@@ -1,0 +1,93 @@
+// MatchDetailDialog — uses CSS vars from the active genre theme
+// Never hardcode colors here; always use var(--primary) / var(--accent) etc.
+
+.dialog-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 0;
+}
+
+// VS teams row
+.teams-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0 24px;
+}
+
+.team-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.team-name {
+  font-family: var(--font-display, sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+}
+
+.team-tag {
+  font-size: 12px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
+}
+
+.vs-divider {
+  font-family: var(--font-display, sans-serif);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--accent, #ff4081);
+  letter-spacing: 2px;
+  padding: 0 8px;
+  border-left: 2px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  border-right: 2px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+}
+
+// Detail rows
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  min-width: 110px;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+}
+
+// Status chips
+.status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.status-unscheduled { color: var(--text-muted, rgba(255, 255, 255, 0.5)); }
+  &.status-scheduled   { color: var(--accent, #ff4081); }
+  &.status-in_progress { color: #ff9100; }
+  &.status-completed   { color: #69f0ae; }
+  &.status-bye         { color: var(--text-muted, rgba(255, 255, 255, 0.5)); }
+}
+
+// Winner chip — fades in when match completes
+.winner-chip {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transform: scale(1);
+}

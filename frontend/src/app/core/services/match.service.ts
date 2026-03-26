@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { MatchResponse } from '../../shared/models/match.model';
+import { MatchDetail, MatchResponse } from '../../shared/models/match.model';
 import { TenantService } from './tenant.service';
 
 /**
@@ -36,6 +36,15 @@ export class MatchService {
    */
   recordResult(id: number, winnerId: number): Observable<MatchResponse> {
     return this.http.patch<MatchResponse>(`${this.base}/${id}/result`, { winnerId });
+  }
+
+  /**
+   * Returns full detail for a single match by its primary key.
+   * This is a public endpoint — no organisation slug is required.
+   * @param id Match primary key.
+   */
+  getById(id: number): Observable<MatchDetail> {
+    return this.http.get<MatchDetail>(`${this.base}/${id}`);
   }
 
   /**

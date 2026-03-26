@@ -64,8 +64,34 @@
     }
   </header>
 
-  <!-- Tab navigation -->
-  <div class="hub-tabs">
+  <!-- Live Matches — shown between hero and tab content when matches are in progress -->
+  @if (liveMatches().length > 0) {
+    <section class="live-matches-section">
+      <h3 class="live-heading">
+        <mat-icon class="live-icon">sports_score</mat-icon>
+        Live Matches
+      </h3>
+      <div class="live-matches-list">
+        @for (m of liveMatches(); track m.id) {
+          <button class="live-match-card" (click)="openMatchDetail(m.id)">
+            <span class="live-team">{{ m.teamA?.name ?? 'TBD' }}</span>
+            <span class="live-vs">VS</span>
+            <span class="live-team">{{ m.teamB?.name ?? 'TBD' }}</span>
+            <mat-icon class="live-arrow">chevron_right</mat-icon>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Desktop tab navigation (hidden on mobile) -->
+  <div class="hub-tabs desktop-only">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'all'"
+      (click)="setTab('all')">
+      <mat-icon>dashboard</mat-icon> Overview
+    </button>
     <button
       class="tab-btn"
       [class.active]="activeTab() === 'bracket'"
@@ -86,14 +112,23 @@
     </button>
   </div>
 
-  <!-- Tab content -->
+  <!-- Tab / scroll content -->
   <div class="hub-body">
 
-    <!-- Bracket -->
-    @if (activeTab() === 'bracket') {
+    <!-- Bracket section -->
+    <!-- On desktop: shown when activeTab is 'all' or 'bracket' -->
+    <!-- On mobile: always shown (single-scroll layout) -->
+    <div class="hub-section"
+         [class.desktop-hidden]="activeTab() !== 'all' && activeTab() !== 'bracket'">
+      <h2 class="section-heading mobile-only">
+        <mat-icon>account_tree</mat-icon> Bracket
+      </h2>
       <div class="tab-panel">
         @if (bracket()) {
-          <app-bracket-viewer [bracket]="bracket()!"></app-bracket-viewer>
+          <app-bracket-viewer
+            [bracket]="bracket()!"
+            (matchClick)="openMatchDetail($event)">
+          </app-bracket-viewer>
         } @else {
           <div class="empty-state">
             <mat-icon>account_tree</mat-icon>
@@ -102,10 +137,14 @@
           </div>
         }
       </div>
-    }
+    </div>
 
-    <!-- Standings -->
-    @if (activeTab() === 'standings') {
+    <!-- Standings section -->
+    <div class="hub-section"
+         [class.desktop-hidden]="activeTab() !== 'all' && activeTab() !== 'standings'">
+      <h2 class="section-heading mobile-only">
+        <mat-icon>leaderboard</mat-icon> Standings
+      </h2>
       <div class="tab-panel">
         @if (standings().length > 0) {
           <app-standings [standings]="standings()"></app-standings>
@@ -117,10 +156,14 @@
           </div>
         }
       </div>
-    }
+    </div>
 
-    <!-- Teams -->
-    @if (activeTab() === 'teams') {
+    <!-- Teams section -->
+    <div class="hub-section"
+         [class.desktop-hidden]="activeTab() !== 'all' && activeTab() !== 'teams'">
+      <h2 class="section-heading mobile-only">
+        <mat-icon>groups</mat-icon> Teams
+      </h2>
       <div class="tab-panel">
         @if (registrations().length > 0) {
           <div class="teams-grid">
@@ -135,6 +178,9 @@
                     <span class="team-seed">#{{ reg.seed }}</span>
                   }
                 </div>
+                <a mat-button class="view-roster-link" [routerLink]="['/teams', reg.teamId]">
+                  View Roster
+                </a>
               </div>
             }
           </div>
@@ -150,7 +196,7 @@
           </div>
         }
       </div>
-    }
+    </div>
 
   </div>
 }

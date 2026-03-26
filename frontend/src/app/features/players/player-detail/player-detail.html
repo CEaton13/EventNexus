@@ -19,6 +19,40 @@
       }
     </div>
 
+    @if (stats().length > 0) {
+      <mat-card class="career-stats-card">
+        <mat-card-header>
+          <mat-card-title>Career Summary</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value">{{ totalWins() }}</span>
+              <span class="stat-label">Wins</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ totalLosses() }}</span>
+              <span class="stat-label">Losses</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ winRate() }}%</span>
+              <span class="stat-label">Win Rate</span>
+            </div>
+            @if (totalMvps() > 0) {
+              <div class="stat-item">
+                <span class="stat-value">{{ totalMvps() }}</span>
+                <span class="stat-label">MVPs</span>
+              </div>
+            }
+            <div class="stat-item">
+              <span class="stat-value">{{ tournamentsPlayed() }}</span>
+              <span class="stat-label">Tournaments</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
     <mat-card>
       <mat-card-header><mat-card-title>Tournament Stats</mat-card-title></mat-card-header>
       <mat-card-content>
@@ -28,7 +62,9 @@
           <table mat-table [dataSource]="stats()" class="stats-table">
             <ng-container matColumnDef="tournament">
               <th mat-header-cell *matHeaderCellDef>Tournament</th>
-              <td mat-cell *matCellDef="let row">{{ row.tournamentName }}</td>
+              <td mat-cell *matCellDef="let row">
+                <a [routerLink]="['/t', row.tournamentId]">{{ row.tournamentName }}</a>
+              </td>
             </ng-container>
             <ng-container matColumnDef="wins">
               <th mat-header-cell *matHeaderCellDef>W</th>
@@ -37,6 +73,16 @@
             <ng-container matColumnDef="losses">
               <th mat-header-cell *matHeaderCellDef>L</th>
               <td mat-cell *matCellDef="let row">{{ row.losses }}</td>
+            </ng-container>
+            <ng-container matColumnDef="winRate">
+              <th mat-header-cell *matHeaderCellDef>Win %</th>
+              <td mat-cell *matCellDef="let row">
+                @if ((row.wins + row.losses) > 0) {
+                  {{ (row.wins / (row.wins + row.losses)) * 100 | number:'1.0-0' }}%
+                } @else {
+                  &mdash;
+                }
+              </td>
             </ng-container>
             <ng-container matColumnDef="mvp">
               <th mat-header-cell *matHeaderCellDef>MVP</th>

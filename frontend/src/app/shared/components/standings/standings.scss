@@ -13,3 +13,21 @@
   color: var(--mat-sys-on-surface-variant);
   font-style: italic;
 }
+
+.rank-up { color: #4caf50; }
+.rank-down { color: #f44336; }
+.rank-same { color: var(--text-muted, #888); }
+
+.delta-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+}
+
+mat-icon.delta-icon { font-size: 16px; height: 16px; width: 16px; }
+
+@media (max-width: 600px) {
+  .mat-column-delta { display: none; }
+  .mat-column-losses { display: none; }
+}

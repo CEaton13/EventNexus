@@ -39,3 +39,18 @@ export interface ConflictCheckResponse {
   teamConflictDetails?: string;
   venueConflictDetails?: string;
 }
+
+export interface MatchDetail {
+  id: number;
+  tournamentId: number;
+  roundNumber: number;
+  matchNumber: number;
+  teamA: { id: number; name: string; tag: string } | null;
+  teamB: { id: number; name: string; tag: string } | null;
+  winnerId: number | null;
+  status: MatchStatus;
+  scheduledTime: string | null;
+  venueId: number | null;
+  venueName: string | null;
+  stationNumber: number | null;
+}

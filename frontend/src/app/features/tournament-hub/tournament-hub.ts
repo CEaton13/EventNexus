@@ -1,11 +1,21 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TournamentDetail, RegistrationResponse, StandingsResponse } from '../../shared/models/tournament.model';
+import { interval, switchMap, catchError, EMPTY } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  TournamentDetail,
+  RegistrationResponse,
+  StandingsResponse,
+} from '../../shared/models/tournament.model';
 import { BracketResponse } from '../../shared/models/match.model';
 import { PublicTournamentService } from '../../core/services/public-tournament.service';
+import { MatchService } from '../../core/services/match.service';
 import { AuthDialogService } from '../../core/services/auth-dialog.service';
 import { ThemeService } from '../../core/services/theme';
 import { AuthService } from '../../core/services/auth';
+import { MatchDetailDialog } from './match-detail-dialog/match-detail-dialog';
 
 /**
  * TournamentHubComponent is the public-facing page for a single tournament.
@@ -27,8 +37,12 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly publicService = inject(PublicTournamentService);
+  private readonly matchService = inject(MatchService);
   private readonly authDialogService = inject(AuthDialogService);
   private readonly themeService = inject(ThemeService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authService = inject(AuthService);
 
   readonly tournament = signal<TournamentDetail | null>(null);
@@ -38,8 +52,16 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal('');
 
-  /** Which tab is active: 'bracket' | 'standings' | 'teams' */
-  readonly activeTab = signal<'bracket' | 'standings' | 'teams'>('bracket');
+  /** Which tab is active: 'all' | 'bracket' | 'standings' | 'teams' */
+  readonly activeTab = signal<'all' | 'bracket' | 'standings' | 'teams'>('all');
+
+  /** Flat list of all matches across all rounds from the loaded bracket. */
+  readonly allMatches = computed(() => this.bracket()?.rounds.flatMap((r) => r.matches) ?? []);
+
+  /** Matches currently in progress — shown in the Live Matches section. */
+  readonly liveMatches = computed(() =>
+    this.allMatches().filter((m) => m.status === 'IN_PROGRESS'),
+  );
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -49,6 +71,7 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
       return;
     }
     this.loadAll(id);
+    this.startStandingsPolling(id);
   }
 
   ngOnDestroy(): void {
@@ -56,7 +79,7 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
   }
 
   /** Switches the active content tab. */
-  setTab(tab: 'bracket' | 'standings' | 'teams'): void {
+  setTab(tab: 'all' | 'bracket' | 'standings' | 'teams'): void {
     this.activeTab.set(tab);
   }
 
@@ -66,13 +89,28 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
    * the user to the org-scoped registration flow.
    */
   onRegister(): void {
-    this.authDialogService.requireAuth().subscribe(authenticated => {
-      if (!authenticated) return;
-      const t = this.tournament();
-      if (!t) return;
-      // Redirect to the org-scoped tournament registration page.
-      // TenantService will have been set after successful login.
-      this.router.navigate(['/tournaments', t.id]);
+    this.authDialogService
+      .requireAuth()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((authenticated) => {
+        if (!authenticated) return;
+        const t = this.tournament();
+        if (!t) return;
+        // Redirect to the org-scoped tournament registration page.
+        // TenantService will have been set after successful login.
+        this.router.navigate(['/tournaments', t.id]);
+      });
+  }
+
+  /**
+   * Opens the MatchDetailDialog for the given match ID.
+   * @param matchId Primary key of the match to display.
+   */
+  openMatchDetail(matchId: number): void {
+    this.dialog.open(MatchDetailDialog, {
+      data: { matchId },
+      panelClass: 'dark-dialog',
+      width: '420px',
     });
   }
 
@@ -114,5 +152,21 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
       next: (r) => this.registrations.set(r),
       error: () => this.registrations.set([]),
     });
+  }
+
+  /**
+   * Starts a 30-second polling loop that refreshes standings for the given tournament.
+   * The loop is automatically torn down when the component is destroyed via DestroyRef.
+   * @param tournamentId The tournament whose standings to poll.
+   */
+  private startStandingsPolling(tournamentId: number): void {
+    interval(30_000)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() =>
+          this.publicService.getStandings(tournamentId).pipe(catchError(() => EMPTY)),
+        ),
+      )
+      .subscribe({ next: (s) => this.standings.set(s) });
   }
 }

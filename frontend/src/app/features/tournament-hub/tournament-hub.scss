@@ -149,7 +149,92 @@
   text-align: center;
 }
 
+// =============================================================================
+// Live Matches section
+// =============================================================================
+.live-matches-section {
+  background-color: color-mix(in srgb, var(--primary) 8%, var(--bg-surface));
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 16px 40px;
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+  }
+}
+
+.live-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin: 0 0 12px;
+}
+
+.live-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.live-matches-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.live-match-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: background-color 0.15s, transform 0.15s;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--accent) 12%, var(--bg-card));
+    transform: translateY(-1px);
+  }
+}
+
+.live-team {
+  font-weight: 600;
+}
+
+.live-vs {
+  font-weight: 900;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.live-arrow {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+// =============================================================================
 // Tab navigation bar
+// =============================================================================
 .hub-tabs {
   display: flex;
   gap: 0;
@@ -288,4 +373,93 @@
   &.reg-approved  { background: rgba(105, 240, 174, 0.15) !important; color: #69f0ae !important; }
   &.reg-pending   { background: rgba(255, 193, 7, 0.15) !important; color: #ffc107 !important; }
   &.reg-rejected  { background: rgba(239, 83, 80, 0.15) !important; color: #ef5350 !important; }
+}
+
+// View roster link inside team card
+.view-roster-link {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  padding: 0;
+  min-width: unset;
+}
+
+// =============================================================================
+// Mobile responsive layout  (≤768px)
+// =============================================================================
+
+// On desktop: show tabs, hide per-section mobile headings
+.desktop-only {
+  display: flex; // default (desktop)
+}
+
+.mobile-only {
+  display: none; // hidden on desktop
+}
+
+// On desktop: a hub-section with desktop-hidden is not rendered
+.hub-section.desktop-hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  // Hide tab bar on mobile — sections scroll instead
+  .desktop-only {
+    display: none !important;
+  }
+
+  // Show per-section headings on mobile
+  .mobile-only {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+  }
+
+  // All sections visible on mobile regardless of activeTab — single-scroll layout
+  .hub-section.desktop-hidden {
+    display: block;
+  }
+
+  // Tighter padding on small screens
+  .hub-hero {
+    padding: 32px 16px 24px;
+    flex-direction: column;
+  }
+
+  .hub-body {
+    padding: 16px;
+  }
+
+  .hub-section {
+    margin-bottom: 32px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .tournament-name {
+    font-size: clamp(22px, 7vw, 36px);
+  }
+
+  .hero-details {
+    gap: 12px;
+  }
+
+  .teams-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
 }

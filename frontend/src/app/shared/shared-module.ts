@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { GenrePreview } from './components/genre-preview/genre-preview';
@@ -21,6 +22,7 @@ import { BracketViewer } from './components/bracket-viewer/bracket-viewer';
 import { ConfirmDialog } from './components/confirm-dialog/confirm-dialog';
 import { AuthDialog } from './components/auth-dialog/auth-dialog';
 import { ReplacePipe } from './pipes/replace.pipe';
+import { MatchDetailDialog } from '../features/tournament-hub/match-detail-dialog/match-detail-dialog';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,7 @@ import { ReplacePipe } from './pipes/replace.pipe';
     ConfirmDialog,
     AuthDialog,
     ReplacePipe,
+    MatchDetailDialog,
   ],
   imports: [
     CommonModule,
@@ -41,6 +44,7 @@ import { ReplacePipe } from './pipes/replace.pipe';
     MatInputModule,
     MatSelectModule,
     MatTableModule,
+    MatSortModule,
     MatChipsModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -57,6 +61,7 @@ import { ReplacePipe } from './pipes/replace.pipe';
     ConfirmDialog,
     AuthDialog,
     ReplacePipe,
+    MatchDetailDialog,
   ],
 })
 export class SharedModule {}

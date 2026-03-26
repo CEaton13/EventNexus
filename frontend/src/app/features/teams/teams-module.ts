@@ -18,10 +18,11 @@ import { TeamsRoutingModule } from './teams-routing-module';
 import { TeamList } from './team-list/team-list';
 import { TeamDetail } from './team-detail/team-detail';
 import { TeamForm } from './team-form/team-form';
+import { TeamPortal } from './team-portal/team-portal';
 import { SharedModule } from '../../shared/shared-module';
 
 @NgModule({
-  declarations: [TeamList, TeamDetail, TeamForm],
+  declarations: [TeamList, TeamDetail, TeamForm, TeamPortal],
   imports: [
     CommonModule,
     RouterModule,

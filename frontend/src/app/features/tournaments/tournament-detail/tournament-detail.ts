@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { MatchDetailDialog } from '../../tournament-hub/match-detail-dialog/match-detail-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { MatchService } from '../../../core/services/match.service';
@@ -194,6 +195,34 @@ export class TournamentDetail implements OnInit, OnDestroy {
           },
         });
       });
+  }
+
+  /**
+   * Approves a team's registration for this tournament.
+   * @param teamId The team to approve.
+   */
+  approveRegistration(teamId: number): void {
+    const t = this.tournament();
+    if (!t) return;
+    this.tournamentService.updateRegistrationStatus(t.id, teamId, 'APPROVED').subscribe({
+      next: () => {
+        this.snackBar.open('Registration approved.', 'OK', { duration: 3000 });
+        this.loadSubResources();
+      },
+      error: () => this.snackBar.open('Failed to approve registration.', 'OK', { duration: 4000 }),
+    });
+  }
+
+  /**
+   * Opens the MatchDetailDialog for the given match ID.
+   * @param matchId Primary key of the match to display.
+   */
+  openMatchDetail(matchId: number): void {
+    this.dialog.open(MatchDetailDialog, {
+      data: { matchId },
+      panelClass: 'dark-dialog',
+      width: '420px',
+    });
   }
 
   backToList(): void {
