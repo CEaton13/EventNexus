@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 // Note: findAll(Pageable) is inherited from JpaRepository — no declaration needed.
 
@@ -16,6 +17,15 @@ import java.util.List;
  * Spring Data JPA repository for {@link Tournament} entities.
  */
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
+
+    /**
+     * Finds a tournament by its exact name.
+     * Used by {@code DataSeeder} to ensure idempotent tournament creation.
+     *
+     * @param name the tournament name
+     * @return an Optional containing the tournament, or empty if not found
+     */
+    Optional<Tournament> findByName(String name);
 
     /**
      * Returns all tournaments with the given status.

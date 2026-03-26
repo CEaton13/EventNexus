@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data JPA repository for {@link Team} entities.
@@ -19,6 +20,15 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
      * @return list of teams owned by that manager
      */
     List<Team> findByTeamManager_Id(Long managerId);
+
+    /**
+     * Finds a team by its exact name.
+     * Used by {@code DataSeeder} to ensure idempotent team creation.
+     *
+     * @param name the team's display name
+     * @return an Optional containing the team, or empty if not found
+     */
+    Optional<Team> findByName(String name);
 
     /**
      * Counts the number of active (non-soft-deleted) players on a team.

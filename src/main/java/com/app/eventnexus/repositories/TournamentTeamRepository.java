@@ -23,12 +23,17 @@ public interface TournamentTeamRepository extends JpaRepository<TournamentTeam, 
     List<TournamentTeam> findByTournamentId(Long tournamentId);
 
     /**
-     * Returns all tournament registrations for a given team.
+     * Returns all tournament registrations for a given team, eagerly fetching
+     * the tournament and its game genre to avoid lazy-load issues.
      *
      * @param teamId the team's primary key
      * @return list of tournament registrations; never null
      */
-    List<TournamentTeam> findByTeam_Id(Long teamId);
+    @Query("SELECT tt FROM TournamentTeam tt " +
+           "JOIN FETCH tt.tournament t " +
+           "JOIN FETCH t.gameGenre " +
+           "WHERE tt.team.id = :teamId")
+    List<TournamentTeam> findByTeam_Id(@Param("teamId") Long teamId);
 
     /**
      * Finds a specific team's registration for a specific tournament.

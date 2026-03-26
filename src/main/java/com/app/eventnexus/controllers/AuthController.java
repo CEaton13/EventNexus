@@ -5,11 +5,13 @@ import com.app.eventnexus.dtos.requests.RefreshTokenRequest;
 import com.app.eventnexus.dtos.requests.RegisterRequest;
 import com.app.eventnexus.dtos.responses.AuthResponse;
 import com.app.eventnexus.dtos.responses.UserResponse;
+import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,16 +67,17 @@ public class AuthController {
     }
 
     /**
-     * Invalidates the provided refresh token, effectively logging out the session.
+     * Invalidates the authenticated user's refresh token, effectively logging out the session.
      * The caller must still discard their access token client-side.
      *
-     * @param request body containing the refresh token to invalidate
+     * @param authentication the current user's security context
      * @return 204 No Content
      */
     @PostMapping("/logout")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
-        authService.logout(request.getRefreshToken());
+    @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER', 'SPECTATOR')")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        authService.logout(principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

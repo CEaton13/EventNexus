@@ -61,7 +61,7 @@ public class TeamController {
      * @return 200 OK with a list of managed teams
      */
     @GetMapping("/mine")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('TOURNAMENT_ADMIN', 'TEAM_MANAGER')")
     public ResponseEntity<List<TeamResponse>> getMyTeams(Authentication authentication) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.ok(teamService.findByManager(principal.getUserId()));

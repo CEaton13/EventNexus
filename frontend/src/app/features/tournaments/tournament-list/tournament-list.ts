@@ -56,6 +56,9 @@ export class TournamentList implements OnInit {
   /** Team ID for the currently logged-in manager, null otherwise. */
   private managerTeamId: number | null = null;
 
+  /** Raw unfiltered list of the manager's team tournaments, cached after first fetch. */
+  private managerTournaments: TournamentSummary[] = [];
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -87,16 +90,21 @@ export class TournamentList implements OnInit {
   load(): void {
     this.loading.set(true);
 
-    // Team managers see only their team's tournaments.
+    // Team managers see only their team's tournaments, filtered client-side.
     if (this.managerTeamId !== null) {
-      this.teamService.getTournaments(this.managerTeamId).subscribe({
-        next: (list) => {
-          this.tournaments.set(list);
-          this.totalElements.set(list.length);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      if (this.managerTournaments.length > 0) {
+        this.applyManagerFilters();
+        this.loading.set(false);
+      } else {
+        this.teamService.getTournaments(this.managerTeamId).subscribe({
+          next: (list) => {
+            this.managerTournaments = list;
+            this.applyManagerFilters();
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
+      }
       return;
     }
 
@@ -122,6 +130,16 @@ export class TournamentList implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  private applyManagerFilters(): void {
+    const filtered = this.managerTournaments.filter((t) => {
+      const statusMatch = !this.selectedStatus || t.status === this.selectedStatus;
+      const genreMatch = !this.selectedGenreId || t.gameGenreId === this.selectedGenreId;
+      return statusMatch && genreMatch;
+    });
+    this.tournaments.set(filtered);
+    this.totalElements.set(filtered.length);
   }
 
   onStatusChange(status: string): void {

@@ -146,12 +146,12 @@ public class DataSeeder implements ApplicationRunner {
                 new Organization("Circuit Gaming", "circuit-gaming", "contact@circuit.com")));
 
         // ── Org memberships ─────────────────────────────────────────────────────
-        orgMemberRepository.save(new OrganizationMember(nexusops, admin1, OrgRole.ORG_ADMIN));
-        orgMemberRepository.save(new OrganizationMember(nexusops, mgr1,   OrgRole.ORG_MEMBER));
-        orgMemberRepository.save(new OrganizationMember(nexusops, mgr2,   OrgRole.ORG_MEMBER));
-        orgMemberRepository.save(new OrganizationMember(circuit,  admin2, OrgRole.ORG_ADMIN));
-        orgMemberRepository.save(new OrganizationMember(circuit,  mgr3,   OrgRole.ORG_MEMBER));
-        orgMemberRepository.save(new OrganizationMember(circuit,  mgr4,   OrgRole.ORG_MEMBER));
+        ensureMember(nexusops, admin1, OrgRole.ORG_ADMIN);
+        ensureMember(nexusops, mgr1,   OrgRole.ORG_MEMBER);
+        ensureMember(nexusops, mgr2,   OrgRole.ORG_MEMBER);
+        ensureMember(circuit,  admin2, OrgRole.ORG_ADMIN);
+        ensureMember(circuit,  mgr3,   OrgRole.ORG_MEMBER);
+        ensureMember(circuit,  mgr4,   OrgRole.ORG_MEMBER);
 
         // ── Teams & Players ─────────────────────────────────────────────────────
         Team storm   = buildTeam("Storm Surge",       "STORM", "Northeast US", mgr1);
@@ -191,11 +191,14 @@ public class DataSeeder implements ApplicationRunner {
 
         // ── Venues ───────────────────────────────────────────────────────────────
         TenantContext.setTenantId(nexusops.getId());
-        Venue nexusArena  = venueRepository.save(new Venue("Nexus Arena",   "123 LAN Blvd, Chicago IL",  32, nexusops));
-        Venue nexusLounge = venueRepository.save(new Venue("Nexus Lounge",  "123 LAN Blvd, Chicago IL",   8, nexusops));
+        Venue nexusArena  = venueRepository.findByName("Nexus Arena")
+                .orElseGet(() -> venueRepository.save(new Venue("Nexus Arena",  "123 LAN Blvd, Chicago IL",  32, nexusops)));
+        Venue nexusLounge = venueRepository.findByName("Nexus Lounge")
+                .orElseGet(() -> venueRepository.save(new Venue("Nexus Lounge", "123 LAN Blvd, Chicago IL",   8, nexusops)));
 
         TenantContext.setTenantId(circuit.getId());
-        Venue circuitHall = venueRepository.save(new Venue("Circuit Hall",  "456 Esports Ave, Austin TX", 16, circuit));
+        Venue circuitHall = venueRepository.findByName("Circuit Hall")
+                .orElseGet(() -> venueRepository.save(new Venue("Circuit Hall", "456 Esports Ave, Austin TX", 16, circuit)));
 
         // ── NexusOps Tournaments ────────────────────────────────────────────────
         TenantContext.setTenantId(nexusops.getId());
@@ -323,7 +326,14 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private Team buildTeam(String name, String tag, String region, User manager) {
-        return teamRepository.save(new Team(name, tag, null, region, manager));
+        return teamRepository.findByName(name)
+                .orElseGet(() -> teamRepository.save(new Team(name, tag, null, region, manager)));
+    }
+
+    private void ensureMember(Organization org, User user, OrgRole role) {
+        if (!orgMemberRepository.existsByIdOrganizationIdAndIdUserId(org.getId(), user.getId())) {
+            orgMemberRepository.save(new OrganizationMember(org, user, role));
+        }
     }
 
     private void buildPlayers(Team team, String[] tags, String[] realNames) {
@@ -348,6 +358,7 @@ public class DataSeeder implements ApplicationRunner {
     /**
      * Creates and persists a tournament with a pre-set status, bypassing the service
      * layer's state-transition guard so the seeder can create realistic historic data.
+     * Idempotent — returns the existing tournament if one with the same name already exists.
      */
     private Tournament createTournament(String name, String description, String gameTitle,
                                         TournamentFormat format, int maxTeams,
@@ -355,13 +366,18 @@ public class DataSeeder implements ApplicationRunner {
                                         LocalDateTime startDate, LocalDateTime endDate,
                                         Venue venue, GameGenre genre, User createdBy,
                                         Organization org, TournamentStatus status) {
-        Tournament t = new Tournament(name, description, gameTitle, format, maxTeams,
-                regStart, regEnd, startDate, endDate, venue, genre, createdBy, org);
-        t.setStatus(status);
-        return tournamentRepository.save(t);
+        return tournamentRepository.findByName(name).orElseGet(() -> {
+            Tournament t = new Tournament(name, description, gameTitle, format, maxTeams,
+                    regStart, regEnd, startDate, endDate, venue, genre, createdBy, org);
+            t.setStatus(status);
+            return tournamentRepository.save(t);
+        });
     }
 
     private void registerApproved(Tournament t, Team team, Integer seed) {
+        if (tournamentTeamRepository.findByTournamentIdAndTeamId(t.getId(), team.getId()).isPresent()) {
+            return;
+        }
         TournamentTeam tt = new TournamentTeam(t, team);
         tt.setRegistrationStatus(RegistrationStatus.APPROVED);
         tt.setSeed(seed);
@@ -369,6 +385,9 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void registerPending(Tournament t, Team team) {
+        if (tournamentTeamRepository.findByTournamentIdAndTeamId(t.getId(), team.getId()).isPresent()) {
+            return;
+        }
         tournamentTeamRepository.save(new TournamentTeam(t, team));
     }
 
