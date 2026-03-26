@@ -25,13 +25,26 @@
         <mat-list-item (click)="openVenue(venue.id)" class="venue-item">
           <mat-icon matListItemIcon>stadium</mat-icon>
           <span matListItemTitle>{{ venue.name }}</span>
-          <span matListItemLine>
-            {{ venue.location }} &bull; {{ venue.stationCount }} stations
-            @if (venue.activeMatches != null) {
-              &bull; {{ venue.activeMatches }} active / {{ venue.availableStations }} available
-            }
-          </span>
-          <mat-icon matListItemMeta>chevron_right</mat-icon>
+          <span matListItemLine>{{ venue.location }}</span>
+          <div matListItemMeta class="venue-chips">
+            <mat-chip-set aria-label="Venue stats">
+              <mat-chip class="chip-station">
+                <mat-icon matChipAvatar>computer</mat-icon>
+                {{ venue.stationCount }} stations
+              </mat-chip>
+              @if (venue.activeMatches != null && venue.activeMatches > 0) {
+                <mat-chip class="chip-active" color="accent" highlighted>
+                  <mat-icon matChipAvatar>sports_esports</mat-icon>
+                  {{ venue.activeMatches }} active
+                </mat-chip>
+              }
+              @if (venue.utilizationPct != null) {
+                <mat-chip class="chip-utilization">
+                  {{ venue.utilizationPct | number:'1.0-0' }}% utilized
+                </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
         </mat-list-item>
         <mat-divider></mat-divider>
       }

@@ -1,0 +1,122 @@
+<mat-sidenav-container class="admin-shell">
+
+  <!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()">
+
+    <div class="sidebar-header">
+      {{ tenantService.currentOrg()?.organizationName ?? 'Admin' }}
+    </div>
+
+    <mat-nav-list>
+
+      <a mat-list-item
+         [routerLink]="['./dashboard']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./tournaments', 'new']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>emoji_events</mat-icon>
+        <span matListItemTitle>Tournaments</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./registrations']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>how_to_reg</mat-icon>
+        <span matListItemTitle>Registrations</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./matches', 'schedule']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>schedule</mat-icon>
+        <span matListItemTitle>Scheduler</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['/', orgSlug, 'venues']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>place</mat-icon>
+        <span matListItemTitle>Venues</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./genres']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>category</mat-icon>
+        <span matListItemTitle>Genres</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./equipment']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>devices</mat-icon>
+        <span matListItemTitle>Equipment</span>
+      </a>
+
+      <a mat-list-item
+         [routerLink]="['./floor-view']"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: false }">
+        <mat-icon matListItemIcon>map</mat-icon>
+        <span matListItemTitle>Floor View</span>
+      </a>
+
+    </mat-nav-list>
+
+    <div class="sidebar-footer">
+      <a mat-list-item routerLink="/tournaments" class="back-to-public">
+        <mat-icon matListItemIcon>arrow_back</mat-icon>
+        <span matListItemTitle>Public Site</span>
+      </a>
+    </div>
+
+  </mat-sidenav>
+
+  <!-- ─── Main content ─────────────────────────────────────────────────────── -->
+  <mat-sidenav-content>
+
+    <!-- Status bar -->
+    <div class="admin-status-bar">
+      <button
+        *ngIf="isMobile()"
+        mat-icon-button
+        (click)="sidenav.toggle()"
+        aria-label="Toggle navigation">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="status-bar-org">
+        {{ tenantService.currentOrg()?.organizationName ?? '' }}
+      </span>
+
+      <span class="status-bar-spacer"></span>
+
+      <span class="user-badge" *ngIf="authService.user() as user">
+        <mat-icon>account_circle</mat-icon>
+        {{ user.username }}
+      </span>
+    </div>
+
+    <!-- Routed page content -->
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

@@ -1,0 +1,98 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-header__title">
+      <button mat-icon-button (click)="backToTournament()" matTooltip="Back to Tournament">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      @if (tournament()) {
+        <h1>Schedule Matches — {{ tournament()!.name }}</h1>
+      } @else {
+        <h1>Schedule Matches</h1>
+      }
+    </div>
+    <button mat-stroked-button (click)="backToTournament()">
+      <mat-icon>arrow_back</mat-icon> Back to Tournament
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (!bracket() || rounds().length === 0) {
+    <div class="empty-state">
+      <mat-icon>sports_esports</mat-icon>
+      <h3>No bracket generated yet</h3>
+      <p>Generate the bracket from the tournament detail page first.</p>
+    </div>
+  } @else {
+
+    <section class="all-matches">
+      @for (round of rounds(); track round.roundNumber) {
+        <div class="round-section">
+          <h2 class="round-label">{{ round.roundLabel }}</h2>
+
+          @for (match of round.matches; track match.id) {
+            <mat-card class="match-card" [class.match-card--scheduled]="match.status !== 'UNSCHEDULED'">
+              <mat-card-content>
+                <div class="match-header">
+                  <span class="match-teams">
+                    {{ teamALabel(match) }} vs {{ teamBLabel(match) }}
+                  </span>
+                  <mat-chip [class]="'status-chip status-chip--' + match.status.toLowerCase()">
+                    {{ match.status }}
+                  </mat-chip>
+                </div>
+
+                @if (match.status === 'UNSCHEDULED') {
+                  <!-- Schedule Form -->
+                  <div class="schedule-form">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Venue</mat-label>
+                      <mat-select
+                        [value]="getMatchForm(match.id).venueId"
+                        (selectionChange)="setMatchVenue(match.id, $event.value)">
+                        @for (venue of venues(); track venue.id) {
+                          <mat-option [value]="venue.id">{{ venue.name }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Date &amp; Time</mat-label>
+                      <input matInput
+                             type="datetime-local"
+                             [value]="getMatchForm(match.id).scheduledTime"
+                             (change)="setMatchTime(match.id, $any($event.target).value)" />
+                    </mat-form-field>
+
+                    <button mat-raised-button color="primary"
+                            [disabled]="!canScheduleMatch(match.id)"
+                            (click)="scheduleMatch(match.id)">
+                      <mat-icon>schedule</mat-icon> Schedule
+                    </button>
+                  </div>
+                } @else {
+                  <!-- Read-only match info -->
+                  <div class="match-info">
+                    @if (match.scheduledTime) {
+                      <span class="info-item">
+                        <mat-icon class="info-icon">schedule</mat-icon>
+                        {{ match.scheduledTime | date:'medium' }}
+                      </span>
+                    }
+                    @if (match.winner) {
+                      <span class="info-item">
+                        <mat-icon class="info-icon">emoji_events</mat-icon>
+                        Winner: {{ match.winner.name }}
+                      </span>
+                    }
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+
+  }
+</div>

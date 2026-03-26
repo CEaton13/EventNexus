@@ -104,12 +104,32 @@ export class TournamentDetail implements OnInit, OnDestroy {
     if (!t) return;
     const next = this.statusTransitions[t.status];
     if (!next) return;
-    this.tournamentService.updateStatus(this.tournamentId, next as any).subscribe({
-      next: (updated) => {
-        this.tournament.set(updated);
-        this.snackBar.open(`Status advanced to ${updated.status}`, 'OK', { duration: 3000 });
-      },
-    });
+
+    const message =
+      next === 'IN_PROGRESS'
+        ? `Move "${t.name}" to IN_PROGRESS? This will lock registrations and generate the bracket.`
+        : `Advance tournament to ${next}?`;
+
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Advance Tournament Status',
+          message,
+          confirmLabel: 'Confirm',
+          cancelLabel: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.tournamentService.updateStatus(this.tournamentId, next as any).subscribe({
+          next: (updated) => {
+            this.tournament.set(updated);
+            this.snackBar.open(`Status advanced to ${updated.status}`, 'OK', { duration: 3000 });
+          },
+        });
+      });
   }
 
   scheduleMatch(): void {
@@ -154,27 +174,44 @@ export class TournamentDetail implements OnInit, OnDestroy {
   rejectRegistration(teamId: number, teamName: string): void {
     const t = this.tournament();
     if (!t) return;
-    this.dialog.open(ConfirmDialog, {
-      panelClass: 'dark-dialog',
-      data: {
-        title: 'Reject Registration',
-        message: `Reject ${teamName}'s registration for "${t.name}"? They will need to re-register if you change your mind.`,
-        confirmLabel: 'Reject',
-        cancelLabel: 'Cancel',
-      },
-    }).afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-      this.tournamentService.updateRegistrationStatus(t.id, teamId, 'REJECTED').subscribe({
-        next: () => {
-          this.snackBar.open(`${teamName} registration rejected.`, 'OK', { duration: 3000 });
-          this.loadSubResources();
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Reject Registration',
+          message: `Reject ${teamName}'s registration for "${t.name}"? They will need to re-register if you change your mind.`,
+          confirmLabel: 'Reject',
+          cancelLabel: 'Cancel',
         },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.tournamentService.updateRegistrationStatus(t.id, teamId, 'REJECTED').subscribe({
+          next: () => {
+            this.snackBar.open(`${teamName} registration rejected.`, 'OK', { duration: 3000 });
+            this.loadSubResources();
+          },
+        });
       });
-    });
   }
 
   backToList(): void {
     const slug = this.tenantService.currentOrgSlug();
     this.router.navigate([slug, 'tournaments']);
+  }
+
+  /**
+   * Navigates to the dedicated registration management page for this tournament.
+   * Only accessible to admins.
+   */
+  manageRegistrations(): void {
+    this.router.navigate([
+      this.tenantService.currentOrgSlug(),
+      'admin',
+      'tournaments',
+      this.tournamentId,
+      'registrations',
+    ]);
   }
 }

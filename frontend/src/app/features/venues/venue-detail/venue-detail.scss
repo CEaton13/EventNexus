@@ -64,3 +64,17 @@
   font-size: 1rem;
   font-weight: 600;
 }
+
+.utilization-item {
+  grid-column: 1 / -1;
+}
+
+.utilization-content {
+  width: 100%;
+}
+
+.utilization-bar {
+  margin-top: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}

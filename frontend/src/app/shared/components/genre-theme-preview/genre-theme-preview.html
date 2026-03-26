@@ -1,0 +1,12 @@
+@if (genre) {
+  <div class="genre-preview-container" [ngStyle]="previewStyles()">
+    <div class="preview-header">{{ genre.name }}</div>
+    <div class="preview-badge" [ngStyle]="badgeStyles()">{{ genre.name }}</div>
+    <button class="preview-btn" [ngStyle]="{ 'border-color': genre.accentColor, 'color': genre.secondaryColor }">
+      Preview Button
+    </button>
+    <div class="preview-font" [ngStyle]="fontStyles()">
+      Sample Text — {{ genre.fontFamily ?? 'Inter' }}
+    </div>
+  </div>
+}

@@ -32,3 +32,10 @@ export interface BracketResponse {
   bracketSize: number;
   rounds: BracketRound[];
 }
+
+export interface ConflictCheckResponse {
+  hasTeamConflict: boolean;
+  hasVenueConflict: boolean;
+  teamConflictDetails?: string;
+  venueConflictDetails?: string;
+}

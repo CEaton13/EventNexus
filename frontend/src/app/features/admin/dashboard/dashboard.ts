@@ -1,5 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { TournamentSummary } from '../../../shared/models/tournament.model';
@@ -27,6 +29,7 @@ export class Dashboard implements OnInit {
   };
 
   constructor(
+    private readonly dialog: MatDialog,
     private readonly tournamentService: TournamentService,
     private readonly tenantService: TenantService,
     private readonly router: Router,
@@ -35,7 +38,7 @@ export class Dashboard implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
     this.tournamentService.getAll(0, 10).subscribe({
-      next: page => {
+      next: (page) => {
         this.tournaments.set(page.content);
         this.loading.set(false);
       },
@@ -50,13 +53,29 @@ export class Dashboard implements OnInit {
   advance(t: TournamentSummary): void {
     const next = this.nextStatus(t.status);
     if (!next) return;
-    this.tournamentService.updateStatus(t.id, next as any).subscribe({
-      next: updated => {
-        this.tournaments.update(list =>
-          list.map(item => item.id === updated.id ? { ...item, status: updated.status } : item)
-        );
-      },
-    });
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Advance Tournament Status',
+          message: `Advance "${t.name}" to ${next}?`,
+          confirmLabel: 'Confirm',
+          cancelLabel: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.tournamentService.updateStatus(t.id, next as any).subscribe({
+          next: (updated) => {
+            this.tournaments.update((list) =>
+              list.map((item) =>
+                item.id === updated.id ? { ...item, status: updated.status } : item,
+              ),
+            );
+          },
+        });
+      });
   }
 
   createTournament(): void {

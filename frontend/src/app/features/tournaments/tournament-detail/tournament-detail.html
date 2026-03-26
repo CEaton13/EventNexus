@@ -63,7 +63,15 @@
 
     <!-- Registered Teams -->
     <section>
-      <h2>Registered Teams</h2>
+      <div class="section-header">
+        <h2>Registered Teams</h2>
+        @if (authService.isAdmin()) {
+          <button mat-stroked-button color="primary" (click)="manageRegistrations()">
+            <mat-icon>manage_accounts</mat-icon>
+            Manage Registrations
+          </button>
+        }
+      </div>
       @if (registrations().length === 0) {
         <p class="empty-note">No teams registered yet.</p>
       } @else {

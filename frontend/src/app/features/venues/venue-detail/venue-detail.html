@@ -57,11 +57,17 @@
                 <span class="info-value">{{ venue()!.availableStations }}</span>
               </div>
             </div>
-            <div class="info-item">
+            <div class="info-item utilization-item">
               <mat-icon>bar_chart</mat-icon>
-              <div>
+              <div class="utilization-content">
                 <span class="info-label">Utilization</span>
-                <span class="info-value">{{ venue()!.utilizationPct }}%</span>
+                <span class="info-value">{{ venue()!.utilizationPct | number:'1.0-0' }}%</span>
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="venue()!.utilizationPct"
+                  [color]="utilizationColor()"
+                  class="utilization-bar">
+                </mat-progress-bar>
               </div>
             </div>
           }

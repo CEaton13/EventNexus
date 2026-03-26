@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { GenrePreview } from './components/genre-preview/genre-preview';
+import { GenreThemePreview } from './components/genre-theme-preview/genre-theme-preview';
 import { OrgSelector } from './components/org-selector/org-selector';
 import { Standings } from './components/standings/standings';
 import { BracketViewer } from './components/bracket-viewer/bracket-viewer';
@@ -22,7 +23,16 @@ import { AuthDialog } from './components/auth-dialog/auth-dialog';
 import { ReplacePipe } from './pipes/replace.pipe';
 
 @NgModule({
-  declarations: [GenrePreview, OrgSelector, Standings, BracketViewer, ConfirmDialog, AuthDialog, ReplacePipe],
+  declarations: [
+    GenrePreview,
+    GenreThemePreview,
+    OrgSelector,
+    Standings,
+    BracketViewer,
+    ConfirmDialog,
+    AuthDialog,
+    ReplacePipe,
+  ],
   imports: [
     CommonModule,
     RouterModule,
@@ -38,6 +48,15 @@ import { ReplacePipe } from './pipes/replace.pipe';
     MatButtonModule,
     MatTabsModule,
   ],
-  exports: [GenrePreview, OrgSelector, Standings, BracketViewer, ConfirmDialog, AuthDialog, ReplacePipe],
+  exports: [
+    GenrePreview,
+    GenreThemePreview,
+    OrgSelector,
+    Standings,
+    BracketViewer,
+    ConfirmDialog,
+    AuthDialog,
+    ReplacePipe,
+  ],
 })
 export class SharedModule {}

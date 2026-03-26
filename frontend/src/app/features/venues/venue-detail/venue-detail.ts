@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,6 +22,17 @@ export class VenueDetail implements OnInit {
   readonly venue = signal<VenueResponse | null>(null);
   readonly loading = signal(false);
 
+  /**
+   * Returns the Material color token for the utilization progress bar:
+   * 'primary' (green theme) < 60%, 'accent' (yellow) 60–90%, 'warn' (red) > 90%.
+   */
+  readonly utilizationColor = computed<'primary' | 'accent' | 'warn'>(() => {
+    const pct = this.venue()?.utilizationPct ?? 0;
+    if (pct >= 90) return 'warn';
+    if (pct >= 60) return 'accent';
+    return 'primary';
+  });
+
   private venueId!: number;
 
   constructor(
@@ -42,7 +53,7 @@ export class VenueDetail implements OnInit {
   load(): void {
     this.loading.set(true);
     this.venueService.getById(this.venueId).subscribe({
-      next: v => {
+      next: (v) => {
         this.venue.set(v);
         this.loading.set(false);
       },
@@ -51,29 +62,39 @@ export class VenueDetail implements OnInit {
   }
 
   editVenue(): void {
-    this.router.navigate([this.tenantService.currentOrgSlug(), 'admin', 'venues', this.venueId, 'edit']);
+    this.router.navigate([
+      this.tenantService.currentOrgSlug(),
+      'admin',
+      'venues',
+      this.venueId,
+      'edit',
+    ]);
   }
 
   deleteVenue(): void {
     const name = this.venue()?.name ?? 'this venue';
-    this.dialog.open(ConfirmDialog, {
-      panelClass: 'dark-dialog',
-      data: {
-        title: 'Delete Venue',
-        message: `Permanently delete "${name}"? This cannot be undone.`,
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
-      },
-    }).afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-      this.venueService.delete(this.venueId).subscribe({
-        next: () => {
-          this.snackBar.open('Venue deleted', 'OK', { duration: 3000 });
-          this.backToList();
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Delete Venue',
+          message: `Permanently delete "${name}"? This cannot be undone.`,
+          confirmLabel: 'Delete',
+          cancelLabel: 'Cancel',
         },
-        error: () => this.snackBar.open('Cannot delete — venue is in use', 'OK', { duration: 4000 }),
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.venueService.delete(this.venueId).subscribe({
+          next: () => {
+            this.snackBar.open('Venue deleted', 'OK', { duration: 3000 });
+            this.backToList();
+          },
+          error: () =>
+            this.snackBar.open('Cannot delete — venue is in use', 'OK', { duration: 4000 }),
+        });
       });
-    });
   }
 
   backToList(): void {

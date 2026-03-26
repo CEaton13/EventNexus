@@ -1,0 +1,123 @@
+.page-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 0;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.5);
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+  h3 { margin: 0; font-size: 1.25rem; }
+  p { margin: 0; }
+}
+
+.round-section {
+  margin-bottom: 40px;
+}
+
+.round-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.match-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+
+  &--scheduled {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.match-teams {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &--unscheduled { background-color: rgba(255, 255, 255, 0.1); }
+  &--scheduled   { background-color: rgba(33, 150, 243, 0.3); color: #90caf9; }
+  &--in_progress { background-color: rgba(76, 175, 80, 0.3);  color: #a5d6a7; }
+  &--completed   { background-color: rgba(156, 39, 176, 0.3); color: #ce93d8; }
+  &--bye         { background-color: rgba(255, 255, 255, 0.08); }
+}
+
+.schedule-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.form-field {
+  flex: 1;
+  min-width: 180px;
+}
+
+.match-info {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}

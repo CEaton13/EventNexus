@@ -1,5 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { PlayerService } from '../../../core/services/player.service';
 import { AuthService } from '../../../core/services/auth';
 import { TenantService } from '../../../core/services/tenant.service';
@@ -26,6 +29,8 @@ export class PlayerDetail implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar,
     private readonly playerService: PlayerService,
     readonly authService: AuthService,
     readonly tenantService: TenantService,
@@ -52,5 +57,38 @@ export class PlayerDetail implements OnInit {
 
   editPlayer(): void {
     this.router.navigate([this.tenantService.currentOrgSlug(), 'players', this.playerId, 'edit']);
+  }
+
+  /**
+   * Opens a confirmation dialog before removing a player from their team.
+   * Navigates back to the team page on successful deletion.
+   */
+  deletePlayer(): void {
+    const p = this.player();
+    if (!p) return;
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Remove Player',
+          message: `Remove "${p.gamerTag}" from ${p.teamName}? This cannot be undone.`,
+          confirmLabel: 'Remove',
+          cancelLabel: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.playerService.delete(this.playerId).subscribe({
+          next: () => {
+            this.snackBar.open('Player removed', 'OK', { duration: 3000 });
+            this.router.navigate([
+              this.tenantService.currentOrgSlug(),
+              'teams',
+              this.player()!.teamId,
+            ]);
+          },
+        });
+      });
   }
 }

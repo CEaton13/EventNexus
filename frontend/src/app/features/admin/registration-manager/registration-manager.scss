@@ -1,0 +1,146 @@
+.registration-manager-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 96px; // bottom padding accounts for sticky toolbar
+}
+
+// Page Header
+.page-header {
+  margin-bottom: 24px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    margin: 4px 0 0;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+    font-size: 0.875rem;
+  }
+}
+
+// Capacity Section
+.capacity-section {
+  margin-bottom: 24px;
+
+  .capacity-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+
+    .capacity-label {
+      font-weight: 500;
+    }
+
+    .capacity-count {
+      color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+      font-size: 0.875rem;
+    }
+
+    .capacity-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      mat-icon {
+        font-size: 16px;
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
+
+  mat-progress-bar {
+    border-radius: 4px;
+  }
+}
+
+// Action Bar
+.action-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// Tab Content
+.empty-note {
+  padding: 24px 16px;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  font-style: italic;
+  text-align: center;
+}
+
+mat-list-item {
+  border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  div[matListItemMeta] {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+// Selection Toolbar (sticky bottom)
+.selection-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--mat-sys-surface-container-high, #ece6f0);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+  gap: 16px;
+
+  .selection-count {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .selection-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
