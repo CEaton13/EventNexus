@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { PublicTournamentService } from '../../../core/services/public-tournament.service';
 import { TeamService } from '../../../core/services/team.service';
@@ -44,22 +44,27 @@ export class TournamentList implements OnInit {
     { value: 'ARCHIVED', label: 'Archived' },
   ];
 
-  /** True when accessed via the unauthenticated public /tournaments route. */
+  /**
+   * True when accessed via the public /tournaments route (no orgSlug in URL).
+   * Uses the route param tree rather than TenantService so that a logged-in
+   * manager visiting /tournaments still sees all tournaments.
+   */
   get isPublicContext(): boolean {
-    return !this.tenantService.currentOrgSlug();
+    return !this.route.snapshot.pathFromRoot.some((s) => s.params['orgSlug']);
   }
 
   /** Team ID for the currently logged-in manager, null otherwise. */
   private managerTeamId: number | null = null;
 
   constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly tournamentService: TournamentService,
     private readonly publicTournamentService: PublicTournamentService,
     private readonly teamService: TeamService,
     private readonly genreService: GenreService,
     private readonly tenantService: TenantService,
     readonly authService: AuthService,
-    private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
