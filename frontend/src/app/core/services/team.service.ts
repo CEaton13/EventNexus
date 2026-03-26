@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TeamResponse, TeamRequest } from '../../shared/models/team.model';
 import { PlayerResponse } from '../../shared/models/player.model';
-import { PageResponse } from '../../shared/models/tournament.model';
+import { PageResponse, TournamentSummary } from '../../shared/models/tournament.model';
 
 /**
  * TeamService communicates with the `/api/teams` endpoints.
@@ -63,5 +63,20 @@ export class TeamService {
    */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  /**
+   * Returns all teams managed by the currently authenticated user.
+   */
+  getMyTeams(): Observable<TeamResponse[]> {
+    return this.http.get<TeamResponse[]>(`${this.base}/mine`);
+  }
+
+  /**
+   * Returns all tournaments a team is registered for.
+   * @param id Team primary key.
+   */
+  getTournaments(id: number): Observable<TournamentSummary[]> {
+    return this.http.get<TournamentSummary[]>(`${this.base}/${id}/tournaments`);
   }
 }

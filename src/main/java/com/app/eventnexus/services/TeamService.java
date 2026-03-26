@@ -2,12 +2,14 @@ package com.app.eventnexus.services;
 
 import com.app.eventnexus.dtos.requests.TeamRequest;
 import com.app.eventnexus.dtos.responses.TeamResponse;
+import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ResourceNotFoundException;
 import com.app.eventnexus.exceptions.UnauthorizedAccessException;
 import com.app.eventnexus.models.Team;
 import com.app.eventnexus.models.User;
 import com.app.eventnexus.repositories.TeamRepository;
+import com.app.eventnexus.repositories.TournamentTeamRepository;
 import com.app.eventnexus.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Service for managing team data.
@@ -32,13 +35,43 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
+    private final TournamentTeamRepository tournamentTeamRepository;
 
-    public TeamService(TeamRepository teamRepository, UserRepository userRepository) {
+    public TeamService(TeamRepository teamRepository,
+                       UserRepository userRepository,
+                       TournamentTeamRepository tournamentTeamRepository) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
+        this.tournamentTeamRepository = tournamentTeamRepository;
     }
 
     // ─── Read ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Returns all teams managed by the given user.
+     *
+     * @param managerId the user ID of the team manager
+     * @return list of teams owned by that manager
+     */
+    @Transactional(readOnly = true)
+    public List<TeamResponse> findByManager(Long managerId) {
+        return teamRepository.findByTeamManager_Id(managerId).stream()
+                .map(this::toResponseWithCount)
+                .toList();
+    }
+
+    /**
+     * Returns all tournaments a team is registered for.
+     *
+     * @param teamId the team's primary key
+     * @return list of tournament summaries for that team
+     */
+    @Transactional(readOnly = true)
+    public List<TournamentSummaryResponse> findTournamentsByTeam(Long teamId) {
+        return tournamentTeamRepository.findByTeam_Id(teamId).stream()
+                .map(tt -> TournamentSummaryResponse.from(tt.getTournament()))
+                .toList();
+    }
 
     /**
      * Returns a page of teams with their active player counts.

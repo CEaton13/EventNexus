@@ -70,6 +70,11 @@ public class SecurityConfig {
                 // ── Public tournament hub (org-agnostic read) ─────────────
                 .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
 
+                // ── Teams (public read, except /mine which needs auth) ────
+                .requestMatchers(HttpMethod.GET, "/api/teams").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*/players").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*/tournaments").permitAll()
+
                 // ── Matches (public read) ─────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/matches/**").permitAll()
 

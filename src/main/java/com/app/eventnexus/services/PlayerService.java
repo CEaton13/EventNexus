@@ -61,6 +61,19 @@ public class PlayerService {
     }
 
     /**
+     * Returns all players (active and inactive) belonging to a given team.
+     *
+     * @param teamId the team's primary key
+     * @return list of player response DTOs; never null
+     */
+    @Transactional(readOnly = true)
+    public List<PlayerResponse> findByTeam(Long teamId) {
+        return playerRepository.findByTeam_Id(teamId).stream()
+                .map(PlayerResponse::from)
+                .toList();
+    }
+
+    /**
      * Returns a single player by ID regardless of active status.
      * Soft-deleted players are still returned with {@code active = false}.
      *

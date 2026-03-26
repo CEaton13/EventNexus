@@ -3,6 +3,7 @@ package com.app.eventnexus.controllers;
 import com.app.eventnexus.dtos.requests.TeamRequest;
 import com.app.eventnexus.dtos.responses.PageResponse;
 import com.app.eventnexus.dtos.responses.TeamResponse;
+import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.TeamService;
 import jakarta.validation.Valid;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Thin REST controller for team management.
@@ -48,6 +51,32 @@ public class TeamController {
     public ResponseEntity<PageResponse<TeamResponse>> getAllTeams(
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(PageResponse.from(teamService.findAll(pageable)));
+    }
+
+    /**
+     * Returns all teams managed by the currently authenticated user.
+     * Requires authentication.
+     *
+     * @param authentication the current user's security context
+     * @return 200 OK with a list of managed teams
+     */
+    @GetMapping("/mine")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<TeamResponse>> getMyTeams(Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return ResponseEntity.ok(teamService.findByManager(principal.getUserId()));
+    }
+
+    /**
+     * Returns all tournaments a team is registered for.
+     * No authentication required.
+     *
+     * @param id the team's primary key
+     * @return 200 OK with a list of tournament summaries
+     */
+    @GetMapping("/{id}/tournaments")
+    public ResponseEntity<List<TournamentSummaryResponse>> getTeamTournaments(@PathVariable Long id) {
+        return ResponseEntity.ok(teamService.findTournamentsByTeam(id));
     }
 
     /**

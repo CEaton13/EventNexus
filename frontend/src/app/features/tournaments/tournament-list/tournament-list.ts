@@ -2,8 +2,10 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { PublicTournamentService } from '../../../core/services/public-tournament.service';
+import { TeamService } from '../../../core/services/team.service';
 import { GenreService } from '../../../core/services/genre.service';
 import { TenantService } from '../../../core/services/tenant.service';
+import { AuthService } from '../../../core/services/auth';
 import { TournamentSummary, TournamentStatus } from '../../../shared/models/tournament.model';
 import { GameGenreResponse } from '../../../core/services/theme';
 
@@ -47,21 +49,52 @@ export class TournamentList implements OnInit {
     return !this.tenantService.currentOrgSlug();
   }
 
+  /** Team ID for the currently logged-in manager, null otherwise. */
+  private managerTeamId: number | null = null;
+
   constructor(
     private readonly tournamentService: TournamentService,
     private readonly publicTournamentService: PublicTournamentService,
+    private readonly teamService: TeamService,
     private readonly genreService: GenreService,
     private readonly tenantService: TenantService,
+    readonly authService: AuthService,
     private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
     this.genreService.getAll().subscribe((g) => this.genres.set(g));
-    this.load();
+
+    // For team managers in the org context, load only their team's tournaments.
+    if (!this.isPublicContext && this.authService.isTeamManager()) {
+      this.teamService.getMyTeams().subscribe({
+        next: (teams) => {
+          this.managerTeamId = teams.length > 0 ? teams[0].id : null;
+          this.load();
+        },
+        error: () => this.load(),
+      });
+    } else {
+      this.load();
+    }
   }
 
   load(): void {
     this.loading.set(true);
+
+    // Team managers see only their team's tournaments.
+    if (this.managerTeamId !== null) {
+      this.teamService.getTournaments(this.managerTeamId).subscribe({
+        next: (list) => {
+          this.tournaments.set(list);
+          this.totalElements.set(list.length);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+      return;
+    }
+
     const obs = this.isPublicContext
       ? this.publicTournamentService.getAll(
           this.page,

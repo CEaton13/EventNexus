@@ -75,6 +75,18 @@ public class PlayerController {
     }
 
     /**
+     * Returns all players on a given team (active and inactive).
+     * No authentication required.
+     *
+     * @param teamId the team's primary key
+     * @return 200 OK with list of players
+     */
+    @GetMapping("/api/teams/{teamId}/players")
+    public ResponseEntity<List<PlayerResponse>> getPlayersByTeam(@PathVariable Long teamId) {
+        return ResponseEntity.ok(playerService.findByTeam(teamId));
+    }
+
+    /**
      * Adds a new player to a team.
      * The team is identified by {@code teamId} in the path.
      * The caller must be the team's manager or a {@code TOURNAMENT_ADMIN}.

@@ -30,12 +30,26 @@ export class TeamList implements OnInit {
     private readonly router: Router,
   ) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    if (this.authService.isTeamManager()) {
+      this.loading.set(true);
+      this.teamService.getMyTeams().subscribe({
+        next: (teams) => {
+          this.teams.set(teams);
+          this.totalElements.set(teams.length);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+    } else {
+      this.load();
+    }
+  }
 
   load(): void {
     this.loading.set(true);
     this.teamService.getAll(this.page, this.pageSize).subscribe({
-      next: page => {
+      next: (page) => {
         this.teams.set(page.content);
         this.totalElements.set(page.totalElements);
         this.loading.set(false);
