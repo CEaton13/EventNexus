@@ -89,6 +89,9 @@ public class SecurityConfig {
                 // ── Genres (fully public) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
 
+                // ── Org-scoped teams (public read) ────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/teams").permitAll()
+
                 // ── Venues (public read) ───────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/venues/**").permitAll()
 

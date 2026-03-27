@@ -48,7 +48,11 @@ export class TeamList implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.teamService.getAll(this.page, this.pageSize).subscribe({
+    const fetch$ = this.tenantService.currentOrgSlug()
+      ? this.teamService.getByOrg(this.page, this.pageSize)
+      : this.teamService.getAll(this.page, this.pageSize);
+
+    fetch$.subscribe({
       next: (page) => {
         this.teams.set(page.content);
         this.totalElements.set(page.totalElements);

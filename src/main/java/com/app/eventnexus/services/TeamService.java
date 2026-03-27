@@ -12,6 +12,7 @@ import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.TournamentTeamRepository;
 import com.app.eventnexus.repositories.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +83,34 @@ public class TeamService {
     @Transactional(readOnly = true)
     public Page<TeamResponse> findAll(Pageable pageable) {
         return teamRepository.findAll(pageable).map(this::toResponseWithCount);
+    }
+
+    /**
+     * Returns a page of teams that have participated in at least one tournament
+     * belonging to the given organization.
+     *
+     * @param orgId    the organization's primary key (from {@code TenantContext})
+     * @param pageable pagination and sort parameters
+     * @return a page of team response DTOs scoped to the org
+     */
+    @Transactional(readOnly = true)
+    public Page<TeamResponse> findByOrganization(Long orgId, Pageable pageable) {
+        List<Long> ids = teamRepository.findIdsByOrganizationId(orgId);
+        if (ids.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        List<Team> teams = teamRepository.findByIdIn(ids);
+        List<TeamResponse> responses = teams.stream()
+                .map(this::toResponseWithCount)
+                .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), responses.size());
+        List<TeamResponse> pageContent = start >= responses.size()
+                ? List.of()
+                : responses.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, responses.size());
     }
 
     /**
