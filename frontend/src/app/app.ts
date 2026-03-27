@@ -8,7 +8,7 @@ import { TenantService } from './core/services/tenant.service';
   selector: 'app-root',
   templateUrl: './app.html',
   standalone: false,
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   readonly authService = inject(AuthService);
@@ -27,7 +27,7 @@ export class App {
   onLogout(): void {
     this.authService.logout().subscribe({
       complete: () => this.router.navigate(['/']),
-      error: () => this.router.navigate(['/'])
+      error: () => this.router.navigate(['/']),
     });
   }
 
@@ -44,14 +44,34 @@ export class App {
     else this.router.navigate(['/tournaments']);
   }
 
-  /** Opens the auth dialog (login tab). Imported lazily to avoid circular dep at boot. */
+  /** Opens the auth dialog (login tab). On successful login, navigates to the user's home. */
   async openAuthDialog(): Promise<void> {
     const { AuthDialog } = await import('./shared/components/auth-dialog/auth-dialog');
-    this.dialog.open(AuthDialog, {
-      width: '440px',
-      panelClass: 'dark-dialog',
-      disableClose: false,
-      data: { initialTab: 0 }
-    });
+    this.dialog
+      .open(AuthDialog, {
+        width: '440px',
+        panelClass: 'dark-dialog',
+        disableClose: false,
+        data: { initialTab: 0 },
+      })
+      .afterClosed()
+      .subscribe((success: boolean) => {
+        if (!success) return;
+
+        const role = this.authService.user()?.role;
+        const slug =
+          this.tenantService.currentOrgSlug() ??
+          this.tenantService.memberships()[0]?.organizationSlug;
+
+        if (role === 'SPECTATOR') {
+          this.router.navigate(['/tournaments']);
+        } else if (slug) {
+          const dest =
+            role === 'TOURNAMENT_ADMIN' ? [slug, 'admin', 'dashboard'] : [slug, 'tournaments'];
+          this.router.navigate(dest);
+        } else {
+          this.router.navigate(['/']);
+        }
+      });
   }
 }

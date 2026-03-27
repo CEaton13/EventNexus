@@ -4,6 +4,14 @@
 .loading-container { display: flex; justify-content: center; padding: 32px; }
 .empty-note { color: var(--mat-sys-on-surface-variant); font-style: italic; }
 .tournament-list { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.tournament-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover { background-color: rgba(255, 255, 255, 0.05); }
+}
+
 .row-actions { display: flex; align-items: center; gap: 8px; }
+.row-chevron { color: var(--mat-sys-on-surface-variant); }
 .chip-active { background-color: var(--mat-sys-primary-container) !important; color: var(--mat-sys-on-primary-container) !important; }
 .chip-inactive { background-color: var(--mat-sys-surface-variant) !important; color: var(--mat-sys-on-surface-variant) !important; }

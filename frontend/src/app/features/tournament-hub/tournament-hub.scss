@@ -118,6 +118,23 @@
   }
 }
 
+// Admin action buttons
+.hero-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+
+  button {
+    border-color: var(--primary);
+    color: var(--primary);
+
+    mat-icon {
+      margin-right: 6px;
+    }
+  }
+}
+
 // Register CTA block
 .hero-cta {
   display: flex;

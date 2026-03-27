@@ -11,7 +11,7 @@
     <p class="hint">Select a tournament to manage its team registrations.</p>
     <mat-list class="tournament-list">
       @for (t of tournaments(); track t.id) {
-        <mat-list-item class="tournament-row">
+        <mat-list-item class="tournament-row" (click)="manage(t.id)">
           <span matListItemTitle>{{ t.name }}</span>
           <span matListItemLine>{{ t.gameTitle }} &bull; {{ t.format }} &bull; {{ t.startDate | date:'MMM d, y' }}</span>
           <div matListItemMeta class="row-actions">
@@ -20,9 +20,7 @@
                 {{ t.status | replace:'_':' ' }}
               </mat-chip>
             </mat-chip-set>
-            <button mat-stroked-button color="primary" (click)="manage(t.id)">
-              <mat-icon>how_to_reg</mat-icon> Manage
-            </button>
+            <mat-icon class="row-chevron">chevron_right</mat-icon>
           </div>
         </mat-list-item>
         <mat-divider></mat-divider>

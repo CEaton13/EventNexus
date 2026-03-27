@@ -44,7 +44,7 @@ export class MatchScheduler implements OnInit {
   readonly allMatches = computed((): MatchResponse[] => {
     const b = this.bracket();
     if (!b) return [];
-    return b.rounds.flatMap(r => r.matches);
+    return b.rounds.flatMap((r) => r.matches);
   });
 
   /** Rounds with at least one schedulable or already-scheduled match. */
@@ -127,7 +127,7 @@ export class MatchScheduler implements OnInit {
    * @param matchId Match primary key.
    */
   initMatchForm(matchId: number): void {
-    this.scheduleForm.update(forms => {
+    this.scheduleForm.update((forms) => {
       if (forms[matchId]) return forms;
       return { ...forms, [matchId]: { venueId: null, scheduledTime: '' } };
     });
@@ -139,7 +139,7 @@ export class MatchScheduler implements OnInit {
    * @param venueId Selected venue primary key.
    */
   setMatchVenue(matchId: number, venueId: number | null): void {
-    this.scheduleForm.update(forms => ({
+    this.scheduleForm.update((forms) => ({
       ...forms,
       [matchId]: { ...forms[matchId], venueId },
     }));
@@ -151,7 +151,7 @@ export class MatchScheduler implements OnInit {
    * @param scheduledTime ISO datetime string from datetime-local input.
    */
   setMatchTime(matchId: number, scheduledTime: string): void {
-    this.scheduleForm.update(forms => ({
+    this.scheduleForm.update((forms) => ({
       ...forms,
       [matchId]: { ...forms[matchId], scheduledTime },
     }));
@@ -181,7 +181,9 @@ export class MatchScheduler implements OnInit {
         this.load();
       },
       error: () => {
-        this.snackBar.open('Failed to schedule match — check for conflicts.', 'OK', { duration: 4000 });
+        this.snackBar.open('Failed to schedule match — check for conflicts.', 'OK', {
+          duration: 4000,
+        });
       },
     });
   }
@@ -203,13 +205,9 @@ export class MatchScheduler implements OnInit {
   }
 
   /**
-   * Navigates back to the tournament detail page.
+   * Navigates back to the scheduler hub.
    */
   backToTournament(): void {
-    this.router.navigate([
-      this.tenantService.currentOrgSlug(),
-      'tournaments',
-      this.tournamentId,
-    ]);
+    this.router.navigate([this.tenantService.currentOrgSlug(), 'admin', 'matches', 'schedule']);
   }
 }

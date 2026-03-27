@@ -62,6 +62,20 @@
         }
       </div>
     }
+
+    <!-- Admin actions -->
+    @if (authService.isAdmin()) {
+      <div class="hero-admin-actions">
+        <button mat-stroked-button (click)="manageRegistrations()">
+          <mat-icon>how_to_reg</mat-icon>
+          Manage Registrations
+        </button>
+        <button mat-stroked-button (click)="goToScheduler()">
+          <mat-icon>schedule</mat-icon>
+          Schedule Matches
+        </button>
+      </div>
+    }
   </header>
 
   <!-- Live Matches — shown between hero and tab content when matches are in progress -->

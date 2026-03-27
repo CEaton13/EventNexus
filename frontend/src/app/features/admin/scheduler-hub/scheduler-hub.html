@@ -11,7 +11,7 @@
     <p class="hint">Select a tournament to schedule its matches.</p>
     <mat-list class="tournament-list">
       @for (t of tournaments(); track t.id) {
-        <mat-list-item class="tournament-row">
+        <mat-list-item class="tournament-row" (click)="schedule(t.id)">
           <span matListItemTitle>{{ t.name }}</span>
           <span matListItemLine>{{ t.gameTitle }} &bull; {{ t.format }} &bull; {{ t.startDate | date:'MMM d, y' }}</span>
           <div matListItemMeta class="row-actions">
@@ -20,9 +20,7 @@
                 {{ t.status | replace:'_':' ' }}
               </mat-chip>
             </mat-chip-set>
-            <button mat-stroked-button color="primary" (click)="schedule(t.id)">
-              <mat-icon>schedule</mat-icon> Schedule
-            </button>
+            <mat-icon class="row-chevron">chevron_right</mat-icon>
           </div>
         </mat-list-item>
         <mat-divider></mat-divider>

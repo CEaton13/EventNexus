@@ -308,9 +308,9 @@ export class RegistrationManager implements OnInit {
   }
 
   /**
-   * Navigates back to the tournament detail page.
+   * Navigates back to the registrations hub.
    */
   back(): void {
-    this.router.navigate([this.tenantService.currentOrgSlug(), 'tournaments', this.tournamentId]);
+    this.router.navigate([this.tenantService.currentOrgSlug(), 'admin', 'registrations']);
   }
 }

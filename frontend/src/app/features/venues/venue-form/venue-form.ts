@@ -51,7 +51,7 @@ export class VenueForm implements OnInit {
   private loadVenue(): void {
     this.loading.set(true);
     this.venueService.getById(this.venueId!).subscribe({
-      next: venue => {
+      next: (venue) => {
         this.form.patchValue({
           name: venue.name,
           location: venue.location,
@@ -75,13 +75,11 @@ export class VenueForm implements OnInit {
       : this.venueService.create(payload);
 
     request$.subscribe({
-      next: venue => {
-        this.snackBar.open(
-          this.isEdit() ? 'Venue updated' : 'Venue created',
-          'OK',
-          { duration: 3000 },
-        );
-        this.router.navigate([this.tenantService.currentOrgSlug(), 'venues', venue.id]);
+      next: () => {
+        this.snackBar.open(this.isEdit() ? 'Venue updated' : 'Venue created', 'OK', {
+          duration: 3000,
+        });
+        this.router.navigate([this.tenantService.currentOrgSlug(), 'admin', 'venues']);
       },
       error: () => {
         this.saving.set(false);
@@ -91,10 +89,6 @@ export class VenueForm implements OnInit {
   }
 
   cancel(): void {
-    if (this.venueId) {
-      this.router.navigate([this.tenantService.currentOrgSlug(), 'venues', this.venueId]);
-    } else {
-      this.router.navigate([this.tenantService.currentOrgSlug(), 'venues']);
-    }
+    this.router.navigate([this.tenantService.currentOrgSlug(), 'admin', 'venues']);
   }
 }

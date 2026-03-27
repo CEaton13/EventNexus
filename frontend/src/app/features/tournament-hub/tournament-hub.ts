@@ -15,6 +15,7 @@ import { MatchService } from '../../core/services/match.service';
 import { AuthDialogService } from '../../core/services/auth-dialog.service';
 import { ThemeService } from '../../core/services/theme';
 import { AuthService } from '../../core/services/auth';
+import { TenantService } from '../../core/services/tenant.service';
 import { MatchDetailDialog } from './match-detail-dialog/match-detail-dialog';
 
 /**
@@ -40,6 +41,7 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
   private readonly matchService = inject(MatchService);
   private readonly authDialogService = inject(AuthDialogService);
   private readonly themeService = inject(ThemeService);
+  private readonly tenantService = inject(TenantService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
@@ -117,6 +119,34 @@ export class TournamentHubComponent implements OnInit, OnDestroy {
   /** True when the tournament is open for registration. */
   get canRegister(): boolean {
     return this.tournament()?.status === 'REGISTRATION_OPEN';
+  }
+
+  /**
+   * Navigates an admin to the registration manager for this tournament
+   * within the admin dashboard.
+   */
+  manageRegistrations(): void {
+    const t = this.tournament();
+    if (!t) return;
+    const slug =
+      this.tenantService.currentOrgSlug() ?? this.tenantService.memberships()[0]?.organizationSlug;
+    if (slug) {
+      this.router.navigate([slug, 'admin', 'tournaments', t.id, 'registrations']);
+    }
+  }
+
+  /**
+   * Navigates an admin to the match scheduler for this tournament
+   * within the admin dashboard.
+   */
+  goToScheduler(): void {
+    const t = this.tournament();
+    if (!t) return;
+    const slug =
+      this.tenantService.currentOrgSlug() ?? this.tenantService.memberships()[0]?.organizationSlug;
+    if (slug) {
+      this.router.navigate([slug, 'admin', 'tournaments', t.id, 'schedule']);
+    }
   }
 
   private loadAll(id: number): void {
