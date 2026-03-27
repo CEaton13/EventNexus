@@ -1,0 +1,30 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Registrations</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (tournaments().length === 0) {
+    <p class="empty-note">No tournaments found. Create a tournament first.</p>
+  } @else {
+    <p class="hint">Select a tournament to manage its team registrations.</p>
+    <mat-list class="tournament-list">
+      @for (t of tournaments(); track t.id) {
+        <mat-list-item class="tournament-row" (click)="manage(t.id)">
+          <span matListItemTitle>{{ t.name }}</span>
+          <span matListItemLine>{{ t.gameTitle }} &bull; {{ t.format }} &bull; {{ t.startDate | date:'MMM d, y' }}</span>
+          <div matListItemMeta class="row-actions">
+            <mat-chip-set>
+              <mat-chip [class.chip-active]="isActionable(t.status)" [class.chip-inactive]="!isActionable(t.status)">
+                {{ t.status | replace:'_':' ' }}
+              </mat-chip>
+            </mat-chip-set>
+            <mat-icon class="row-chevron">chevron_right</mat-icon>
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
+  }
+</div>

@@ -1,0 +1,101 @@
+@if (loading()) {
+  <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+} @else if (team(); as t) {
+  <div class="page-container">
+
+    <!-- Header -->
+    <div class="portal-header">
+      <button mat-icon-button (click)="back()" aria-label="Back to team detail">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h1>{{ t.name }} <span class="tag">{{ t.tag }}</span></h1>
+        <p class="meta">
+          Manager: {{ t.managerUsername }}
+          @if (t.homeRegion) { &bull; {{ t.homeRegion }} }
+        </p>
+      </div>
+      @if (canEdit()) {
+        <button mat-stroked-button (click)="editTeam()" class="edit-btn">
+          <mat-icon>edit</mat-icon> Edit Team
+        </button>
+      }
+    </div>
+
+    <!-- Tournament Registrations -->
+    <h2 class="section-title">Tournament Registrations</h2>
+
+    @if (registrations().length === 0) {
+      <mat-card class="empty-card">
+        <mat-card-content>
+          <p class="empty-note">Your team isn't registered for any active tournaments.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      @if (pendingRegistrations().length > 0) {
+        <p class="pending-note">
+          <mat-icon class="pending-icon">schedule</mat-icon>
+          {{ pendingRegistrations().length }} registration(s) awaiting approval.
+        </p>
+      }
+
+      <div class="registration-list">
+        @for (reg of approvedTournaments(); track reg.id) {
+          <mat-card class="registration-card">
+            <mat-card-content class="registration-row">
+              <span class="tournament-name">{{ reg.tournamentName }}</span>
+              <mat-chip highlighted color="primary">APPROVED</mat-chip>
+              @if (reg.seed !== null) {
+                <span class="seed-label">Seed #{{ reg.seed }}</span>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @for (reg of pendingRegistrations(); track reg.id) {
+          <mat-card class="registration-card">
+            <mat-card-content class="registration-row">
+              <span class="tournament-name">{{ reg.tournamentName }}</span>
+              <mat-chip>PENDING</mat-chip>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @for (reg of rejectedRegistrations(); track reg.id) {
+          <mat-card class="registration-card">
+            <mat-card-content class="registration-row">
+              <span class="tournament-name">{{ reg.tournamentName }}</span>
+              <mat-chip color="warn">REJECTED</mat-chip>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+
+    <!-- Roster Quick-View -->
+    <h2 class="section-title">Roster ({{ players().length }})</h2>
+
+    <mat-card>
+      <mat-card-content>
+        @if (players().length === 0) {
+          <p class="empty-note">No players on this team yet.</p>
+        } @else {
+          <div class="player-chips">
+            @for (p of players(); track p.id) {
+              <mat-chip
+                [highlighted]="p.active"
+                (click)="viewPlayer(p.id)"
+                class="player-chip"
+                [attr.aria-label]="'View player ' + p.gamerTag"
+              >
+                {{ p.gamerTag }}
+                @if (!p.active) { <span class="inactive-label">(inactive)</span> }
+              </mat-chip>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+}

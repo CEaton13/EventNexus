@@ -1,0 +1,34 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Manage Genres</h1>
+    <button mat-raised-button color="primary" (click)="createGenre()">
+      <mat-icon>add</mat-icon> New Genre
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (genres().length === 0) {
+    <div class="empty-state">
+      <mat-icon>palette</mat-icon>
+      <h3>No genres yet</h3>
+      <button mat-raised-button color="primary" (click)="createGenre()">Create First Genre</button>
+    </div>
+  } @else {
+    <div class="genre-grid">
+      @for (genre of genres(); track genre.id) {
+        <div class="genre-grid__item">
+          <app-genre-preview [genre]="genre" [selected]="false"></app-genre-preview>
+          <div class="genre-grid__actions">
+            <button mat-stroked-button (click)="editGenre(genre.id)">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+            <button mat-stroked-button color="warn" (click)="deleteGenre(genre)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

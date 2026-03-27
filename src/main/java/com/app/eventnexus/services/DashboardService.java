@@ -6,6 +6,7 @@ import com.app.eventnexus.repositories.MatchRepository;
 import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.TournamentRepository;
+import com.app.eventnexus.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,22 +49,26 @@ public class DashboardService {
     }
 
     /**
-     * Builds a {@link DashboardResponse} with aggregated counts across all entities.
+     * Builds a {@link DashboardResponse} with aggregated counts scoped to the
+     * current tenant organization (read from {@link TenantContext}).
      *
-     * @return a populated dashboard summary DTO
+     * @return a populated dashboard summary DTO for the current org
      */
     @Transactional(readOnly = true)
     public DashboardResponse getDashboardSummary() {
+        Long orgId = TenantContext.getTenantId();
+
         Map<String, Long> byStatus = new LinkedHashMap<>();
         for (TournamentStatus status : TournamentStatus.values()) {
-            byStatus.put(status.name(), tournamentRepository.countByStatus(status));
+            byStatus.put(status.name(),
+                    tournamentRepository.countByOrganizationIdAndStatus(orgId, status));
         }
 
-        long totalTeams = teamRepository.count();
-        long activePlayers = playerRepository.countByIsActive(true);
+        long totalTeams   = teamRepository.countByOrganizationId(orgId);
+        long activePlayers = playerRepository.countActiveByOrganizationId(orgId);
 
         LocalDateTime now = LocalDateTime.now();
-        long upcoming = matchRepository.countUpcomingMatches(now, now.plusDays(7));
+        long upcoming = matchRepository.countUpcomingMatchesByOrganizationId(orgId, now, now.plusDays(7));
 
         return new DashboardResponse(byStatus, totalTeams, activePlayers, upcoming);
     }

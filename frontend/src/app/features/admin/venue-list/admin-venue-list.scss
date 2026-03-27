@@ -1,0 +1,42 @@
+.page-container { padding: 24px; max-width: 900px; margin: 0 auto; }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+}
+
+.loading-container { display: flex; justify-content: center; padding: 64px 0; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 0;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+  h3 { margin: 0; font-size: 1.25rem; }
+  p { margin: 0; }
+}
+
+.venue-list { background: transparent; }
+
+.venue-item {
+  height: auto !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-station {
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+}

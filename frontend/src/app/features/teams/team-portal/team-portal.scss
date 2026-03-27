@@ -1,0 +1,118 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+.page-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.portal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  .header-text {
+    flex: 1;
+
+    h1 {
+      margin: 0 0 4px;
+    }
+
+    .meta {
+      margin: 0;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .edit-btn {
+    margin-left: auto;
+  }
+}
+
+.tag {
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 24px 0 12px;
+  color: var(--primary, #fff);
+}
+
+.empty-card {
+  margin-bottom: 8px;
+}
+
+.empty-note {
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+  margin: 0;
+}
+
+.pending-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mat-sys-on-surface-variant);
+  margin-bottom: 8px;
+
+  .pending-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+  }
+}
+
+.registration-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.registration-card {
+  .registration-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+
+    .tournament-name {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .seed-label {
+      font-size: 13px;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+}
+
+.player-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .player-chip {
+    cursor: pointer;
+
+    .inactive-label {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+  }
+}

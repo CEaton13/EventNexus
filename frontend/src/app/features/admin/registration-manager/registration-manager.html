@@ -1,0 +1,183 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else {
+  <div class="registration-manager-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <button mat-icon-button (click)="back()" aria-label="Back to tournament">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h1>{{ tournament()?.name ?? 'Tournament' }}</h1>
+          <p class="subtitle">Registration Management</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capacity Bar -->
+    <mat-card class="capacity-section">
+      <mat-card-content>
+        <div class="capacity-header">
+          <span class="capacity-label">Team Capacity</span>
+          <span class="capacity-count">{{ approvedCount() }} / {{ tournament()?.maxTeams }} teams approved</span>
+          @if (atCapacity()) {
+            <mat-chip color="warn" highlighted class="capacity-chip">
+              <mat-icon>warning</mat-icon>
+              At Capacity
+            </mat-chip>
+          }
+        </div>
+        <mat-progress-bar
+          [value]="capacityPct()"
+          [color]="capacityPct() > 90 ? 'warn' : capacityPct() > 60 ? 'accent' : 'primary'">
+        </mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action Bar -->
+    @if (pendingRegistrations().length > 0) {
+      <div class="action-bar">
+        <button mat-raised-button color="primary" (click)="approveAll()">
+          <mat-icon>check_circle</mat-icon>
+          Approve All Pending ({{ pendingRegistrations().length }})
+        </button>
+        @if (selectedTeamIds().size > 0) {
+          <button mat-raised-button color="accent" (click)="bulkApprove()">
+            <mat-icon>done_all</mat-icon>
+            Bulk Approve Selected ({{ selectedTeamIds().size }})
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Registration Tabs -->
+    <mat-tab-group animationDuration="200ms">
+
+      <!-- Pending Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span [matBadge]="pendingRegistrations().length" matBadgeColor="warn"
+                [matBadgeHidden]="pendingRegistrations().length === 0">
+            Pending
+          </span>
+        </ng-template>
+
+        @if (pendingRegistrations().length === 0) {
+          <p class="empty-note">No pending registrations.</p>
+        } @else {
+          <mat-list>
+            @for (r of pendingRegistrations(); track r.id) {
+              <mat-list-item>
+                <mat-checkbox
+                  matListItemIcon
+                  [checked]="isSelected(r.teamId)"
+                  (change)="toggleSelection(r.teamId)"
+                  [aria-label]="'Select ' + r.teamName">
+                </mat-checkbox>
+                <span matListItemTitle>{{ r.teamName }}</span>
+                <span matListItemLine>Registered {{ r.registeredAt | date:'MMM d, y' }}</span>
+                <div matListItemMeta>
+                  <button mat-button color="primary"
+                    (click)="$event.stopPropagation(); approveTeam(r.teamId)">
+                    <mat-icon>check</mat-icon>
+                    Approve
+                  </button>
+                  <button mat-button color="warn"
+                    (click)="$event.stopPropagation(); rejectTeam(r.teamId, r.teamName)">
+                    <mat-icon>close</mat-icon>
+                    Reject
+                  </button>
+                </div>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-tab>
+
+      <!-- Approved Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span [matBadge]="approvedRegistrations().length" matBadgeColor="primary"
+                [matBadgeHidden]="approvedRegistrations().length === 0">
+            Approved
+          </span>
+        </ng-template>
+
+        @if (approvedRegistrations().length === 0) {
+          <p class="empty-note">No approved teams yet.</p>
+        } @else {
+          <mat-list>
+            @for (r of approvedRegistrations(); track r.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+                <span matListItemTitle>{{ r.teamName }}</span>
+                <span matListItemLine>
+                  Approved
+                  @if (r.seed) { &bull; Seed #{{ r.seed }} }
+                </span>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-tab>
+
+      <!-- Rejected Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span [matBadge]="rejectedRegistrations().length" matBadgeColor="accent"
+                [matBadgeHidden]="rejectedRegistrations().length === 0">
+            Rejected
+          </span>
+        </ng-template>
+
+        @if (rejectedRegistrations().length === 0) {
+          <p class="empty-note">No rejected registrations.</p>
+        } @else {
+          <mat-list>
+            @for (r of rejectedRegistrations(); track r.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon color="warn">cancel</mat-icon>
+                <span matListItemTitle>{{ r.teamName }}</span>
+                <span matListItemLine>Rejected</span>
+                <div matListItemMeta>
+                  <button mat-button color="primary"
+                    (click)="$event.stopPropagation(); approveTeam(r.teamId)">
+                    <mat-icon>redo</mat-icon>
+                    Re-Approve
+                  </button>
+                </div>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-tab>
+
+    </mat-tab-group>
+
+  </div>
+
+  <!-- Selection Toolbar (sticky bottom) -->
+  @if (selectedTeamIds().size > 0) {
+    <div class="selection-toolbar">
+      <span class="selection-count">{{ selectedTeamIds().size }} selected</span>
+      <div class="selection-actions">
+        <button mat-raised-button color="primary" (click)="bulkApprove()">
+          <mat-icon>done_all</mat-icon>
+          Approve All
+        </button>
+        <button mat-raised-button color="warn" (click)="bulkReject()">
+          <mat-icon>block</mat-icon>
+          Reject All
+        </button>
+        <button mat-button (click)="clearSelection()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+    </div>
+  }
+}

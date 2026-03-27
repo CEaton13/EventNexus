@@ -7,6 +7,7 @@ import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.repositories.TournamentRepository.StandingRow;
 import com.app.eventnexus.enums.RegistrationStatus;
+import com.app.eventnexus.enums.TournamentFormat;
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ConflictException;
@@ -91,14 +92,53 @@ public class TournamentService {
     // ─── Read ──────────────────────────────────────────────────────────────────
 
     /**
-     * Returns a page of tournaments as lightweight summary DTOs.
+     * Returns a page of tournaments as lightweight summary DTOs,
+     * optionally filtered by status and/or game genre.
+     *
+     * <p>When a tenant context is active (i.e. the request targets an org-scoped path),
+     * results are restricted to that organization. Without a tenant context (public
+     * endpoints such as {@code /api/tournaments}), all tournaments are returned.
+     * This explicit filter is necessary because the {@code public_read_tournaments}
+     * RLS policy uses {@code USING (true)}, which PostgreSQL OR-combines with the
+     * tenant isolation policy, making all rows visible to any session on SELECT.
      *
      * @param pageable pagination and sort parameters
-     * @return a page of tournament summaries
+     * @param status   optional status filter; {@code null} means no filter
+     * @param genreId  optional game genre ID filter; {@code null} means no filter
+     * @return a page of tournament summaries scoped to the active org (or all orgs if public)
      */
     @Transactional(readOnly = true)
-    public Page<TournamentSummaryResponse> findAll(Pageable pageable) {
-        return tournamentRepository.findAll(pageable).map(TournamentSummaryResponse::from);
+    public Page<TournamentSummaryResponse> findAll(Pageable pageable,
+                                                    TournamentStatus status,
+                                                    Long genreId) {
+        Long tenantId = TenantContext.getTenantId();
+        Page<Tournament> page;
+
+        if (tenantId != null) {
+            // Org-scoped request — restrict to the active organization
+            if (status != null && genreId != null) {
+                page = tournamentRepository.findByOrganizationIdAndStatusAndGameGenreId(tenantId, status, genreId, pageable);
+            } else if (status != null) {
+                page = tournamentRepository.findByOrganizationIdAndStatus(tenantId, status, pageable);
+            } else if (genreId != null) {
+                page = tournamentRepository.findByOrganizationIdAndGameGenreId(tenantId, genreId, pageable);
+            } else {
+                page = tournamentRepository.findByOrganizationId(tenantId, pageable);
+            }
+        } else {
+            // Public request (no tenant context) — no org filter
+            if (status != null && genreId != null) {
+                page = tournamentRepository.findByStatusAndGameGenreId(status, genreId, pageable);
+            } else if (status != null) {
+                page = tournamentRepository.findByStatus(status, pageable);
+            } else if (genreId != null) {
+                page = tournamentRepository.findByGameGenreId(genreId, pageable);
+            } else {
+                page = tournamentRepository.findAll(pageable);
+            }
+        }
+
+        return page.map(TournamentSummaryResponse::from);
     }
 
     /**
@@ -264,6 +304,11 @@ public class TournamentService {
         TournamentResponse response = TournamentResponse.from(tournamentRepository.save(tournament));
 
         if (newStatus == TournamentStatus.IN_PROGRESS) {
+            if (tournament.getFormat() != TournamentFormat.SINGLE_ELIMINATION) {
+                throw new InvalidStateTransitionException(
+                        "Only SINGLE_ELIMINATION brackets are currently supported. " +
+                        tournament.getFormat() + " is not yet implemented.");
+            }
             bracketService.generateBracket(tournamentId);
         }
 

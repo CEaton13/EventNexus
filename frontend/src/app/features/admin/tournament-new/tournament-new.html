@@ -4,7 +4,8 @@
   <mat-stepper [linear]="true" #stepper>
 
     <!-- Step 1: Basic Info -->
-    <mat-step [stepControl]="basicForm" label="Basic Info">
+    <mat-step [stepControl]="basicForm"
+              [label]="basicForm.value.name ? basicForm.value.name : 'Basic Info'">
       <form [formGroup]="basicForm" novalidate>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Tournament Name</mat-label>
@@ -48,6 +49,13 @@
             <input matInput type="datetime-local" formControlName="registrationEnd" />
           </mat-form-field>
         </div>
+        @if (basicForm.hasError('dateRange') &&
+             basicForm.get('registrationStart')?.touched &&
+             basicForm.get('registrationEnd')?.touched) {
+          <mat-error class="group-error">
+            {{ basicForm.getError('dateRange')?.message }}
+          </mat-error>
+        }
 
         <div class="date-row">
           <mat-form-field appearance="outline">
@@ -59,6 +67,13 @@
             <input matInput type="datetime-local" formControlName="endDate" />
           </mat-form-field>
         </div>
+        @if (basicForm.hasError('dateRange') &&
+             basicForm.get('startDate')?.touched &&
+             basicForm.get('endDate')?.touched) {
+          <mat-error class="group-error">
+            {{ basicForm.getError('dateRange')?.message }}
+          </mat-error>
+        }
 
         <div class="step-actions">
           <button mat-button type="button" (click)="cancel()">Cancel</button>
@@ -68,17 +83,23 @@
     </mat-step>
 
     <!-- Step 2: Genre -->
-    <mat-step [stepControl]="genreForm" label="Genre">
+    <mat-step [stepControl]="genreForm"
+              [label]="selectedGenre() ? selectedGenre()!.name : 'Genre'">
       <form [formGroup]="genreForm" novalidate>
         <p class="step-hint">Select the game genre theme for this tournament.</p>
-        <div class="genre-grid">
-          @for (g of genres(); track g.id) {
-            <app-genre-preview
-              [genre]="g"
-              [selected]="selectedGenre()?.id === g.id"
-              (genreSelected)="selectGenre($event)">
-            </app-genre-preview>
-          }
+        <div class="genre-step-layout">
+          <div class="genre-grid">
+            @for (g of genres(); track g.id) {
+              <app-genre-preview
+                [genre]="g"
+                [selected]="selectedGenre()?.id === g.id"
+                (genreSelected)="selectGenre($event)">
+              </app-genre-preview>
+            }
+          </div>
+          <div class="genre-preview-panel">
+            <app-genre-theme-preview [genre]="previewGenre()"></app-genre-theme-preview>
+          </div>
         </div>
         @if (genreForm.get('gameGenreId')?.hasError('required') && genreForm.touched) {
           <mat-error>Please select a genre.</mat-error>
@@ -91,7 +112,8 @@
     </mat-step>
 
     <!-- Step 3: Venue -->
-    <mat-step [stepControl]="venueForm" label="Venue">
+    <mat-step [stepControl]="venueForm"
+              [label]="venueById(venueForm.value.venueId)?.name ?? 'Venue'">
       <form [formGroup]="venueForm" novalidate>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Venue</mat-label>

@@ -56,6 +56,7 @@ public class MatchController {
     @PreAuthorize("hasRole('TOURNAMENT_ADMIN')")
     public ResponseEntity<MatchResponse> recordResult(@PathVariable Long id,
                                                       @Valid @RequestBody ResultRequest request) {
-        return ResponseEntity.ok(matchService.recordResult(id, request.getWinnerId()));
+        return ResponseEntity.ok(matchService.recordResult(id, request.getWinnerId(),
+                request.getScoreA(), request.getScoreB()));
     }
 }

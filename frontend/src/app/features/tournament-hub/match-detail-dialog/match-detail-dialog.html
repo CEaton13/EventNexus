@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>
+  @if (match(); as m) {
+    Round {{ m.roundNumber }} &mdash; Match {{ m.matchNumber }}
+  } @else {
+    Match Details
+  }
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <div class="dialog-loading">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    </div>
+  }
+
+  @if (!loading() && match(); as m) {
+    <!-- Teams VS row -->
+    <div class="teams-row">
+      <div class="team-slot">
+        <span class="team-name">{{ m.teamA?.name ?? 'TBD' }}</span>
+        @if (m.teamA) {
+          <span class="team-tag">[{{ m.teamA.tag }}]</span>
+        }
+      </div>
+
+      <div class="vs-divider">VS</div>
+
+      <div class="team-slot">
+        <span class="team-name">{{ m.teamB?.name ?? 'TBD' }}</span>
+        @if (m.teamB) {
+          <span class="team-tag">[{{ m.teamB.tag }}]</span>
+        }
+      </div>
+    </div>
+
+    <!-- Status chip -->
+    <div class="detail-row">
+      <span class="detail-label">Status</span>
+      <mat-chip class="status-chip status-{{ m.status | lowercase }}">
+        {{ statusLabel(m.status) }}
+      </mat-chip>
+    </div>
+
+    <!-- Winner chip (only when COMPLETED) -->
+    @if (m.status === 'COMPLETED' && m.winnerId !== null) {
+      <div class="detail-row">
+        <span class="detail-label">Winner</span>
+        <mat-chip color="primary" highlighted class="winner-chip">
+          @if (m.winnerId === m.teamA?.id) {
+            {{ m.teamA?.name }}
+          } @else {
+            {{ m.teamB?.name }}
+          }
+        </mat-chip>
+      </div>
+    }
+
+    <!-- Scheduled time -->
+    <div class="detail-row">
+      <span class="detail-label">Scheduled Time</span>
+      <span class="detail-value">
+        {{ m.scheduledTime ? (m.scheduledTime | date:'medium') : 'Not scheduled' }}
+      </span>
+    </div>
+
+    <!-- Venue & station -->
+    <div class="detail-row">
+      <span class="detail-label">Venue</span>
+      <span class="detail-value">
+        @if (m.venueName) {
+          {{ m.venueName }}
+          @if (m.stationNumber !== null) {
+            &mdash; Station {{ m.stationNumber }}
+          }
+        } @else {
+          Not assigned
+        }
+      </span>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="close()">Close</button>
+</mat-dialog-actions>

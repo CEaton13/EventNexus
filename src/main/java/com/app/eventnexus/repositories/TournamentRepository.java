@@ -2,11 +2,14 @@ package com.app.eventnexus.repositories;
 
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.models.Tournament;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 // Note: findAll(Pageable) is inherited from JpaRepository — no declaration needed.
 
@@ -16,12 +19,58 @@ import java.util.List;
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     /**
+     * Finds a tournament by its exact name.
+     * Used by {@code DataSeeder} to ensure idempotent tournament creation.
+     *
+     * @param name the tournament name
+     * @return an Optional containing the tournament, or empty if not found
+     */
+    Optional<Tournament> findByName(String name);
+
+    /**
      * Returns all tournaments with the given status.
      *
      * @param status the lifecycle status to filter by
      * @return list of matching tournaments; never null
      */
     List<Tournament> findByStatus(TournamentStatus status);
+
+    /**
+     * Returns a paginated list of tournaments filtered by status.
+     */
+    Page<Tournament> findByStatus(TournamentStatus status, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by game genre.
+     */
+    Page<Tournament> findByGameGenreId(Long gameGenreId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by both status and game genre.
+     */
+    Page<Tournament> findByStatusAndGameGenreId(TournamentStatus status, Long gameGenreId, Pageable pageable);
+
+    // ─── Org-scoped variants ───────────────────────────────────────────────────
+
+    /**
+     * Returns a paginated list of all tournaments belonging to a specific organization.
+     */
+    Page<Tournament> findByOrganizationId(Long organizationId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization and status.
+     */
+    Page<Tournament> findByOrganizationIdAndStatus(Long organizationId, TournamentStatus status, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization and game genre.
+     */
+    Page<Tournament> findByOrganizationIdAndGameGenreId(Long organizationId, Long gameGenreId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization, status, and game genre.
+     */
+    Page<Tournament> findByOrganizationIdAndStatusAndGameGenreId(Long organizationId, TournamentStatus status, Long gameGenreId, Pageable pageable);
 
     /**
      * Returns all tournaments associated with a specific game genre.
@@ -39,6 +88,16 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      * @return number of tournaments with that status
      */
     Long countByStatus(TournamentStatus status);
+
+    /**
+     * Counts tournaments for a specific organization in a given lifecycle status.
+     * Used by the tenant-scoped admin dashboard.
+     *
+     * @param organizationId the organization's primary key
+     * @param status         the status to count
+     * @return number of tournaments with that status for the org
+     */
+    Long countByOrganizationIdAndStatus(Long organizationId, TournamentStatus status);
 
     /**
      * Queries the {@code tournament_standings} view for a given tournament,

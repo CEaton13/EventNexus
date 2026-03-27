@@ -1,5 +1,6 @@
 package com.app.eventnexus.config;
 
+import com.app.eventnexus.config.RateLimitFilter;
 import com.app.eventnexus.security.JwtAuthenticationFilter;
 import com.app.eventnexus.tenant.TenantFilter;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +36,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TenantFilter tenantFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          TenantFilter tenantFilter) {
+                          TenantFilter tenantFilter,
+                          RateLimitFilter rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.tenantFilter = tenantFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     /**
@@ -67,11 +71,26 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/standings").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/tournaments/*/teams").permitAll()
 
+                // ── Public tournament hub (org-agnostic read) ─────────────
+                .requestMatchers(HttpMethod.GET, "/api/tournaments/**").permitAll()
+
+                // ── Teams (public read, except /mine which needs auth) ────
+                .requestMatchers(HttpMethod.GET, "/api/teams").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*/players").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*/tournaments").permitAll()
+
+                // ── Matches (public read) ─────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/matches/**").permitAll()
+
                 // ── Players (public read) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
 
                 // ── Genres (fully public) ──────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
+
+                // ── Org-scoped teams (public read) ────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/orgs/*/teams").permitAll()
 
                 // ── Venues (public read) ───────────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/orgs/*/venues/**").permitAll()
@@ -85,6 +104,7 @@ public class SecurityConfig {
                 // ── Everything else requires authentication ────────────────
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class);
 

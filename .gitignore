@@ -37,6 +37,6 @@ frontend/node_modules/
 
 ### Claude Code ###
 .claude/
-
+docs/
 db/
 *.sql

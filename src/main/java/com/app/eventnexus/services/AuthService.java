@@ -158,15 +158,14 @@ public class AuthService {
     // ─── Logout ────────────────────────────────────────────────────────────────
 
     /**
-     * Invalidates a refresh token by deleting it from the database.
-     * Silently succeeds if the token is not found (idempotent).
+     * Invalidates all refresh tokens for the given user by deleting them from the database.
+     * Silently succeeds if no tokens are found (idempotent).
      *
-     * @param refreshToken the raw refresh token string to invalidate
+     * @param userId the ID of the user whose session should be invalidated
      */
     @Transactional
-    public void logout(String refreshToken) {
-        refreshTokenRepository.findByToken(refreshToken)
-                .ifPresent(refreshTokenRepository::delete);
+    public void logout(Long userId) {
+        userRepository.findById(userId).ifPresent(refreshTokenRepository::deleteByUser);
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────

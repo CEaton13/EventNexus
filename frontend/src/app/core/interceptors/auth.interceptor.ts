@@ -7,6 +7,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError, Subject, take, switchMap, catchError } from 'rxjs';
+import { Router } from '@angular/router';
 import { AuthService, AuthResponse } from '../services/auth';
 
 /**
@@ -26,7 +27,10 @@ export class AuthInterceptor implements HttpInterceptor {
    */
   private refreshSubject = new Subject<string>();
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly router: Router,
+  ) {}
 
   /** @inheritdoc */
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -39,7 +43,7 @@ export class AuthInterceptor implements HttpInterceptor {
           return this.handle401(request, next);
         }
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -49,7 +53,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private handle401(
     request: HttpRequest<unknown>,
-    next: HttpHandler
+    next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
     // Never attempt a refresh for auth endpoints — doing so creates an infinite
     // loop where logout/refresh 401s trigger more refresh attempts indefinitely.
@@ -62,7 +66,7 @@ export class AuthInterceptor implements HttpInterceptor {
       // Queue behind the in-flight refresh — will resolve or error with it.
       return this.refreshSubject.pipe(
         take(1),
-        switchMap(token => next.handle(this.addToken(request, token)))
+        switchMap((token) => next.handle(this.addToken(request, token))),
       );
     }
 
@@ -76,15 +80,16 @@ export class AuthInterceptor implements HttpInterceptor {
         this.refreshSubject.complete();
         return next.handle(this.addToken(request, res.accessToken));
       }),
-      catchError(err => {
+      catchError((err) => {
         this.isRefreshing = false;
         // Error the subject so all queued requests fail immediately rather than hanging.
         this.refreshSubject.error(err);
         this.refreshSubject = new Subject<string>();
         // Clear session state without an HTTP call to avoid re-entering this path.
         this.authService.clearSession();
+        this.router.navigate(['/auth/login']);
         return throwError(() => err);
-      })
+      }),
     );
   }
 }

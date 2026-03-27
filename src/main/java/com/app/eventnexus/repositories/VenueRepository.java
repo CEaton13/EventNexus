@@ -6,12 +6,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Spring Data JPA repository for {@link Venue} entities.
  */
 public interface VenueRepository extends JpaRepository<Venue, Long> {
+
+    /**
+     * Finds a venue by its exact name.
+     * Used by {@code DataSeeder} to ensure idempotent venue creation.
+     *
+     * @param name the venue name
+     * @return an Optional containing the venue, or empty if not found
+     */
+    Optional<Venue> findByName(String name);
 
     /**
      * Counts how many tournaments currently reference this venue.

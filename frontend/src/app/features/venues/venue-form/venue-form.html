@@ -1,0 +1,46 @@
+<div class="page-container">
+  <h1>{{ isEdit() ? 'Edit Venue' : 'New Venue' }}</h1>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Venue Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Nexus Arena" maxlength="200" />
+            @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+              <mat-error>Venue name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Location</mat-label>
+            <input matInput formControlName="location" placeholder="e.g. 123 LAN Blvd, Chicago IL" maxlength="500" />
+            @if (form.get('location')?.hasError('required') && form.get('location')?.touched) {
+              <mat-error>Location is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Station Count</mat-label>
+            <input matInput type="number" formControlName="stationCount" min="1" />
+            @if (form.get('stationCount')?.hasError('min') && form.get('stationCount')?.touched) {
+              <mat-error>Must be at least 1</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit"
+                    [disabled]="form.invalid || saving()">
+              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { {{ isEdit() ? 'Save Changes' : 'Create Venue' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

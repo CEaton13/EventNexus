@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, tap } from 'rxjs';
+import { Observable, of, finalize, tap, catchError, firstValueFrom } from 'rxjs';
 import { OrganizationMembership } from '../../shared/models/organization.model';
 import { TenantService } from './tenant.service';
 
@@ -15,6 +15,7 @@ export interface UserResponse {
 /** Payload returned by login and register endpoints. */
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   tokenType: string;
   user: UserResponse;
   organizations: OrganizationMembership[];
@@ -39,13 +40,15 @@ export interface RegisterRequest {
  * and communicates with the backend auth endpoints.
  *
  * Access token is stored in-memory only (not localStorage) to reduce
- * XSS risk. The refresh token is stored as an httpOnly cookie by the server.
+ * XSS risk. The refresh token is stored in sessionStorage so the session
+ * can be restored on page reload within the same browser tab.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly apiBase = '/api/auth';
+  private static readonly REFRESH_TOKEN_KEY = 'refresh_token';
 
   /** In-memory access token — cleared on page reload (refresh flow handles re-auth). */
   private accessToken: string | null = null;
@@ -100,13 +103,15 @@ export class AuthService {
   }
 
   /**
-   * Requests a new access token using the httpOnly refresh-token cookie.
+   * Requests a new access token using the stored refresh token.
+   * Sends the refresh token in the request body.
    *
    * @returns Observable of AuthResponse with fresh access token.
    */
   refreshToken(): Observable<AuthResponse> {
+    const token = sessionStorage.getItem(AuthService.REFRESH_TOKEN_KEY);
     return this.http
-      .post<AuthResponse>(`${this.apiBase}/refresh`, {}, { withCredentials: true })
+      .post<AuthResponse>(`${this.apiBase}/refresh`, { refreshToken: token })
       .pipe(tap((res) => this.handleAuthResponse(res)));
   }
 
@@ -119,7 +124,7 @@ export class AuthService {
    */
   logout(): Observable<void> {
     return this.http
-      .post<void>(`${this.apiBase}/logout`, {}, { withCredentials: true })
+      .post<void>(`${this.apiBase}/logout`, {})
       .pipe(finalize(() => this.clearSession()));
   }
 
@@ -130,12 +135,40 @@ export class AuthService {
   clearSession(): void {
     this.accessToken = null;
     this.user.set(null);
+    sessionStorage.removeItem(AuthService.REFRESH_TOKEN_KEY);
     this.tenantService.clearTenant();
   }
 
-  /** Stores the token and user received from any auth endpoint. */
+  /**
+   * Attempts to restore the session on app startup by using the stored
+   * refresh token. Resolves silently if no token exists or if the refresh
+   * fails (e.g. token expired).
+   *
+   * Called via APP_INITIALIZER so the user signal is populated before
+   * any route guard or component runs.
+   *
+   * @returns Promise that resolves when the restore attempt is complete.
+   */
+  attemptSessionRestore(): Promise<void> {
+    const token = sessionStorage.getItem(AuthService.REFRESH_TOKEN_KEY);
+    if (!token) return Promise.resolve();
+
+    return firstValueFrom(
+      this.refreshToken().pipe(
+        catchError(() => {
+          this.clearSession();
+          return of(null);
+        })
+      )
+    ).then(() => undefined);
+  }
+
+  /** Stores the tokens and user received from any auth endpoint. */
   private handleAuthResponse(res: AuthResponse): void {
     this.accessToken = res.accessToken;
+    if (res.refreshToken) {
+      sessionStorage.setItem(AuthService.REFRESH_TOKEN_KEY, res.refreshToken);
+    }
     this.user.set(res.user);
     this.tenantService.setMemberships(res.organizations ?? []);
   }

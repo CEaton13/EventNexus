@@ -1,0 +1,98 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-header__title">
+      <button mat-icon-button (click)="back()" matTooltip="Back to Tournament">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Equipment Loadouts</h1>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+
+    <!-- Assign Equipment Panel -->
+    <mat-card class="assign-card">
+      <mat-card-header>
+        <mat-card-title>Assign Equipment</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (approvedTeams().length === 0) {
+          <p class="hint-text">No approved teams yet. Approve team registrations before assigning equipment.</p>
+        } @else if (unassignedEquipment().length === 0) {
+          <p class="hint-text">All equipment is currently assigned.</p>
+        } @else {
+          <div class="assign-row">
+            <mat-form-field appearance="outline" class="assign-field">
+              <mat-label>Team</mat-label>
+              <mat-select [value]="selectedTeamId()" (selectionChange)="selectedTeamId.set($event.value)">
+                @for (reg of approvedTeams(); track reg.teamId) {
+                  <mat-option [value]="reg.teamId">{{ reg.teamName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="assign-field">
+              <mat-label>Equipment</mat-label>
+              <mat-select [value]="selectedEquipmentId()" (selectionChange)="selectedEquipmentId.set($event.value)">
+                @for (item of unassignedEquipment(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }} ({{ item.category }})</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary"
+                    [disabled]="!canAssign() || assigning()"
+                    (click)="assignLoadout()">
+              @if (assigning()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { Assign }
+            </button>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Current Loadouts -->
+    <div class="loadouts-section">
+      <h2>Current Assignments</h2>
+
+      @if (loadoutsByTeam().length === 0) {
+        <div class="empty-state">
+          <mat-icon>inventory_2</mat-icon>
+          <h3>No assignments yet</h3>
+          <p>Use the panel above to assign equipment to teams.</p>
+        </div>
+      } @else {
+        @for (group of loadoutsByTeam(); track group.teamId) {
+          <mat-card class="team-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>group</mat-icon>
+              <mat-card-title>{{ group.teamName }}</mat-card-title>
+              <mat-card-subtitle>{{ group.loadouts.length }} item{{ group.loadouts.length === 1 ? '' : 's' }} assigned</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list>
+                @for (loadout of group.loadouts; track loadout.id) {
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>devices</mat-icon>
+                    <span matListItemTitle>{{ loadout.equipmentName }}</span>
+                    <span matListItemLine>{{ loadout.equipmentCategory }} · Assigned {{ loadout.assignedAt | date:'mediumDate' }}</span>
+                    <div matListItemMeta>
+                      <button mat-stroked-button color="warn"
+                              (click)="returnLoadout(loadout.id, loadout.equipmentName)">
+                        <mat-icon>assignment_return</mat-icon> Return
+                      </button>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+    </div>
+
+  }
+</div>

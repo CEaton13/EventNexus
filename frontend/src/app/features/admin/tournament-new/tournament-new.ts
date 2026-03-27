@@ -8,6 +8,7 @@ import { VenueService } from '../../../core/services/venue.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { GameGenreResponse } from '../../../core/services/theme';
 import { VenueResponse } from '../../../shared/models/venue.model';
+import { dateRangeValidator } from '../../../shared/validators/date-range.validator';
 
 /**
  * TournamentWizardComponent guides an admin through a 5-step process to
@@ -24,6 +25,7 @@ export class TournamentNew implements OnInit {
   readonly venues = signal<VenueResponse[]>([]);
   readonly loading = signal(false);
   readonly selectedGenre = signal<GameGenreResponse | null>(null);
+  readonly previewGenre = signal<GameGenreResponse | null>(null);
 
   readonly basicForm: FormGroup;
   readonly genreForm: FormGroup;
@@ -44,17 +46,26 @@ export class TournamentNew implements OnInit {
     private readonly venueService: VenueService,
     private readonly tenantService: TenantService,
   ) {
-    this.basicForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(200)]],
-      description: ['', Validators.maxLength(2000)],
-      gameTitle: ['', Validators.maxLength(200)],
-      format: ['SINGLE_ELIMINATION', Validators.required],
-      maxTeams: [16, [Validators.required, Validators.min(2), Validators.max(512)]],
-      registrationStart: ['', Validators.required],
-      registrationEnd: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-    });
+    this.basicForm = this.fb.group(
+      {
+        name: ['', [Validators.required, Validators.maxLength(200)]],
+        description: ['', Validators.maxLength(2000)],
+        gameTitle: ['', Validators.maxLength(200)],
+        format: ['SINGLE_ELIMINATION', Validators.required],
+        maxTeams: [16, [Validators.required, Validators.min(2), Validators.max(512)]],
+        registrationStart: ['', Validators.required],
+        registrationEnd: ['', Validators.required],
+        startDate: ['', Validators.required],
+        endDate: ['', Validators.required],
+      },
+      {
+        validators: [
+          dateRangeValidator('registrationStart', 'registrationEnd', 'Registration end must be after registration start'),
+          dateRangeValidator('registrationEnd', 'startDate', 'Tournament start must be after registration end'),
+          dateRangeValidator('startDate', 'endDate', 'Tournament end must be after tournament start'),
+        ],
+      },
+    );
 
     this.genreForm = this.fb.group({
       gameGenreId: [null, Validators.required],
@@ -72,6 +83,7 @@ export class TournamentNew implements OnInit {
 
   selectGenre(genre: GameGenreResponse): void {
     this.selectedGenre.set(genre);
+    this.previewGenre.set(genre);
     this.genreForm.patchValue({ gameGenreId: genre.id });
   }
 

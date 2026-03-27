@@ -10,6 +10,7 @@ import {
   StandingsResponse,
   TournamentCreateRequest,
   TournamentStatus,
+  DashboardSummary,
 } from '../../shared/models/tournament.model';
 import { BracketResponse } from '../../shared/models/match.model';
 
@@ -35,7 +36,12 @@ export class TournamentService {
    * @param status Optional status filter.
    * @param genreId Optional genre filter.
    */
-  getAll(page = 0, size = 20, status?: string, genreId?: number): Observable<PageResponse<TournamentSummary>> {
+  getAll(
+    page = 0,
+    size = 20,
+    status?: string,
+    genreId?: number,
+  ): Observable<PageResponse<TournamentSummary>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (status) params = params.set('status', status);
     if (genreId) params = params.set('genreId', genreId);
@@ -123,7 +129,22 @@ export class TournamentService {
    * @param teamId Team primary key.
    * @param status New registration status.
    */
-  updateRegistrationStatus(id: number, teamId: number, status: string): Observable<RegistrationResponse> {
-    return this.http.patch<RegistrationResponse>(`${this.base}/${id}/teams/${teamId}/status`, { status });
+  updateRegistrationStatus(
+    id: number,
+    teamId: number,
+    status: string,
+  ): Observable<RegistrationResponse> {
+    return this.http.patch<RegistrationResponse>(`${this.base}/${id}/teams/${teamId}/status`, {
+      status,
+    });
+  }
+
+  /**
+   * Returns aggregated admin dashboard metrics for the active organisation.
+   */
+  getDashboard(): Observable<DashboardSummary> {
+    return this.http.get<DashboardSummary>(
+      `/api/orgs/${this.tenantService.currentOrgSlug()}/admin/dashboard`,
+    );
   }
 }

@@ -1,0 +1,66 @@
+<div class="page-container">
+  <h1>{{ isEdit() ? 'Edit Equipment' : 'New Equipment' }}</h1>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="save()">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Gaming Monitor #1" maxlength="200" />
+            @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+              <mat-error>Name is required</mat-error>
+            }
+            @if (form.get('name')?.hasError('maxlength') && form.get('name')?.touched) {
+              <mat-error>Name must be 200 characters or fewer</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Category</mat-label>
+            <input matInput formControlName="category" placeholder="e.g. Monitor, Keyboard, Headset" maxlength="100" />
+            @if (form.get('category')?.hasError('required') && form.get('category')?.touched) {
+              <mat-error>Category is required</mat-error>
+            }
+            @if (form.get('category')?.hasError('maxlength') && form.get('category')?.touched) {
+              <mat-error>Category must be 100 characters or fewer</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Serial Number (optional)</mat-label>
+            <input matInput formControlName="serialNumber" placeholder="e.g. SN-12345ABC" maxlength="100" />
+            @if (form.get('serialNumber')?.hasError('maxlength') && form.get('serialNumber')?.touched) {
+              <mat-error>Serial number must be 100 characters or fewer</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Venue</mat-label>
+            <mat-select formControlName="venueId">
+              @for (venue of venues(); track venue.id) {
+                <mat-option [value]="venue.id">{{ venue.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('venueId')?.hasError('required') && form.get('venueId')?.touched) {
+              <mat-error>Venue is required</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit"
+                    [disabled]="form.invalid || saving()">
+              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { {{ isEdit() ? 'Save Changes' : 'Create Equipment' }} }
+            </button>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

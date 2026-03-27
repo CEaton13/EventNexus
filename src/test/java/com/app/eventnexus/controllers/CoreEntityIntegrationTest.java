@@ -5,6 +5,7 @@ import com.app.eventnexus.config.SecurityConfig;
 import com.app.eventnexus.dtos.responses.GameGenreResponse;
 import com.app.eventnexus.dtos.responses.PlayerResponse;
 import com.app.eventnexus.dtos.responses.PlayerStatsResponse;
+import com.app.eventnexus.dtos.responses.TeamResponse;
 import com.app.eventnexus.dtos.responses.VenueResponse;
 import com.app.eventnexus.models.Organization;
 import com.app.eventnexus.repositories.OrganizationMemberRepository;
@@ -132,18 +133,22 @@ class CoreEntityIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Main Arena"));
     }
 
-    // ─── Teams (authenticated — not public) ──────────────────────────────────
+    // ─── Teams (public read) ──────────────────────────────────────────────────
 
     @Test
-    void getTeams_returns401_whenNoAuthToken() throws Exception {
+    void getTeams_returns200WithoutAuth() throws Exception {
+        when(teamService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
         mockMvc.perform(get("/api/teams"))
-                .andExpect(status().isForbidden()); // Spring Security returns 403 for anonymous access
+                .andExpect(status().isOk());
     }
 
     @Test
-    void getTeamById_returns401_whenNoAuthToken() throws Exception {
+    void getTeamById_returns200WithoutAuth() throws Exception {
+        when(teamService.findById(1L)).thenReturn(new TeamResponse());
+
         mockMvc.perform(get("/api/teams/1"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     // ─── Players ──────────────────────────────────────────────────────────────

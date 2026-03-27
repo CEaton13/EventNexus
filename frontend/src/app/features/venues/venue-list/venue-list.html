@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Venues</h1>
+    @if (authService.isAdmin()) {
+      <button mat-raised-button color="primary" (click)="createVenue()">
+        <mat-icon>add</mat-icon> Add Venue
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (venues().length === 0) {
+    <div class="empty-state">
+      <mat-icon>location_on</mat-icon>
+      <h3>No venues yet</h3>
+      <p>Venues are the physical locations where tournament matches are played.</p>
+      @if (authService.isAdmin()) {
+        <button mat-raised-button color="primary" (click)="createVenue()">Add First Venue</button>
+      }
+    </div>
+  } @else {
+    <mat-list class="venue-list">
+      @for (venue of venues(); track venue.id) {
+        <mat-list-item (click)="openVenue(venue.id)" class="venue-item">
+          <mat-icon matListItemIcon>stadium</mat-icon>
+          <span matListItemTitle>{{ venue.name }}</span>
+          <span matListItemLine>{{ venue.location }}</span>
+          <div matListItemMeta class="venue-chips">
+            <mat-chip-set aria-label="Venue stats">
+              <mat-chip class="chip-station">
+                <mat-icon matChipAvatar>computer</mat-icon>
+                {{ venue.stationCount }} stations
+              </mat-chip>
+              @if (venue.activeMatches != null && venue.activeMatches > 0) {
+                <mat-chip class="chip-active" color="accent" highlighted>
+                  <mat-icon matChipAvatar>sports_esports</mat-icon>
+                  {{ venue.activeMatches }} active
+                </mat-chip>
+              }
+              @if (venue.utilizationPct != null) {
+                <mat-chip class="chip-utilization">
+                  {{ venue.utilizationPct | number:'1.0-0' }}% utilized
+                </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
+  }
+</div>

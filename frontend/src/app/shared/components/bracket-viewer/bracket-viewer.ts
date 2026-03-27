@@ -1,7 +1,9 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
   ElementRef,
   ViewChild,
   AfterViewInit,
@@ -32,6 +34,9 @@ export class BracketViewer implements OnChanges, AfterViewInit {
   @Input() bracket: BracketResponse | null = null;
   @ViewChild('svgContainer', { static: true }) svgContainer!: ElementRef<HTMLDivElement>;
 
+  /** Emits the clicked match's id. BYE matches and empty slots are not clickable. */
+  @Output() readonly matchClick = new EventEmitter<number>();
+
   private readonly NODE_W = 180;
   private readonly NODE_H = 60;
   private readonly COL_GAP = 60;
@@ -53,14 +58,16 @@ export class BracketViewer implements OnChanges, AfterViewInit {
 
     const rounds = this.bracket.rounds;
     const totalRounds = rounds.length;
-    const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#673ab7';
-    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff4081';
+    const primary =
+      getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#673ab7';
+    const accent =
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff4081';
 
     // Build node list
     const nodes: MatchNode[] = [];
     const nodeMap = new Map<number, MatchNode>();
 
-    rounds.forEach(round => {
+    rounds.forEach((round) => {
       const matchCount = round.matches.length;
       round.matches.forEach((match, idx) => {
         const x = (round.roundNumber - 1) * (this.NODE_W + this.COL_GAP);
@@ -86,7 +93,7 @@ export class BracketViewer implements OnChanges, AfterViewInit {
     const g = svg.append('g').attr('transform', 'translate(20,20)');
 
     // Draw connector lines (match → next match)
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (node.match.nextMatchId) {
         const target = nodeMap.get(node.match.nextMatchId);
         if (target) {
@@ -105,21 +112,32 @@ export class BracketViewer implements OnChanges, AfterViewInit {
     });
 
     // Draw match nodes
+    const matchClickEmitter = this.matchClick;
     const nodeG = g
       .selectAll('.match-node')
       .data(nodes)
       .enter()
       .append('g')
       .attr('class', 'match-node')
-      .attr('transform', d => `translate(${d.x},${d.y})`);
+      .attr('transform', (d) => `translate(${d.x},${d.y})`)
+      .style('cursor', (d) =>
+        d.match.status !== 'BYE' && (d.match.teamA !== null || d.match.teamB !== null)
+          ? 'pointer'
+          : 'default',
+      )
+      .on('click', (_event, d) => {
+        if (d.match.status !== 'BYE' && (d.match.teamA !== null || d.match.teamB !== null)) {
+          matchClickEmitter.emit(d.match.id);
+        }
+      });
 
     nodeG
       .append('rect')
       .attr('width', this.NODE_W)
       .attr('height', this.NODE_H)
       .attr('rx', 6)
-      .attr('fill', d => (d.match.winner ? accent : '#fff'))
-      .attr('stroke', d => (d.match.winner ? accent : primary))
+      .attr('fill', (d) => (d.match.winner ? accent : '#fff'))
+      .attr('stroke', (d) => (d.match.winner ? accent : primary))
       .attr('stroke-width', 2);
 
     // Team A label (top half)
@@ -129,7 +147,7 @@ export class BracketViewer implements OnChanges, AfterViewInit {
       .attr('y', 20)
       .attr('font-size', 13)
       .attr('fill', '#222')
-      .text(d => d.match.teamA?.name ?? (d.match.status === 'BYE' ? 'BYE' : 'TBD'));
+      .text((d) => d.match.teamA?.name ?? (d.match.status === 'BYE' ? 'BYE' : 'TBD'));
 
     // Team B label (bottom half)
     nodeG
@@ -138,7 +156,7 @@ export class BracketViewer implements OnChanges, AfterViewInit {
       .attr('y', 44)
       .attr('font-size', 13)
       .attr('fill', '#222')
-      .text(d => (d.match.status === 'BYE' ? '' : (d.match.teamB?.name ?? 'TBD')));
+      .text((d) => (d.match.status === 'BYE' ? '' : (d.match.teamB?.name ?? 'TBD')));
 
     // Divider line
     nodeG
@@ -150,10 +168,11 @@ export class BracketViewer implements OnChanges, AfterViewInit {
       .attr('stroke', '#eee')
       .attr('stroke-width', 1);
 
-    // Winner indicator
+    // Winner indicator — fade-in animation via the 'winner-check' CSS class
     nodeG
-      .filter(d => d.match.winner !== null)
+      .filter((d) => d.match.winner !== null)
       .append('text')
+      .attr('class', 'winner-check')
       .attr('x', this.NODE_W - 6)
       .attr('y', 14)
       .attr('text-anchor', 'end')
@@ -163,7 +182,7 @@ export class BracketViewer implements OnChanges, AfterViewInit {
   }
 
   private svgHeight(rounds: BracketResponse['rounds']): number {
-    const maxMatches = Math.max(...rounds.map(r => r.matches.length), 1);
+    const maxMatches = Math.max(...rounds.map((r) => r.matches.length), 1);
     return maxMatches * (this.NODE_H + this.ROW_GAP) - this.ROW_GAP;
   }
 }

@@ -1,0 +1,78 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (!venue()) {
+    <div class="empty-state">
+      <mat-icon>location_off</mat-icon>
+      <h3>Venue not found</h3>
+      <button mat-button (click)="backToList()">Back to Venues</button>
+    </div>
+  } @else {
+    <div class="detail-header">
+      <button mat-icon-button (click)="backToList()" aria-label="Back to venues">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>{{ venue()!.name }}</h1>
+      @if (authService.isAdmin()) {
+        <div class="detail-actions">
+          <button mat-stroked-button (click)="editVenue()">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+          <button mat-stroked-button color="warn" (click)="deleteVenue()">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        </div>
+      }
+    </div>
+
+    <mat-card class="detail-card">
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>location_on</mat-icon>
+            <div>
+              <span class="info-label">Location</span>
+              <span class="info-value">{{ venue()!.location }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>computer</mat-icon>
+            <div>
+              <span class="info-label">Total Stations</span>
+              <span class="info-value">{{ venue()!.stationCount }}</span>
+            </div>
+          </div>
+          @if (venue()!.activeMatches != null) {
+            <div class="info-item">
+              <mat-icon>sports_esports</mat-icon>
+              <div>
+                <span class="info-label">Active Matches</span>
+                <span class="info-value">{{ venue()!.activeMatches }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>check_circle</mat-icon>
+              <div>
+                <span class="info-label">Available Stations</span>
+                <span class="info-value">{{ venue()!.availableStations }}</span>
+              </div>
+            </div>
+            <div class="info-item utilization-item">
+              <mat-icon>bar_chart</mat-icon>
+              <div class="utilization-content">
+                <span class="info-label">Utilization</span>
+                <span class="info-value">{{ venue()!.utilizationPct | number:'1.0-0' }}%</span>
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="venue()!.utilizationPct"
+                  [color]="utilizationColor()"
+                  class="utilization-bar">
+                </mat-progress-bar>
+              </div>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

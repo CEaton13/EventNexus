@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { MatchDetailDialog } from '../../tournament-hub/match-detail-dialog/match-detail-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService } from '../../../core/services/tournament.service';
 import { MatchService } from '../../../core/services/match.service';
@@ -103,12 +105,32 @@ export class TournamentDetail implements OnInit, OnDestroy {
     if (!t) return;
     const next = this.statusTransitions[t.status];
     if (!next) return;
-    this.tournamentService.updateStatus(this.tournamentId, next as any).subscribe({
-      next: (updated) => {
-        this.tournament.set(updated);
-        this.snackBar.open(`Status advanced to ${updated.status}`, 'OK', { duration: 3000 });
-      },
-    });
+
+    const message =
+      next === 'IN_PROGRESS'
+        ? `Move "${t.name}" to IN_PROGRESS? This will lock registrations and generate the bracket.`
+        : `Advance tournament to ${next}?`;
+
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Advance Tournament Status',
+          message,
+          confirmLabel: 'Confirm',
+          cancelLabel: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.tournamentService.updateStatus(this.tournamentId, next as any).subscribe({
+          next: (updated) => {
+            this.tournament.set(updated);
+            this.snackBar.open(`Status advanced to ${updated.status}`, 'OK', { duration: 3000 });
+          },
+        });
+      });
   }
 
   scheduleMatch(): void {
@@ -145,8 +167,80 @@ export class TournamentDetail implements OnInit, OnDestroy {
     return t ? (this.statusTransitions[t.status] ?? null) : null;
   }
 
+  /**
+   * Opens a confirmation dialog before rejecting a team's registration.
+   * Calling the service directly from the template is unsafe — accidental
+   * clicks can immediately reject a team with no way to undo.
+   */
+  rejectRegistration(teamId: number, teamName: string): void {
+    const t = this.tournament();
+    if (!t) return;
+    this.dialog
+      .open(ConfirmDialog, {
+        panelClass: 'dark-dialog',
+        data: {
+          title: 'Reject Registration',
+          message: `Reject ${teamName}'s registration for "${t.name}"? They will need to re-register if you change your mind.`,
+          confirmLabel: 'Reject',
+          cancelLabel: 'Cancel',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.tournamentService.updateRegistrationStatus(t.id, teamId, 'REJECTED').subscribe({
+          next: () => {
+            this.snackBar.open(`${teamName} registration rejected.`, 'OK', { duration: 3000 });
+            this.loadSubResources();
+          },
+        });
+      });
+  }
+
+  /**
+   * Approves a team's registration for this tournament.
+   * @param teamId The team to approve.
+   */
+  approveRegistration(teamId: number): void {
+    const t = this.tournament();
+    if (!t) return;
+    this.tournamentService.updateRegistrationStatus(t.id, teamId, 'APPROVED').subscribe({
+      next: () => {
+        this.snackBar.open('Registration approved.', 'OK', { duration: 3000 });
+        this.loadSubResources();
+      },
+      error: () => this.snackBar.open('Failed to approve registration.', 'OK', { duration: 4000 }),
+    });
+  }
+
+  /**
+   * Opens the MatchDetailDialog for the given match ID.
+   * @param matchId Primary key of the match to display.
+   */
+  openMatchDetail(matchId: number): void {
+    this.dialog.open(MatchDetailDialog, {
+      data: { matchId },
+      panelClass: 'dark-dialog',
+      width: '420px',
+    });
+  }
+
   backToList(): void {
     const slug = this.tenantService.currentOrgSlug();
     this.router.navigate([slug, 'tournaments']);
+  }
+
+  /**
+   * Navigates to the dedicated registration management page for this tournament.
+   * Only accessible to admins.
+   */
+  manageRegistrations(): void {
+    this.router.navigate([
+      this.tenantService.currentOrgSlug(),
+      'admin',
+      'tournaments',
+      this.tournamentId,
+      'registrations',
+    ]);
   }
 }

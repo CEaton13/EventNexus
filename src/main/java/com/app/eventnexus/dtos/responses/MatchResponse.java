@@ -22,6 +22,8 @@ public class MatchResponse {
     private TeamSlot winner;
     private MatchStatus status;
     private LocalDateTime scheduledTime;
+    private Integer scoreA;
+    private Integer scoreB;
     private Long nextMatchId;
 
     // ─── Factory ───────────────────────────────────────────────────────────────
@@ -43,6 +45,8 @@ public class MatchResponse {
         dto.winner = match.getWinner() != null ? TeamSlot.from(match.getWinner()) : null;
         dto.status = match.getStatus();
         dto.scheduledTime = match.getScheduledTime();
+        dto.scoreA = match.getScoreA();
+        dto.scoreB = match.getScoreB();
         dto.nextMatchId = match.getNextMatch() != null ? match.getNextMatch().getId() : null;
         return dto;
     }
@@ -124,6 +128,22 @@ public class MatchResponse {
 
     public void setScheduledTime(LocalDateTime scheduledTime) {
         this.scheduledTime = scheduledTime;
+    }
+
+    public Integer getScoreA() {
+        return scoreA;
+    }
+
+    public void setScoreA(Integer scoreA) {
+        this.scoreA = scoreA;
+    }
+
+    public Integer getScoreB() {
+        return scoreB;
+    }
+
+    public void setScoreB(Integer scoreB) {
+        this.scoreB = scoreB;
     }
 
     public Long getNextMatchId() {

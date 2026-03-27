@@ -4,9 +4,9 @@ import { Login } from './login/login';
 import { Register } from './register/register';
 
 const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  { path: 'login', redirectTo: '/tournaments', pathMatch: 'full' },
+  { path: 'register', redirectTo: '/tournaments', pathMatch: 'full' },
+  { path: '', redirectTo: '/tournaments', pathMatch: 'full' },
 ];
 
 @NgModule({

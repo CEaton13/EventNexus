@@ -49,7 +49,7 @@
     <section>
       <h2>Bracket</h2>
       @if (bracket(); as b) {
-        <app-bracket-viewer [bracket]="b"></app-bracket-viewer>
+        <app-bracket-viewer [bracket]="b" (matchClick)="openMatchDetail($event)"></app-bracket-viewer>
       } @else {
         <p class="empty-note">Bracket not yet generated.</p>
       }
@@ -63,7 +63,15 @@
 
     <!-- Registered Teams -->
     <section>
-      <h2>Registered Teams</h2>
+      <div class="section-header">
+        <h2>Registered Teams</h2>
+        @if (authService.isAdmin()) {
+          <button mat-stroked-button color="primary" (click)="manageRegistrations()">
+            <mat-icon>manage_accounts</mat-icon>
+            Manage Registrations
+          </button>
+        }
+      </div>
       @if (registrations().length === 0) {
         <p class="empty-note">No teams registered yet.</p>
       } @else {
@@ -78,11 +86,11 @@
               @if (authService.isAdmin() && r.registrationStatus === 'PENDING') {
                 <div matListItemMeta>
                   <button mat-button color="primary"
-                    (click)="$event.stopPropagation(); tournamentService.updateRegistrationStatus(t.id, r.teamId, 'APPROVED').subscribe()">
+                    (click)="approveRegistration(r.teamId)">
                     Approve
                   </button>
                   <button mat-button color="warn"
-                    (click)="$event.stopPropagation(); tournamentService.updateRegistrationStatus(t.id, r.teamId, 'REJECTED').subscribe()">
+                    (click)="$event.stopPropagation(); rejectRegistration(r.teamId, r.teamName)">
                     Reject
                   </button>
                 </div>
