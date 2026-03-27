@@ -1,5 +1,6 @@
 package com.app.eventnexus.config;
 
+import com.app.eventnexus.config.RateLimitFilter;
 import com.app.eventnexus.security.JwtAuthenticationFilter;
 import com.app.eventnexus.tenant.TenantFilter;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +36,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TenantFilter tenantFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          TenantFilter tenantFilter) {
+                          TenantFilter tenantFilter,
+                          RateLimitFilter rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.tenantFilter = tenantFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     /**
@@ -97,6 +101,7 @@ public class SecurityConfig {
                 // ── Everything else requires authentication ────────────────
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class);
 

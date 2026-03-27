@@ -158,7 +158,7 @@ class MatchServiceTest {
         when(playerRepository.findByTeam_Id(2L)).thenReturn(List.of());
         when(matchRepository.save(any())).thenReturn(match);
 
-        matchService.recordResult(100L, 1L);
+        matchService.recordResult(100L, 1L, null, null);
 
         verify(matchRepository).save(match);
         verify(matchRepository).save(nextMatch);
@@ -172,7 +172,7 @@ class MatchServiceTest {
         when(matchRepository.findById(100L)).thenReturn(Optional.of(match));
         when(teamRepository.findById(99L)).thenReturn(Optional.of(outsider));
 
-        assertThatThrownBy(() -> matchService.recordResult(100L, 99L))
+        assertThatThrownBy(() -> matchService.recordResult(100L, 99L, null, null))
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("not a participant");
     }
@@ -182,7 +182,7 @@ class MatchServiceTest {
         match.setStatus(MatchStatus.UNSCHEDULED);
         when(matchRepository.findById(100L)).thenReturn(Optional.of(match));
 
-        assertThatThrownBy(() -> matchService.recordResult(100L, 1L))
+        assertThatThrownBy(() -> matchService.recordResult(100L, 1L, null, null))
                 .isInstanceOf(InvalidStateTransitionException.class);
     }
 }

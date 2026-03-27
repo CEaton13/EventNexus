@@ -78,6 +78,14 @@ export interface StandingsResponse {
   rank: number;
 }
 
+/** Aggregated admin metrics returned by GET /admin/dashboard. */
+export interface DashboardSummary {
+  tournamentsByStatus: Record<string, number>;
+  totalTeams: number;
+  activePlayers: number;
+  upcomingMatchesNext7Days: number;
+}
+
 export interface TournamentCreateRequest {
   name: string;
   description?: string;

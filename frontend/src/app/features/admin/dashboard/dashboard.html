@@ -6,11 +6,51 @@
     </button>
   </div>
 
-  <h2>Recent Tournaments</h2>
-
   @if (loading()) {
     <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
-  } @else if (tournaments().length === 0) {
+  } @else if (summary(); as s) {
+    <div class="metrics-grid">
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="metric-value">{{ s.totalTeams }}</div>
+          <div class="metric-label">Total Teams</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="metric-value">{{ s.activePlayers }}</div>
+          <div class="metric-label">Active Players</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card accent">
+        <mat-card-content>
+          <div class="metric-value">{{ s.upcomingMatchesNext7Days }}</div>
+          <div class="metric-label">Matches (Next 7 Days)</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="status-breakdown">
+      <h2>Tournaments by Status</h2>
+      <div class="status-chips">
+        @for (status of statusOrder; track status) {
+          <div class="status-chip">
+            <span class="status-count">{{ statusCount(status) }}</span>
+            <span class="status-name">{{ status | titlecase }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="section-header">
+    <h2>Recent Tournaments</h2>
+    <button mat-button (click)="viewAllTournaments()">View All</button>
+  </div>
+
+  @if (tournaments().length === 0) {
     <p class="empty-note">No tournaments yet. Create the first one!</p>
   } @else {
     <mat-list class="tournament-list">

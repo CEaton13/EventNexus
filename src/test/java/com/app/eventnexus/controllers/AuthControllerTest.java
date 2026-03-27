@@ -6,9 +6,11 @@ import com.app.eventnexus.dtos.responses.AuthResponse;
 import com.app.eventnexus.dtos.responses.UserResponse;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ConflictException;
+import com.app.eventnexus.models.User;
 import com.app.eventnexus.repositories.OrganizationMemberRepository;
 import com.app.eventnexus.repositories.OrganizationRepository;
 import com.app.eventnexus.security.JwtTokenProvider;
+import com.app.eventnexus.security.UserPrincipal;
 import com.app.eventnexus.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -20,7 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -219,11 +221,15 @@ class AuthControllerTest {
         // ─── Logout ───────────────────────────────────────────────────────────────
 
         @Test
-        @WithMockUser
         void logout_returnsNoContent_whenAuthenticatedAndTokenIsValid() throws Exception {
+                User user = new User("admin", "admin@test.com", "hash", UserRole.TOURNAMENT_ADMIN);
+                user.setId(1L);
+                UserPrincipal principal = new UserPrincipal(user);
+
                 doNothing().when(authService).logout(any());
 
                 mockMvc.perform(post("/api/auth/logout")
+                                .with(SecurityMockMvcRequestPostProcessors.user(principal))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                                 { "refreshToken": "sample-refresh-uuid" }

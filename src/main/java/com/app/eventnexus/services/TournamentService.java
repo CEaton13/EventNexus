@@ -7,6 +7,7 @@ import com.app.eventnexus.dtos.responses.TournamentResponse;
 import com.app.eventnexus.dtos.responses.TournamentSummaryResponse;
 import com.app.eventnexus.repositories.TournamentRepository.StandingRow;
 import com.app.eventnexus.enums.RegistrationStatus;
+import com.app.eventnexus.enums.TournamentFormat;
 import com.app.eventnexus.enums.TournamentStatus;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ConflictException;
@@ -303,6 +304,11 @@ public class TournamentService {
         TournamentResponse response = TournamentResponse.from(tournamentRepository.save(tournament));
 
         if (newStatus == TournamentStatus.IN_PROGRESS) {
+            if (tournament.getFormat() != TournamentFormat.SINGLE_ELIMINATION) {
+                throw new InvalidStateTransitionException(
+                        "Only SINGLE_ELIMINATION brackets are currently supported. " +
+                        tournament.getFormat() + " is not yet implemented.");
+            }
             bracketService.generateBracket(tournamentId);
         }
 

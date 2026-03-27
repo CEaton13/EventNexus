@@ -72,6 +72,12 @@ public class Match {
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
+    @Column(name = "score_a")
+    private Integer scoreA;
+
+    @Column(name = "score_b")
+    private Integer scoreB;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "next_match_id")
     private Match nextMatch;
@@ -175,6 +181,22 @@ public class Match {
 
     public void setNextMatch(Match nextMatch) {
         this.nextMatch = nextMatch;
+    }
+
+    public Integer getScoreA() {
+        return scoreA;
+    }
+
+    public void setScoreA(Integer scoreA) {
+        this.scoreA = scoreA;
+    }
+
+    public Integer getScoreB() {
+        return scoreB;
+    }
+
+    public void setScoreB(Integer scoreB) {
+        this.scoreB = scoreB;
     }
 
     public LocalDateTime getCreatedAt() {

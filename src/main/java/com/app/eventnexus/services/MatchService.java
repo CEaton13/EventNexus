@@ -156,7 +156,7 @@ public class MatchService {
      * @throws InvalidStateTransitionException if the match is not in a recordable state
      */
     @Transactional
-    public MatchResponse recordResult(Long matchId, Long winnerId) {
+    public MatchResponse recordResult(Long matchId, Long winnerId, Integer scoreA, Integer scoreB) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Match", matchId));
 
@@ -180,6 +180,8 @@ public class MatchService {
 
         match.setWinner(winner);
         match.setStatus(MatchStatus.COMPLETED);
+        match.setScoreA(scoreA);
+        match.setScoreB(scoreB);
         match.setUpdatedAt(LocalDateTime.now());
         matchRepository.save(match);
 
