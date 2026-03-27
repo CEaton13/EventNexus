@@ -72,6 +72,7 @@ public class SecurityConfig {
 
                 // ── Teams (public read, except /mine which needs auth) ────
                 .requestMatchers(HttpMethod.GET, "/api/teams").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/teams/*/players").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/teams/*/tournaments").permitAll()
 

@@ -29,6 +29,12 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/tournament-hub/tournament-hub-module').then((m) => m.TournamentHubModule),
   },
+  // Public team roster — /teams/:id — no auth, no org required.
+  // Must appear before :orgSlug to prevent Angular treating 'teams' as a slug.
+  {
+    path: 'teams',
+    loadChildren: () => import('./features/teams/teams-module').then((m) => m.TeamsModule),
+  },
   // Org creation — TOURNAMENT_ADMIN only, accessed from landing CTA when user has no org.
   {
     path: 'org',
