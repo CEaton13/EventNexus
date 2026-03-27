@@ -1,0 +1,32 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Scheduler</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (tournaments().length === 0) {
+    <p class="empty-note">No tournaments found. Create a tournament first.</p>
+  } @else {
+    <p class="hint">Select a tournament to schedule its matches.</p>
+    <mat-list class="tournament-list">
+      @for (t of tournaments(); track t.id) {
+        <mat-list-item class="tournament-row">
+          <span matListItemTitle>{{ t.name }}</span>
+          <span matListItemLine>{{ t.gameTitle }} &bull; {{ t.format }} &bull; {{ t.startDate | date:'MMM d, y' }}</span>
+          <div matListItemMeta class="row-actions">
+            <mat-chip-set>
+              <mat-chip [class.chip-active]="isActionable(t.status)" [class.chip-inactive]="!isActionable(t.status)">
+                {{ t.status | replace:'_':' ' }}
+              </mat-chip>
+            </mat-chip-set>
+            <button mat-stroked-button color="primary" (click)="schedule(t.id)">
+              <mat-icon>schedule</mat-icon> Schedule
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
+  }
+</div>

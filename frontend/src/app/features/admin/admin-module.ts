@@ -23,6 +23,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LayoutModule } from '@angular/cdk/layout';
 
 import { AdminRoutingModule } from './admin-routing-module';
@@ -37,6 +38,9 @@ import { EquipmentList } from './equipment-list/equipment-list';
 import { EquipmentForm } from './equipment-form/equipment-form';
 import { EquipmentLoadout } from './equipment-loadout/equipment-loadout';
 import { MatchScheduler } from './match-scheduler/match-scheduler';
+import { RegistrationsHub } from './registrations-hub/registrations-hub';
+import { SchedulerHub } from './scheduler-hub/scheduler-hub';
+import { AdminVenueList } from './venue-list/admin-venue-list';
 import { SharedModule } from '../../shared/shared-module';
 
 @NgModule({
@@ -52,6 +56,9 @@ import { SharedModule } from '../../shared/shared-module';
     EquipmentForm,
     EquipmentLoadout,
     MatchScheduler,
+    RegistrationsHub,
+    SchedulerHub,
+    AdminVenueList,
   ],
   imports: [
     CommonModule,
@@ -80,6 +87,7 @@ import { SharedModule } from '../../shared/shared-module';
     MatSortModule,
     MatDialogModule,
     MatChipsModule,
+    MatTooltipModule,
     LayoutModule,
     AdminRoutingModule,
   ],

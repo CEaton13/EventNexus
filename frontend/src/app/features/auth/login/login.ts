@@ -40,6 +40,7 @@ export class Login {
 
     this.authService.login(this.form.value).subscribe({
       next: () => {
+        this.loading = false;
         const slug =
           this.tenantService.currentOrgSlug() ??
           this.tenantService.memberships()[0]?.organizationSlug;

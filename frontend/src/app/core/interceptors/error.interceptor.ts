@@ -7,25 +7,23 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError, catchError } from 'rxjs';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
  * ErrorInterceptor provides global HTTP error handling:
- * - 401 Unauthorized → redirects to /auth/login
- * - 403 Forbidden → redirects to /unauthorized
+ * - 403 Forbidden → shows snackbar
  * - 404 Not Found → shows snackbar
  * - 409 Conflict → shows snackbar with server message
  * - 5xx Server Error → shows snackbar
+ *
+ * 401 Unauthorized is intentionally NOT handled here — AuthInterceptor
+ * intercepts 401s first to attempt a token refresh before giving up.
  *
  * All errors are also passed through so callers can handle them locally.
  */
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(
-    private readonly router: Router,
-    private readonly snackBar: MatSnackBar
-  ) {}
+  constructor(private readonly snackBar: MatSnackBar) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
@@ -34,9 +32,6 @@ export class ErrorInterceptor implements HttpInterceptor {
           const message = (error.error as { message?: string })?.message;
 
           switch (error.status) {
-            case 401:
-              this.router.navigate(['/auth/login']);
-              break;
             case 403:
               this.snackBar.open('You do not have permission to perform that action.', 'Dismiss', {
                 duration: 5000,
@@ -49,10 +44,14 @@ export class ErrorInterceptor implements HttpInterceptor {
               });
               break;
             case 409:
-              this.snackBar.open(message ?? 'Conflict — the action could not be completed.', 'Dismiss', {
-                duration: 5000,
-                panelClass: 'snackbar-warn',
-              });
+              this.snackBar.open(
+                message ?? 'Conflict — the action could not be completed.',
+                'Dismiss',
+                {
+                  duration: 5000,
+                  panelClass: 'snackbar-warn',
+                },
+              );
               break;
             default:
               if (error.status >= 500) {
@@ -64,7 +63,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           }
         }
         return throwError(() => error);
-      })
+      }),
     );
   }
 }

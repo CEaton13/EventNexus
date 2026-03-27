@@ -12,6 +12,9 @@ import { EquipmentList } from './equipment-list/equipment-list';
 import { EquipmentForm } from './equipment-form/equipment-form';
 import { EquipmentLoadout } from './equipment-loadout/equipment-loadout';
 import { MatchScheduler } from './match-scheduler/match-scheduler';
+import { RegistrationsHub } from './registrations-hub/registrations-hub';
+import { SchedulerHub } from './scheduler-hub/scheduler-hub';
+import { AdminVenueList } from './venue-list/admin-venue-list';
 
 const routes: Routes = [
   {
@@ -21,9 +24,11 @@ const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'tournaments/new', component: TournamentNew },
       { path: 'tournaments/:id/registrations', component: RegistrationManager },
+      { path: 'registrations', component: RegistrationsHub },
       { path: 'genres', component: AdminGenreList },
       { path: 'genres/new', component: AdminGenreForm },
       { path: 'genres/:id/edit', component: AdminGenreForm },
+      { path: 'venues', component: AdminVenueList },
       { path: 'venues/new', component: VenueForm },
       { path: 'venues/:id/edit', component: VenueForm },
       { path: 'equipment', component: EquipmentList },
@@ -31,6 +36,7 @@ const routes: Routes = [
       { path: 'equipment/:id/edit', component: EquipmentForm },
       { path: 'equipment/loadouts/:tournamentId', component: EquipmentLoadout },
       { path: 'tournaments/:id/schedule', component: MatchScheduler },
+      { path: 'matches/schedule', component: SchedulerHub },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

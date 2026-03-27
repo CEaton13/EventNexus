@@ -94,25 +94,49 @@ public class TournamentService {
      * Returns a page of tournaments as lightweight summary DTOs,
      * optionally filtered by status and/or game genre.
      *
+     * <p>When a tenant context is active (i.e. the request targets an org-scoped path),
+     * results are restricted to that organization. Without a tenant context (public
+     * endpoints such as {@code /api/tournaments}), all tournaments are returned.
+     * This explicit filter is necessary because the {@code public_read_tournaments}
+     * RLS policy uses {@code USING (true)}, which PostgreSQL OR-combines with the
+     * tenant isolation policy, making all rows visible to any session on SELECT.
+     *
      * @param pageable pagination and sort parameters
      * @param status   optional status filter; {@code null} means no filter
      * @param genreId  optional game genre ID filter; {@code null} means no filter
-     * @return a page of tournament summaries
+     * @return a page of tournament summaries scoped to the active org (or all orgs if public)
      */
     @Transactional(readOnly = true)
     public Page<TournamentSummaryResponse> findAll(Pageable pageable,
                                                     TournamentStatus status,
                                                     Long genreId) {
+        Long tenantId = TenantContext.getTenantId();
         Page<Tournament> page;
-        if (status != null && genreId != null) {
-            page = tournamentRepository.findByStatusAndGameGenreId(status, genreId, pageable);
-        } else if (status != null) {
-            page = tournamentRepository.findByStatus(status, pageable);
-        } else if (genreId != null) {
-            page = tournamentRepository.findByGameGenreId(genreId, pageable);
+
+        if (tenantId != null) {
+            // Org-scoped request — restrict to the active organization
+            if (status != null && genreId != null) {
+                page = tournamentRepository.findByOrganizationIdAndStatusAndGameGenreId(tenantId, status, genreId, pageable);
+            } else if (status != null) {
+                page = tournamentRepository.findByOrganizationIdAndStatus(tenantId, status, pageable);
+            } else if (genreId != null) {
+                page = tournamentRepository.findByOrganizationIdAndGameGenreId(tenantId, genreId, pageable);
+            } else {
+                page = tournamentRepository.findByOrganizationId(tenantId, pageable);
+            }
         } else {
-            page = tournamentRepository.findAll(pageable);
+            // Public request (no tenant context) — no org filter
+            if (status != null && genreId != null) {
+                page = tournamentRepository.findByStatusAndGameGenreId(status, genreId, pageable);
+            } else if (status != null) {
+                page = tournamentRepository.findByStatus(status, pageable);
+            } else if (genreId != null) {
+                page = tournamentRepository.findByGameGenreId(genreId, pageable);
+            } else {
+                page = tournamentRepository.findAll(pageable);
+            }
         }
+
         return page.map(TournamentSummaryResponse::from);
     }
 

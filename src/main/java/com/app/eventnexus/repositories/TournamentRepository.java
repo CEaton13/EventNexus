@@ -50,6 +50,28 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      */
     Page<Tournament> findByStatusAndGameGenreId(TournamentStatus status, Long gameGenreId, Pageable pageable);
 
+    // ─── Org-scoped variants ───────────────────────────────────────────────────
+
+    /**
+     * Returns a paginated list of all tournaments belonging to a specific organization.
+     */
+    Page<Tournament> findByOrganizationId(Long organizationId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization and status.
+     */
+    Page<Tournament> findByOrganizationIdAndStatus(Long organizationId, TournamentStatus status, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization and game genre.
+     */
+    Page<Tournament> findByOrganizationIdAndGameGenreId(Long organizationId, Long gameGenreId, Pageable pageable);
+
+    /**
+     * Returns a paginated list of tournaments filtered by organization, status, and game genre.
+     */
+    Page<Tournament> findByOrganizationIdAndStatusAndGameGenreId(Long organizationId, TournamentStatus status, Long gameGenreId, Pageable pageable);
+
     /**
      * Returns all tournaments associated with a specific game genre.
      *
