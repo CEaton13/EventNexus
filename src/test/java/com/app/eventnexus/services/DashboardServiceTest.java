@@ -6,6 +6,9 @@ import com.app.eventnexus.repositories.MatchRepository;
 import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.TeamRepository;
 import com.app.eventnexus.repositories.TournamentRepository;
+import com.app.eventnexus.tenant.TenantContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -23,6 +27,8 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class DashboardServiceTest {
+
+    private static final Long ORG_ID = 1L;
 
     @Mock private TournamentRepository tournamentRepository;
     @Mock private TeamRepository teamRepository;
@@ -32,19 +38,28 @@ class DashboardServiceTest {
     @InjectMocks
     private DashboardService dashboardService;
 
-    @Test
-    void getDashboardSummary_returnsAggregatedCounts() {
-        // Stub tournament counts per status
-        when(tournamentRepository.countByStatus(TournamentStatus.DRAFT)).thenReturn(2L);
-        when(tournamentRepository.countByStatus(TournamentStatus.REGISTRATION_OPEN)).thenReturn(1L);
-        when(tournamentRepository.countByStatus(TournamentStatus.REGISTRATION_CLOSED)).thenReturn(0L);
-        when(tournamentRepository.countByStatus(TournamentStatus.IN_PROGRESS)).thenReturn(3L);
-        when(tournamentRepository.countByStatus(TournamentStatus.COMPLETED)).thenReturn(5L);
-        when(tournamentRepository.countByStatus(TournamentStatus.ARCHIVED)).thenReturn(4L);
+    @BeforeEach
+    void setUp() {
+        TenantContext.setTenantId(ORG_ID);
+    }
 
-        when(teamRepository.count()).thenReturn(12L);
-        when(playerRepository.countByIsActive(true)).thenReturn(48L);
-        when(matchRepository.countUpcomingMatches(any(LocalDateTime.class), any(LocalDateTime.class)))
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
+    }
+
+    @Test
+    void getDashboardSummary_returnsOrgScopedCounts() {
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.DRAFT)).thenReturn(2L);
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.REGISTRATION_OPEN)).thenReturn(1L);
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.REGISTRATION_CLOSED)).thenReturn(0L);
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.IN_PROGRESS)).thenReturn(3L);
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.COMPLETED)).thenReturn(5L);
+        when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, TournamentStatus.ARCHIVED)).thenReturn(4L);
+
+        when(teamRepository.countByOrganizationId(ORG_ID)).thenReturn(12L);
+        when(playerRepository.countActiveByOrganizationId(ORG_ID)).thenReturn(48L);
+        when(matchRepository.countUpcomingMatchesByOrganizationId(eq(ORG_ID), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(7L);
 
         DashboardResponse result = dashboardService.getDashboardSummary();
@@ -60,13 +75,13 @@ class DashboardServiceTest {
     }
 
     @Test
-    void getDashboardSummary_returnsZeros_whenNothingExists() {
+    void getDashboardSummary_returnsZeros_whenOrgHasNoData() {
         for (TournamentStatus status : TournamentStatus.values()) {
-            when(tournamentRepository.countByStatus(status)).thenReturn(0L);
+            when(tournamentRepository.countByOrganizationIdAndStatus(ORG_ID, status)).thenReturn(0L);
         }
-        when(teamRepository.count()).thenReturn(0L);
-        when(playerRepository.countByIsActive(true)).thenReturn(0L);
-        when(matchRepository.countUpcomingMatches(any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(teamRepository.countByOrganizationId(ORG_ID)).thenReturn(0L);
+        when(playerRepository.countActiveByOrganizationId(ORG_ID)).thenReturn(0L);
+        when(matchRepository.countUpcomingMatchesByOrganizationId(eq(ORG_ID), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(0L);
 
         DashboardResponse result = dashboardService.getDashboardSummary();

@@ -2,6 +2,8 @@ package com.app.eventnexus.repositories;
 
 import com.app.eventnexus.models.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,4 +39,22 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
      * @return an Optional containing the player if found with that status
      */
     Optional<Player> findByIdAndIsActive(Long id, boolean isActive);
+
+    /**
+     * Counts distinct active players whose team has participated in at least one
+     * tournament belonging to the given organization.
+     *
+     * @param orgId the organization's primary key
+     * @return count of distinct active players in the org's tournaments
+     */
+    @Query(value = """
+            SELECT COUNT(DISTINCT p.id)
+            FROM players p
+            JOIN teams t             ON t.id = p.team_id
+            JOIN tournament_teams tt ON tt.team_id = t.id
+            JOIN tournaments tour    ON tour.id = tt.tournament_id
+            WHERE tour.organization_id = :orgId
+              AND p.is_active = true
+            """, nativeQuery = true)
+    Long countActiveByOrganizationId(@Param("orgId") Long orgId);
 }

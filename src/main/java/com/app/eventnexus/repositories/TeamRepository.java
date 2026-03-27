@@ -41,4 +41,20 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     @Query(value = "SELECT COUNT(*) FROM players WHERE team_id = :teamId AND is_active = true",
            nativeQuery = true)
     Long countActivePlayersByTeamId(@Param("teamId") Long teamId);
+
+    /**
+     * Counts distinct teams that have participated in at least one tournament
+     * belonging to the given organization.
+     *
+     * @param orgId the organization's primary key
+     * @return count of distinct teams registered in any of the org's tournaments
+     */
+    @Query(value = """
+            SELECT COUNT(DISTINCT t.id)
+            FROM teams t
+            JOIN tournament_teams tt ON tt.team_id = t.id
+            JOIN tournaments tour    ON tour.id = tt.tournament_id
+            WHERE tour.organization_id = :orgId
+            """, nativeQuery = true)
+    Long countByOrganizationId(@Param("orgId") Long orgId);
 }

@@ -50,6 +50,28 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     Long countUpcomingMatches(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     /**
+     * Counts upcoming scheduled matches for tournaments belonging to the given
+     * organization, within the specified time window.
+     *
+     * @param orgId the organization's primary key
+     * @param from  start of the window (inclusive)
+     * @param to    end of the window (exclusive)
+     * @return count of upcoming matches in the window for that org
+     */
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM matches m
+            JOIN tournaments t ON t.id = m.tournament_id
+            WHERE t.organization_id = :orgId
+              AND m.scheduled_time >= :from
+              AND m.scheduled_time < :to
+              AND m.status NOT IN ('COMPLETED', 'BYE')
+            """, nativeQuery = true)
+    Long countUpcomingMatchesByOrganizationId(@Param("orgId") Long orgId,
+                                              @Param("from") LocalDateTime from,
+                                              @Param("to") LocalDateTime to);
+
+    /**
      * Counts matches that would create a team scheduling conflict.
      * A conflict exists when either team is already in a match whose window
      * {@code [scheduled_time, scheduled_time + 2h]} overlaps the proposed window.

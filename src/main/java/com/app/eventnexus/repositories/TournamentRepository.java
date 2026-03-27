@@ -90,6 +90,16 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     Long countByStatus(TournamentStatus status);
 
     /**
+     * Counts tournaments for a specific organization in a given lifecycle status.
+     * Used by the tenant-scoped admin dashboard.
+     *
+     * @param organizationId the organization's primary key
+     * @param status         the status to count
+     * @return number of tournaments with that status for the org
+     */
+    Long countByOrganizationIdAndStatus(Long organizationId, TournamentStatus status);
+
+    /**
      * Queries the {@code tournament_standings} view for a given tournament,
      * returning one row per approved team ordered by rank ascending.
      *
