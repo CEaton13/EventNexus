@@ -13,6 +13,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 
 import { TournamentsRoutingModule } from './tournaments-routing-module';
 import { TournamentList } from './tournament-list/tournament-list';
@@ -37,6 +40,9 @@ import { SharedModule } from '../../shared/shared-module';
     MatListModule,
     MatDividerModule,
     MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatInputModule,
     TournamentsRoutingModule,
   ],
 })

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,31 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
      * @return list of tournaments for that genre; never null
      */
     List<Tournament> findByGameGenreId(Long genreId);
+
+    /**
+     * Flexible filtered query supporting all combinations of org scope, status,
+     * genre, and start-date lower bound. {@code null} parameters are ignored.
+     *
+     * @param organizationId optional org scope; {@code null} = all orgs
+     * @param status         optional status filter
+     * @param genreId        optional genre filter
+     * @param startAfter     optional lower bound (inclusive) on tournament start date
+     * @param pageable       pagination and sort
+     * @return matching page of tournaments
+     */
+    @Query("""
+            SELECT t FROM Tournament t
+            WHERE (:organizationId IS NULL OR t.organization.id = :organizationId)
+              AND (:status        IS NULL OR t.status          = :status)
+              AND (:genreId       IS NULL OR t.gameGenre.id    = :genreId)
+              AND (:startAfter    IS NULL OR t.startDate       >= :startAfter)
+            """)
+    Page<Tournament> findAllFiltered(
+            @Param("organizationId") Long organizationId,
+            @Param("status")         TournamentStatus status,
+            @Param("genreId")        Long genreId,
+            @Param("startAfter")     LocalDateTime startAfter,
+            Pageable pageable);
 
     /**
      * Counts tournaments in a given lifecycle status.

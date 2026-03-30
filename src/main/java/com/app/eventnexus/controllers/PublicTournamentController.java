@@ -12,12 +12,15 @@ import com.app.eventnexus.services.TournamentService;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -59,8 +62,10 @@ public class PublicTournamentController {
             @PageableDefault(size = 20, sort = "startDate", direction = Sort.Direction.DESC)
             Pageable pageable,
             @RequestParam(required = false) TournamentStatus status,
-            @RequestParam(required = false) Long genreId) {
-        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable, status, genreId)));
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime startAfter) {
+        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable, status, genreId, startAfter)));
     }
 
     /**

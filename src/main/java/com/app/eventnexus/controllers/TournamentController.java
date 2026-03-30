@@ -28,10 +28,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -66,8 +68,10 @@ public class TournamentController {
             @PageableDefault(size = 20, sort = "startDate", direction = Sort.Direction.DESC)
             Pageable pageable,
             @RequestParam(required = false) TournamentStatus status,
-            @RequestParam(required = false) Long genreId) {
-        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable, status, genreId)));
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime startAfter) {
+        return ResponseEntity.ok(PageResponse.from(tournamentService.findAll(pageable, status, genreId, startAfter)));
     }
 
     /**

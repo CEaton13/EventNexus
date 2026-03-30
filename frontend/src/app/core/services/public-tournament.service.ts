@@ -39,10 +39,12 @@ export class PublicTournamentService {
     size = 20,
     status?: string,
     genreId?: number,
+    startAfter?: string,
   ): Observable<PageResponse<TournamentSummary>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (status) params = params.set('status', status);
     if (genreId) params = params.set('genreId', genreId);
+    if (startAfter) params = params.set('startAfter', startAfter);
     return this.http.get<PageResponse<TournamentSummary>>(this.base, { params });
   }
 

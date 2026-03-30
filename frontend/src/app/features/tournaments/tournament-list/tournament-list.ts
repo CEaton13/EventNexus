@@ -33,6 +33,7 @@ export class TournamentList implements OnInit {
   readonly pageSize = 20;
   selectedStatus = '';
   selectedGenreId: number | undefined;
+  selectedStartAfter: Date | null = null;
 
   readonly statusOptions = [
     { value: '', label: 'All Statuses' },
@@ -108,18 +109,24 @@ export class TournamentList implements OnInit {
       return;
     }
 
+    const startAfterIso = this.selectedStartAfter
+      ? this.selectedStartAfter.toISOString().replace('Z', '')
+      : undefined;
+
     const obs = this.isPublicContext
       ? this.publicTournamentService.getAll(
           this.page,
           this.pageSize,
           this.selectedStatus || undefined,
           this.selectedGenreId,
+          startAfterIso,
         )
       : this.tournamentService.getAll(
           this.page,
           this.pageSize,
           this.selectedStatus || undefined,
           this.selectedGenreId,
+          startAfterIso,
         );
 
     obs.subscribe({
@@ -136,7 +143,8 @@ export class TournamentList implements OnInit {
     const filtered = this.managerTournaments.filter((t) => {
       const statusMatch = !this.selectedStatus || t.status === this.selectedStatus;
       const genreMatch = !this.selectedGenreId || t.gameGenreId === this.selectedGenreId;
-      return statusMatch && genreMatch;
+      const dateMatch = !this.selectedStartAfter || new Date(t.startDate) >= this.selectedStartAfter;
+      return statusMatch && genreMatch && dateMatch;
     });
     this.tournaments.set(filtered);
     this.totalElements.set(filtered.length);
@@ -150,6 +158,12 @@ export class TournamentList implements OnInit {
 
   onGenreChange(genreId: number | undefined): void {
     this.selectedGenreId = genreId;
+    this.page = 0;
+    this.load();
+  }
+
+  onStartAfterChange(date: Date | null): void {
+    this.selectedStartAfter = date;
     this.page = 0;
     this.load();
   }

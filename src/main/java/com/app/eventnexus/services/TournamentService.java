@@ -110,35 +110,12 @@ public class TournamentService {
     @Transactional(readOnly = true)
     public Page<TournamentSummaryResponse> findAll(Pageable pageable,
                                                     TournamentStatus status,
-                                                    Long genreId) {
+                                                    Long genreId,
+                                                    LocalDateTime startAfter) {
         Long tenantId = TenantContext.getTenantId();
-        Page<Tournament> page;
-
-        if (tenantId != null) {
-            // Org-scoped request — restrict to the active organization
-            if (status != null && genreId != null) {
-                page = tournamentRepository.findByOrganizationIdAndStatusAndGameGenreId(tenantId, status, genreId, pageable);
-            } else if (status != null) {
-                page = tournamentRepository.findByOrganizationIdAndStatus(tenantId, status, pageable);
-            } else if (genreId != null) {
-                page = tournamentRepository.findByOrganizationIdAndGameGenreId(tenantId, genreId, pageable);
-            } else {
-                page = tournamentRepository.findByOrganizationId(tenantId, pageable);
-            }
-        } else {
-            // Public request (no tenant context) — no org filter
-            if (status != null && genreId != null) {
-                page = tournamentRepository.findByStatusAndGameGenreId(status, genreId, pageable);
-            } else if (status != null) {
-                page = tournamentRepository.findByStatus(status, pageable);
-            } else if (genreId != null) {
-                page = tournamentRepository.findByGameGenreId(genreId, pageable);
-            } else {
-                page = tournamentRepository.findAll(pageable);
-            }
-        }
-
-        return page.map(TournamentSummaryResponse::from);
+        return tournamentRepository
+                .findAllFiltered(tenantId, status, genreId, startAfter, pageable)
+                .map(TournamentSummaryResponse::from);
     }
 
     /**

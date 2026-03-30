@@ -21,6 +21,22 @@
           }
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Starts After</mat-label>
+        <input matInput [matDatepicker]="startPicker"
+               [value]="selectedStartAfter"
+               (dateChange)="onStartAfterChange($event.value)"
+               placeholder="Any date">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+        @if (selectedStartAfter) {
+          <button matIconSuffix mat-icon-button aria-label="Clear date"
+                  (click)="onStartAfterChange(null); $event.stopPropagation()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
     </div>
   </div>
 
