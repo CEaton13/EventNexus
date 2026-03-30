@@ -6,12 +6,15 @@ import com.app.eventnexus.dtos.responses.PlayerStatsResponse;
 import com.app.eventnexus.enums.UserRole;
 import com.app.eventnexus.exceptions.ResourceNotFoundException;
 import com.app.eventnexus.exceptions.UnauthorizedAccessException;
+import com.app.eventnexus.exceptions.ConflictException;
 import com.app.eventnexus.models.Player;
 import com.app.eventnexus.models.PlayerStats;
 import com.app.eventnexus.models.Team;
+import com.app.eventnexus.models.User;
 import com.app.eventnexus.repositories.PlayerRepository;
 import com.app.eventnexus.repositories.PlayerStatsRepository;
 import com.app.eventnexus.repositories.TeamRepository;
+import com.app.eventnexus.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,13 +41,16 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final PlayerStatsRepository playerStatsRepository;
     private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
 
     public PlayerService(PlayerRepository playerRepository,
                          PlayerStatsRepository playerStatsRepository,
-                         TeamRepository teamRepository) {
+                         TeamRepository teamRepository,
+                         UserRepository userRepository) {
         this.playerRepository = playerRepository;
         this.playerStatsRepository = playerStatsRepository;
         this.teamRepository = teamRepository;
+        this.userRepository = userRepository;
     }
 
     // ─── Read ──────────────────────────────────────────────────────────────────
@@ -223,6 +229,61 @@ public class PlayerService {
         }
         stats.setUpdatedAt(LocalDateTime.now());
         playerStatsRepository.save(stats);
+    }
+
+    // ─── Profile linking ───────────────────────────────────────────────────────
+
+    /**
+     * Links a user account to a player profile so the user can claim it as their own.
+     * The caller must be the team's manager or a {@code TOURNAMENT_ADMIN}.
+     * A player may only be linked to one user at a time; linking again overwrites
+     * the previous link.
+     *
+     * @param playerId      the player's primary key
+     * @param targetUserId  the user to link to the player
+     * @param requesterId   ID of the authenticated caller
+     * @param requesterRole role of the authenticated caller
+     * @return the updated player as a response DTO
+     * @throws ResourceNotFoundException   if the player or target user does not exist
+     * @throws UnauthorizedAccessException if the caller is not authorized
+     */
+    @Transactional
+    public PlayerResponse linkUser(Long playerId, Long targetUserId,
+                                   Long requesterId, UserRole requesterRole) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Player", playerId));
+
+        verifyTeamOwnership(player.getTeam(), requesterId, requesterRole);
+
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", targetUserId));
+
+        player.setUser(user);
+        player.setUpdatedAt(LocalDateTime.now());
+        return PlayerResponse.from(playerRepository.save(player));
+    }
+
+    /**
+     * Removes the user-account link from a player profile.
+     * The caller must be the team's manager or a {@code TOURNAMENT_ADMIN}.
+     *
+     * @param playerId      the player's primary key
+     * @param requesterId   ID of the authenticated caller
+     * @param requesterRole role of the authenticated caller
+     * @return the updated player as a response DTO
+     * @throws ResourceNotFoundException   if the player does not exist
+     * @throws UnauthorizedAccessException if the caller is not authorized
+     */
+    @Transactional
+    public PlayerResponse unlinkUser(Long playerId, Long requesterId, UserRole requesterRole) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Player", playerId));
+
+        verifyTeamOwnership(player.getTeam(), requesterId, requesterRole);
+
+        player.setUser(null);
+        player.setUpdatedAt(LocalDateTime.now());
+        return PlayerResponse.from(playerRepository.save(player));
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────

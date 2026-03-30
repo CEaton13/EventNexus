@@ -8,6 +8,7 @@ export interface PlayerResponse {
   country: string | null;
   avatarUrl: string | null;
   active: boolean;
+  userId: number | null;
   createdAt: string;
   updatedAt: string;
 }

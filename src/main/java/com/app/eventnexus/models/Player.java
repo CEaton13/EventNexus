@@ -32,6 +32,10 @@ public class Player {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "gamer_tag", nullable = false, length = 100)
     private String gamerTag;
 
@@ -81,6 +85,9 @@ public class Player {
 
     public Team getTeam() { return team; }
     public void setTeam(Team team) { this.team = team; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public String getGamerTag() { return gamerTag; }
     public void setGamerTag(String gamerTag) { this.gamerTag = gamerTag; }

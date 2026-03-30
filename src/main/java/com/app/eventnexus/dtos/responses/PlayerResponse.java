@@ -20,6 +20,7 @@ public class PlayerResponse {
     private String country;
     private String avatarUrl;
     private boolean active;
+    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -42,6 +43,7 @@ public class PlayerResponse {
         dto.country = player.getCountry();
         dto.avatarUrl = player.getAvatarUrl();
         dto.active = player.isActive();
+        dto.userId = player.getUser() != null ? player.getUser().getId() : null;
         dto.createdAt = player.getCreatedAt();
         dto.updatedAt = player.getUpdatedAt();
         return dto;
@@ -80,6 +82,9 @@ public class PlayerResponse {
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
