@@ -19,15 +19,26 @@
         <mat-chip highlighted color="primary">{{ t.status }}</mat-chip>
       </div>
 
-      @if (authService.isAdmin()) {
-        <div class="admin-controls">
-          @if (nextStatus()) {
-            <button mat-raised-button color="primary" (click)="advanceStatus()">
-              Advance → {{ nextStatus() }}
-            </button>
-          }
-        </div>
-      }
+      <div class="header-actions">
+        @if (authService.isAuthenticated()) {
+          <button mat-icon-button
+                  [color]="favorited() ? 'accent' : ''"
+                  [disabled]="favoriteLoading()"
+                  [attr.aria-label]="favorited() ? 'Remove from favorites' : 'Add to favorites'"
+                  (click)="toggleFavorite()">
+            <mat-icon>{{ favorited() ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+        }
+        @if (authService.isAdmin()) {
+          <div class="admin-controls">
+            @if (nextStatus()) {
+              <button mat-raised-button color="primary" (click)="advanceStatus()">
+                Advance → {{ nextStatus() }}
+              </button>
+            }
+          </div>
+        }
+      </div>
     </div>
 
     <!-- Meta -->

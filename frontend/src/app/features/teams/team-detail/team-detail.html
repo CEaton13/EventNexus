@@ -13,14 +13,23 @@
         <h1>{{ t.name }} <span class="tag">{{ t.tag }}</span></h1>
         <p class="meta">Manager: {{ t.managerUsername }} &bull; {{ t.homeRegion ?? 'No region' }}</p>
       </div>
-      @if (canEdit()) {
-        <div class="actions">
+      <div class="actions">
+        @if (authService.isAuthenticated()) {
+          <button mat-icon-button
+                  [color]="following() ? 'accent' : ''"
+                  [disabled]="followLoading()"
+                  [attr.aria-label]="following() ? 'Unfollow team' : 'Follow team'"
+                  (click)="toggleFollow()">
+            <mat-icon>{{ following() ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+        }
+        @if (canEdit()) {
           <button mat-stroked-button (click)="editTeam()">Edit</button>
           @if (authService.isAdmin()) {
             <button mat-stroked-button color="warn" (click)="deleteTeam()">Delete</button>
           }
-        </div>
-      }
+        }
+      </div>
     </div>
 
     <mat-card>

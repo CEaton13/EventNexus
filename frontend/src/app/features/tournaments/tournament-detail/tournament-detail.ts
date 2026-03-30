@@ -5,6 +5,7 @@ import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm
 import { MatchDetailDialog } from '../../tournament-hub/match-detail-dialog/match-detail-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService } from '../../../core/services/tournament.service';
+import { TournamentFavoriteService } from '../../../core/services/tournament-favorite.service';
 import { MatchService } from '../../../core/services/match.service';
 import { VenueService } from '../../../core/services/venue.service';
 import { ThemeService } from '../../../core/services/theme';
@@ -36,6 +37,8 @@ export class TournamentDetail implements OnInit, OnDestroy {
   readonly registrations = signal<RegistrationResponse[]>([]);
   readonly venues = signal<VenueResponse[]>([]);
   readonly loading = signal(false);
+  readonly favorited = signal(false);
+  readonly favoriteLoading = signal(false);
 
   // Match scheduling form state
   scheduleMatchId: number | null = null;
@@ -60,6 +63,7 @@ export class TournamentDetail implements OnInit, OnDestroy {
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
     readonly tournamentService: TournamentService,
+    private readonly tournamentFavoriteService: TournamentFavoriteService,
     private readonly matchService: MatchService,
     private readonly venueService: VenueService,
     private readonly themeService: ThemeService,
@@ -70,6 +74,9 @@ export class TournamentDetail implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tournamentId = Number(this.route.snapshot.paramMap.get('id'));
     this.load();
+    if (this.authService.isAuthenticated()) {
+      this.loadFavoriteStatus();
+    }
     if (this.authService.isAdmin()) {
       this.venueService.getAll().subscribe((v) => this.venues.set(v));
     }
@@ -98,6 +105,33 @@ export class TournamentDetail implements OnInit, OnDestroy {
     this.tournamentService
       .getRegisteredTeams(this.tournamentId)
       .subscribe((r) => this.registrations.set(r));
+  }
+
+  private loadFavoriteStatus(): void {
+    this.tournamentFavoriteService.isFavorited(this.tournamentId).subscribe({
+      next: ({ favorited }) => this.favorited.set(favorited),
+    });
+  }
+
+  toggleFavorite(): void {
+    if (this.favoriteLoading()) return;
+    this.favoriteLoading.set(true);
+    const action = this.favorited()
+      ? this.tournamentFavoriteService.unfavorite(this.tournamentId)
+      : this.tournamentFavoriteService.favorite(this.tournamentId);
+
+    action.subscribe({
+      next: () => {
+        this.favorited.set(!this.favorited());
+        this.favoriteLoading.set(false);
+        this.snackBar.open(
+          this.favorited() ? 'Added to favorites' : 'Removed from favorites',
+          'OK',
+          { duration: 2000 },
+        );
+      },
+      error: () => this.favoriteLoading.set(false),
+    });
   }
 
   advanceStatus(): void {

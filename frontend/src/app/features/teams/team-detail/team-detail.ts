@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TeamService } from '../../../core/services/team.service';
+import { TeamFollowService } from '../../../core/services/team-follow.service';
 import { AuthService } from '../../../core/services/auth';
 import { TenantService } from '../../../core/services/tenant.service';
 import { TeamResponse } from '../../../shared/models/team.model';
@@ -22,6 +23,8 @@ export class TeamDetail implements OnInit {
   readonly team = signal<TeamResponse | null>(null);
   readonly players = signal<PlayerResponse[]>([]);
   readonly loading = signal(false);
+  readonly following = signal(false);
+  readonly followLoading = signal(false);
 
   private teamId!: number;
 
@@ -31,6 +34,7 @@ export class TeamDetail implements OnInit {
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
     private readonly teamService: TeamService,
+    private readonly teamFollowService: TeamFollowService,
     readonly authService: AuthService,
     private readonly tenantService: TenantService,
   ) {}
@@ -38,6 +42,9 @@ export class TeamDetail implements OnInit {
   ngOnInit(): void {
     this.teamId = Number(this.route.snapshot.paramMap.get('id'));
     this.load();
+    if (this.authService.isAuthenticated()) {
+      this.loadFollowStatus();
+    }
   }
 
   load(): void {
@@ -50,6 +57,33 @@ export class TeamDetail implements OnInit {
       error: () => this.loading.set(false),
     });
     this.teamService.getPlayers(this.teamId).subscribe(p => this.players.set(p));
+  }
+
+  private loadFollowStatus(): void {
+    this.teamFollowService.isFollowing(this.teamId).subscribe({
+      next: ({ following }) => this.following.set(following),
+    });
+  }
+
+  toggleFollow(): void {
+    if (this.followLoading()) return;
+    this.followLoading.set(true);
+    const action = this.following()
+      ? this.teamFollowService.unfollow(this.teamId)
+      : this.teamFollowService.follow(this.teamId);
+
+    action.subscribe({
+      next: () => {
+        this.following.set(!this.following());
+        this.followLoading.set(false);
+        this.snackBar.open(
+          this.following() ? 'Following team' : 'Unfollowed team',
+          'OK',
+          { duration: 2000 },
+        );
+      },
+      error: () => this.followLoading.set(false),
+    });
   }
 
   /** True when the current user manages this team or is an admin. */
