@@ -1,0 +1,93 @@
+.page-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+  color: var(--mat-sys-on-surface-variant, rgba(255,255,255,0.6));
+  margin-bottom: 1.5rem;
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.error-card,
+.empty-card {
+  text-align: center;
+  padding: 2rem;
+
+  mat-icon {
+    font-size: 3rem;
+    height: 3rem;
+    width: 3rem;
+    opacity: 0.5;
+    display: block;
+    margin: 0 auto 0.75rem;
+  }
+}
+
+.registrations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.registration-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  gap: 1rem;
+}
+
+.tournament-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tournament-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.game-title {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.meta-row {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.team-tag,
+.start-date {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}

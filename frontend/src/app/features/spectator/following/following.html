@@ -1,0 +1,40 @@
+<div class="page-container">
+  <h1 class="page-title">Following</h1>
+  <p class="page-subtitle">Teams you're following.</p>
+
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>{{ error() }}</mat-card-content>
+    </mat-card>
+  } @else if (follows().length === 0) {
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <mat-icon>favorite_border</mat-icon>
+        <p>You're not following any teams yet. Visit a team's page to follow them.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="follows-list">
+      @for (follow of follows(); track follow.id) {
+        <mat-card class="follow-card" (click)="goToTeam(follow.teamId)">
+          <mat-card-content>
+            <div class="card-row">
+              <div class="team-info">
+                <span class="team-name">{{ follow.teamName }}</span>
+                <span class="team-tag">[{{ follow.teamTag }}]</span>
+              </div>
+              <button mat-icon-button color="warn" aria-label="Unfollow team"
+                (click)="unfollow($event, follow.teamId)">
+                <mat-icon>favorite</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

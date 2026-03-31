@@ -35,6 +35,14 @@ const routes: Routes = [
     path: 'teams',
     loadChildren: () => import('./features/teams/teams-module').then((m) => m.TeamsModule),
   },
+  // Authenticated user hub — /me — requires login, no org context needed.
+  // Must appear before :orgSlug to prevent Angular treating 'me' as a slug.
+  {
+    path: 'me',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/spectator/spectator-module').then((m) => m.SpectatorModule),
+  },
   // Org creation — TOURNAMENT_ADMIN only, accessed from landing CTA when user has no org.
   {
     path: 'org',

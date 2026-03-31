@@ -1,0 +1,49 @@
+<div class="page-container">
+  <h1 class="page-title">My Tournaments</h1>
+  <p class="page-subtitle">Tournaments you're watching.</p>
+
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>{{ error() }}</mat-card-content>
+    </mat-card>
+  } @else if (favorites().length === 0) {
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <mat-icon>star_border</mat-icon>
+        <p>No favorites yet. Star a tournament to add it to your watchlist.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="favorites-list">
+      @for (fav of favorites(); track fav.id) {
+        <mat-card class="favorite-card" (click)="goToTournament(fav.tournamentId)">
+          <mat-card-content>
+            <div class="card-row">
+              <div class="tournament-info">
+                <span class="tournament-name">{{ fav.tournamentName }}</span>
+                <span class="game-title">{{ fav.gameTitle }}</span>
+              </div>
+              <div class="card-actions">
+                <mat-chip>{{ fav.status }}</mat-chip>
+                <button mat-icon-button color="warn" aria-label="Remove from favorites"
+                  (click)="removeFavorite($event, fav.tournamentId)">
+                  <mat-icon>star</mat-icon>
+                </button>
+              </div>
+            </div>
+            @if (fav.startDate) {
+              <div class="start-date">
+                <mat-icon inline>event</mat-icon>
+                {{ fav.startDate | date:'mediumDate' }}
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

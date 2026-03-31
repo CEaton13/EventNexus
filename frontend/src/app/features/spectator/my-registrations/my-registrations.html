@@ -1,0 +1,55 @@
+<div class="page-container">
+  <h1 class="page-title">My Registrations</h1>
+  <p class="page-subtitle">Tournament registrations across all teams you manage.</p>
+
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>{{ error() }}</mat-card-content>
+    </mat-card>
+  } @else if (registrations().length === 0) {
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <mat-icon>sports_esports</mat-icon>
+        <p>No registrations yet. Register a team in a tournament to see it here.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="registrations-list">
+      @for (reg of registrations(); track reg.tournamentId + '-' + reg.teamId) {
+        <mat-card class="registration-card" (click)="goToTournament(reg.tournamentId)">
+          <mat-card-content>
+            <div class="card-row">
+              <div class="tournament-info">
+                <span class="tournament-name">{{ reg.tournamentName }}</span>
+                <span class="game-title">{{ reg.gameTitle }}</span>
+              </div>
+              <div class="badges">
+                <mat-chip [color]="statusColor(reg.registrationStatus)" highlighted>
+                  {{ reg.registrationStatus }}
+                </mat-chip>
+                <mat-chip>{{ reg.tournamentStatus }}</mat-chip>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="card-row meta-row">
+              <span class="team-tag">
+                <mat-icon inline>group</mat-icon>
+                [{{ reg.teamTag }}] {{ reg.teamName }}
+              </span>
+              @if (reg.startDate) {
+                <span class="start-date">
+                  <mat-icon inline>event</mat-icon>
+                  {{ reg.startDate | date:'mediumDate' }}
+                </span>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

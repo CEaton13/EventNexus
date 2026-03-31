@@ -54,6 +54,16 @@
         <span class="user-role">{{ authService.user()?.role | titlecase }}</span>
       </div>
       <mat-divider></mat-divider>
+      <a mat-menu-item routerLink="/me/registrations">
+        <mat-icon>assignment</mat-icon> My Registrations
+      </a>
+      <a mat-menu-item routerLink="/me/tournaments">
+        <mat-icon>star</mat-icon> My Tournaments
+      </a>
+      <a mat-menu-item routerLink="/me/following">
+        <mat-icon>favorite</mat-icon> Following
+      </a>
+      <mat-divider></mat-divider>
       @if (authService.isAdmin() && !hasOrg()) {
         <a mat-menu-item routerLink="/org/create">
           <mat-icon>add_business</mat-icon> Create Organization
