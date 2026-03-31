@@ -45,6 +45,22 @@ public interface TournamentTeamRepository extends JpaRepository<TournamentTeam, 
     Optional<TournamentTeam> findByTournamentIdAndTeamId(Long tournamentId, Long teamId);
 
     /**
+     * Returns all tournament registrations for teams managed by a specific user.
+     * Eagerly fetches tournament, team, and game genre to avoid N+1 queries.
+     * Used by the "My Registrations" endpoint.
+     *
+     * @param managerId the team manager's user ID
+     * @return list of registrations across all managed teams; empty if none
+     */
+    @Query("SELECT tt FROM TournamentTeam tt " +
+           "JOIN FETCH tt.tournament t " +
+           "JOIN FETCH t.gameGenre " +
+           "JOIN FETCH tt.team tm " +
+           "WHERE tm.teamManager.id = :managerId " +
+           "ORDER BY t.startDate DESC")
+    List<TournamentTeam> findByTeamManagerId(@Param("managerId") Long managerId);
+
+    /**
      * Returns all APPROVED registrations for a tournament ordered by seed ascending,
      * with null seeds placed last.
      * Used by {@code BracketService} to determine round-1 team seeding.
